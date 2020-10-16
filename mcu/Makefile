@@ -15,7 +15,7 @@ CFLAGS      := \
 	-O3 \
 	-MMD \
 	-MP \
-	-std=c99 \
+	-std=gnu99 \
 	$(addprefix -I,$(INC)) \
 	-mmcu=$(MCU_GCC) \
 	-Wall \
@@ -23,7 +23,7 @@ CFLAGS      := \
 	-Werror \
 	-pedantic
 
-SRCS := $(shell find $(SRC_DIRS) -name *.c)
+SRCS := $(shell find $(SRC_DIRS) -name "*.c" -o -name "*.S")
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
@@ -33,13 +33,18 @@ all: $(BUILD_DIR)/$(TARGET_ELF)
 
 flash: $(BUILD_DIR)/$(TARGET_ELF)
 	avr-objcopy -O ihex $(BUILD_DIR)/$(TARGET_ELF) $(BUILD_DIR)/$(PROJ).hex
-	avrdude -v -p $(MCU_AVRDUDE) -c arduino -P $(USB_DEVICE) -b 57600 -D -U flash:w:$(BUILD_DIR)/$(PROJ).hex:i
+	avrdude -v -p $(MCU_AVRDUDE) -c arduino -P $(USB_DEVICE) -b 115200 -D -U flash:w:$(BUILD_DIR)/$(PROJ).hex:i
 
 $(BUILD_DIR)/$(TARGET_ELF): $(OBJS)
 	@$(CC) -mmcu=$(MCU_GCC) $(OBJS) -o $@ $(LDFLAGS)
 	@echo Done. Placed elf at $(BUILD_DIR)/$(TARGET_ELF)
 
 $(BUILD_DIR)/%.c.o: %.c
+	@mkdir -p $(dir $@)
+	@echo Compiling $<
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.S.o: %.S
 	@mkdir -p $(dir $@)
 	@echo Compiling $<
 	@$(CC) $(CFLAGS) -c $< -o $@

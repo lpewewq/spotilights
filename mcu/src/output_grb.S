@@ -19,8 +19,6 @@
 output_grb:
     movw   r26, r24           ; r26:27 = X = Pointer to color data
     movw   r24, r22           ; r24:25 = Counter of bytes to read
-    in     r22, SREG          ; Save SREG (global int state)
-    cli                       ; No interrupts from here on, we're cycle-counting
     in     r20, PORTB
     ori    r20, (1<<LED_PIN)  ; Our high output
     in     r21, PORTB
@@ -83,7 +81,6 @@ bit8:
 
     sbiw   r24, 1        ; 2   +12 dec byte counter
     brne   loop1         ; 2/1 +13 Loop back after 12 cycles (14 cycles total then) or end
-    out    SREG, r22     ; Restore global interrupt flag
     ret                  ; Return from procedure
 L2:
     nop                  ; 1   +8
@@ -93,14 +90,11 @@ L2:
     nop                  ; 1   +12
     nop                  ; 1   +13
     out    PORTB, r21    ; 1   +0  End high after 13 cycles and begin low for 7 cycles
-    nop                  ; 1   +1
-    nop                  ; 1   +2
+    sbiw   r24, 1        ; 2   +2  dec byte counter
     brne   gotoLoop1     ; 2/1 +3  Loop back after 2 cycles (7 cycles total then) or end
     nop                  ; 1   +4
     nop                  ; 1   +5
     nop                  ; 1   +6
-    nop                  ; 1   +7
-    out    SREG, r22     ; Restore global interrupt flag
-    ret
+    ret                  ; 1
 gotoLoop1:
     jmp    loop1         ; 3   +7

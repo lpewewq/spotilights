@@ -4,40 +4,45 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-
+#include <math.h>
 #include <util/delay.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
-#define NUM_LEDS  180
+#define NUM_LEDS 180
+#define BUFFER_SIZE (NUM_LEDS*3)
 
 #define LED_DDR  DDRB
 #define LED_PORT PORTB
 #define LED_PIN  2
 
-typedef struct
+#define HEADER_BYTE 42
+#define HEADER_SIZE  5
+
+extern void output_grb(uint8_t *buffer, uint16_t bytes);
+
+uint8_t colors[BUFFER_SIZE];
+
+void LEDs_show()
 {
-    uint8_t g; // Must be in this order
-    uint8_t r;
-    uint8_t b;
-} __attribute__((packed)) Color;
+    output_grb(colors, BUFFER_SIZE);
+    LED_PORT &= ~(1 << LED_PIN);
+    _delay_us(60);
+}
 
-extern void output_grb(Color *color, uint16_t n);
-
-Color colors[NUM_LEDS];
-
-void debug()
+void LEDs_init()
 {
-    colors[NUM_LEDS - 1] = (Color){ .g = 255, .r = 0, .b = 0 };
+    LED_DDR  |= (1 << LED_PIN);
+    LED_PORT &= ~(1 << LED_PIN);
 }
 
 void uart_init()
 {
-    // Baud rate: 9600 bps
-    UBRR0L = (uint8_t)(103 & 0xFF);
-    UBRR0H = (uint8_t)(103 >> 8);
-    // Enable the receiver, we will never send
-    UCSR0B |= (1 << RXEN0) | (0 << TXEN0);
+    // Baud rate: 500000 bps
+    UBRR0H = (uint8_t)(3 >> 8);
+    UBRR0L = (uint8_t)(3 & 0xFF);
+    UCSR0A = (1 << U2X0);                  // Double speed
+    UCSR0B = (1 << RXEN0) | (0 << TXEN0);  // Enable the receiver, disable transmitter
+    UCSR0C = (1 << USBS0) | (3 << UCSZ00); // 2 stop bits, 8 bit data
 }
 
 uint8_t uart_recv()
@@ -48,34 +53,39 @@ uint8_t uart_recv()
     return UDR0;
 }
 
-ISR (TIMER0_OVF_vect)
-{
-    output_grb(colors, NUM_LEDS * 3);
-    LED_PORT &= ~(1 << LED_PIN);
-    _delay_us(100);
-}
-
 int main()
 {
-    LED_DDR  |= (1 << LED_PIN);
-    LED_PORT &= ~(1 << LED_PIN);
-
-    TCCR0B = (1 << CS02) | (0 << CS01) | (1 << CS00);
-    TIMSK0 |= (1 << TOIE0);
-    sei();
-
+    LEDs_init();
     uart_init();
+    LEDs_show();
 
-    for (size_t i = 0; i < NUM_LEDS; i++)
-    {
-        colors[i] = (Color){ .r = 255, .g = 0, .b = 0 };
-    }
-
-    size_t curr_index = 0;
+    int header_count = 0;
+    int curr_index   = 0;
     while (true)
     {
-        colors[curr_index] = (Color){ .g = 0, .r = uart_recv(), .b = uart_recv() };
-        curr_index = (curr_index + 1) % NUM_LEDS;
+        uint8_t data = uart_recv();
+        if (header_count < HEADER_SIZE)
+        {
+            if (data == HEADER_BYTE)
+            {
+                header_count++;
+            }
+            else
+            {
+                header_count = 0;
+            }
+        }
+        else
+        {
+            colors[curr_index] = data;
+            curr_index++;
+            if (curr_index == BUFFER_SIZE)
+            {
+                header_count = 0;
+                curr_index = 0;
+                LEDs_show();
+            }
+        }
     }
 
     return 0;

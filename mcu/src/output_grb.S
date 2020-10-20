@@ -2,9 +2,6 @@
 #include <avr/io.h>
 
 ; Code taken and modified from: https://www.embeddedrelated.com/showarticle/528.php
-
-;extern void output_grb(u8 * ptr, u16 count)
-;
 ; r18 = data byte
 ; r19 = 7-bit count
 ; r20 = 1 output

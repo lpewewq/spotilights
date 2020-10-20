@@ -1,13 +1,12 @@
-#define _DEFAULT_SOURCE
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <unistd.h>  /* UNIX standard function definitions */
-#include <fcntl.h>   /* File control definitions */
-#include <errno.h>   /* Error number definitions */
-#include <termios.h> /* POSIX terminal control definitions */
+#include <unistd.h>
+#include <math.h>
+
+#include "serial.h"
 
 #define NUM_LEDS 180
 
@@ -25,33 +24,6 @@ Color from_rgb(uint8_t r, uint8_t g, uint8_t b)
     return (Color){ .r = r, .g = g, .b = b };
 }
 
-int open_serial(char *device)
-{
-    int fd;
-    fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
-    if (fd == -1)
-    {
-        perror("Unable to open device");
-    }
-    else
-    {
-        fcntl(fd, F_SETFL, 0);
-    }
-    return fd;
-}
-
-void send_buffer(int fd)
-{
-    for (size_t i = 0; i < NUM_LEDS; i++)
-    {
-        uint8_t d[1] = { 50 };
-        write(fd, d, 1);
-        write(fd, d, 1);
-        write(fd, d, 1);
-        usleep(500000);
-    }
-}
-
 int main(int argc, char *argv[])
 {
     if (argc != 2)
@@ -61,29 +33,37 @@ int main(int argc, char *argv[])
     }
 
     int fd = open_serial(argv[1]);
-    if (fd < 0)
+
+    printf("Sleeping for 1 seconds...\n");
+    sleep(1);
+
+    for (int i = 0; i < NUM_LEDS; i++)
     {
-        return EXIT_FAILURE;
+        colors[i] = from_rgb(0, 0, 0);
     }
 
-    //for (size_t i = 0; i < NUM_LEDS; i++)
-    //{
-    //    colors[i] = (Color){ .r = 255, .g = 0, .b = 0 };
-    //}
+    uint8_t header[5] = { 42, 42, 42, 42, 42 };
 
-    //int dot_index = 0;
-    //int direction = 1;
-
+    int ticks = 0;
     while (true)
     {
-        send_buffer(fd);
+        for (size_t i = 0; i < NUM_LEDS; i++)
+        {
+            colors[i] = from_rgb(
+                abs((int)(sin((float)(i * 3 + ticks) / NUM_LEDS * M_PI) * 255)),
+                abs((int)(sin((float)(i * 2 + ticks) / NUM_LEDS * M_PI) * 255)),
+                abs((int)(cos((float)(i + ticks) / NUM_LEDS * M_PI) * 255))
+            );
+        }
+        ticks = (ticks + 2) % NUM_LEDS;
 
-        /*colors[dot_index] = from_rgb(0, 0, 0);
-        dot_index += direction;
-        colors[dot_index] = from_rgb(dot_index + 50, 255 - dot_index, 0);
-        if (dot_index == NUM_LEDS - 1) direction = -1;
-        if (dot_index == 0) direction = 1;*/
+        write(fd, header, 5);
+        for (size_t i = 0; i < NUM_LEDS; i++)
+        {
+            write(fd, colors + i, 3);
+        }
     }
 
+    close(fd);
     return EXIT_SUCCESS;
 }

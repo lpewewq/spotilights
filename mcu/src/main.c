@@ -1,22 +1,16 @@
 #define F_CPU 16000000L
-
 #include <stdbool.h>
 #include <stdint.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <math.h>
 #include <util/delay.h>
 #include <avr/io.h>
 
-#define NUM_LEDS 180
-#define BUFFER_SIZE (NUM_LEDS*3)
+#include "../../common.h"
+
+#define BUFFER_SIZE (NUM_LEDS * 3)
 
 #define LED_DDR  DDRB
 #define LED_PORT PORTB
 #define LED_PIN  2
-
-#define HEADER_BYTE 42
-#define HEADER_SIZE  5
 
 extern void output_grb(uint8_t *buffer, uint16_t bytes);
 
@@ -56,8 +50,8 @@ uint8_t uart_recv()
 int main()
 {
     LEDs_init();
-    uart_init();
     LEDs_show();
+    uart_init();
 
     int header_count = 0;
     int curr_index   = 0;

@@ -1,5 +1,4 @@
 # Lightstrip
-WIP! No functionality yet.
 
 ## MCU
 MCU just takes serial data to display on the LED strip.

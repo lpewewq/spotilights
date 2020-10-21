@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define BAUD B500000
+
 int open_serial(char *device)
 {
     int fd;
@@ -13,6 +15,7 @@ int open_serial(char *device)
     if (fd == -1)
     {
         perror("Unable to open device");
+        return -1;
     }
     else
     {
@@ -45,7 +48,7 @@ int open_serial(char *device)
     tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL); // Disable any special handling of received bytes
     tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
     tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    cfsetispeed(&tty, B500000);
+    cfsetispeed(&tty, BAUD);
 
     // Save tty settings, also checking for error
     if (tcsetattr(fd, TCSANOW, &tty) != 0)

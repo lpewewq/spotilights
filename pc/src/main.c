@@ -1,28 +1,15 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <math.h>
+#include <sys/time.h>
 
+#include "../../common.h"
+#include "patterns.h"
 #include "serial.h"
-
-#define NUM_LEDS 180
-
-typedef struct
-{
-    uint8_t g; // Must be in this order
-    uint8_t r;
-    uint8_t b;
-} __attribute__((packed)) Color;
-
-Color colors[NUM_LEDS];
-
-Color from_rgb(uint8_t r, uint8_t g, uint8_t b)
-{
-    return (Color){ .r = r, .g = g, .b = b };
-}
 
 int main(int argc, char *argv[])
 {
@@ -33,29 +20,29 @@ int main(int argc, char *argv[])
     }
 
     int fd = open_serial(argv[1]);
-
-    printf("Sleeping for 1 seconds...\n");
-    sleep(1);
-
-    for (int i = 0; i < NUM_LEDS; i++)
+    if (fd == -1)
     {
-        colors[i] = from_rgb(0, 0, 0);
+        return EXIT_FAILURE;
     }
 
-    uint8_t header[5] = { 42, 42, 42, 42, 42 };
+    printf("Successfully connected to LED Strip. Using %d LEDs.\n", NUM_LEDS);
+    sleep(1);
 
-    int ticks = 0;
+    init_LEDs();
+
+    uint8_t header[HEADER_SIZE];
+    memset(header, HEADER_BYTE, HEADER_SIZE);
+
+    struct timeval begin;
+    struct timeval end;
+    struct timeval diff;
+    gettimeofday(&begin, NULL);
     while (true)
     {
-        for (size_t i = 0; i < NUM_LEDS; i++)
-        {
-            colors[i] = from_rgb(
-                abs((int)(sin((float)(i * 3 + ticks) / NUM_LEDS * M_PI) * 255)),
-                abs((int)(sin((float)(i * 2 + ticks) / NUM_LEDS * M_PI) * 255)),
-                abs((int)(cos((float)(i + ticks) / NUM_LEDS * M_PI) * 255))
-            );
-        }
-        ticks = (ticks + 2) % NUM_LEDS;
+        gettimeofday(&end, NULL);
+        timersub(&end, &begin, &diff);
+        begin = end;
+        update_LEDs((double)diff.tv_usec / 1000000);
 
         write(fd, header, 5);
         for (size_t i = 0; i < NUM_LEDS; i++)

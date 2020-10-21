@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     init_LEDs();
 
     uint8_t header[HEADER_SIZE];
-    memset(header, HEADER_BYTE, HEADER_SIZE);
+    for (size_t i = 0; i < HEADER_SIZE; i++) header[i] = HEADER_START + i;
 
     struct timeval begin;
     struct timeval end;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         begin = end;
         update_LEDs((double)diff.tv_usec / 1000000);
 
-        write(fd, header, 5);
+        write(fd, header, HEADER_SIZE);
         for (size_t i = 0; i < NUM_LEDS; i++)
         {
             write(fd, colors + i, 3);

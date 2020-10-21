@@ -43,7 +43,6 @@ uint8_t uart_recv()
 {
     // Busy wait until data is present
     while (!(UCSR0A & (1 << RXC0)));
-    //debug();
     return UDR0;
 }
 
@@ -53,14 +52,14 @@ int main()
     LEDs_show();
     uart_init();
 
-    int header_count = 0;
-    int curr_index   = 0;
+    uint8_t header_count = 0;
+    uint16_t curr_index   = 0;
     while (true)
     {
         uint8_t data = uart_recv();
         if (header_count < HEADER_SIZE)
         {
-            if (data == HEADER_BYTE)
+            if (data == HEADER_START + header_count)
             {
                 header_count++;
             }

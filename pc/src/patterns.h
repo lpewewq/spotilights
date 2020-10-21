@@ -7,7 +7,7 @@ typedef struct
     uint8_t g; // Must be in this order
     uint8_t r;
     uint8_t b;
-} __attribute__((packed)) Color;
+} Color;
 
 extern Color colors[NUM_LEDS];
 void init_LEDs();

@@ -49,12 +49,14 @@ void update_LEDs(double delta_t)
 
     double offset = triangle(total_t, 20);
 
+    //printf("%d\n", abs((int)(offset * BRIGHTNESS)));
+
     for (size_t i = 0; i < NUM_LEDS; i++)
     {
-        colors[i] = from_rgb(
-            abs((int)(pow(sin(((float)i / NUM_LEDS + offset) * M_PI * 2), 2) * BRIGHTNESS)),
-            abs((int)(pow(cos(((float)i / NUM_LEDS + offset) * M_PI * 2), 2) * BRIGHTNESS)),
-            0
+        colors[i] = from_rgb(0,0,
+            //abs((int)(pow(sin(((float)3 * i / NUM_LEDS + offset) * M_PI * 2), 2) * BRIGHTNESS)),
+            //abs((int)(pow(cos(((float)3 * i / NUM_LEDS + offset) * M_PI * 2), 2) * BRIGHTNESS)),
+            abs((int)(offset * BRIGHTNESS))
         );
         //colors[NUM_LEDS - i] = colors[i];
     }

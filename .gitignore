@@ -8,3 +8,6 @@ bin/
 vgcore*
 massif*
 callgrind*
+
+# Spotify credentials
+auth.sh

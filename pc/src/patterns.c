@@ -31,6 +31,11 @@ Color rgb_mul_rgb(Color clrA, Color clrB)
     return (Color){ .r = clrA.r * clrB.r, .g = clrA.g * clrB.g, .b = clrA.b * clrB.b };
 }
 
+Color lerp_rgb(Color clrA, Color clrB, double perc)
+{
+    return (Color){ .r = LERP(clrA.r, clrB.r, perc), .g = LERP(clrA.g, clrB.g, perc), .b = LERP(clrA.b, clrB.b, perc) };
+}
+
 void init_LEDs()
 {
     for (int i = 0; i < NUM_LEDS; i++)
@@ -73,22 +78,18 @@ void update_LEDs(double delta_t)
     static uint64_t ticks = 0;
     static double total_t = 0;
     static struct Trail trails[MAX_TRAILS];
+    static int trail_index = 0;
 
-    printf("\rFPS: %d                    ", (int)(1.0 / delta_t));
-
-    if (PERIODIC(1))
+    if (PERIODIC(5))
     {
-        for (size_t i = 0; i < MAX_TRAILS; i++)
-        {
-            if (!trails[i].active)
-            {
-                trails[i].active = true;
-                trails[i].pos = 0;
-                trails[i].velocity = 350;
-                trails[i].trail_length = trails[i].velocity;
-                break;
-            }
-        }
+        trails[trail_index] = (struct Trail){
+            .active = true,
+            .pos = 0,
+            .velocity = 20,
+            .clr = trail_index % 2 == 0 ? from_rgb(200, 0, 0) : from_rgb(0, 0, 200),
+            .trail_length = 30
+        };
+        trail_index = (trail_index + 1) % MAX_TRAILS;
     }
 
     for (size_t i = 0; i < NUM_LEDS; i++)
@@ -102,8 +103,10 @@ void update_LEDs(double delta_t)
         {
             for (size_t j = 0; j < trails[i].trail_length; j++)
             {
-                set_clr(trails[i].pos - j, f_mul_rgb(pow(1 - (float)j / trails[i].trail_length, 8),
-                    from_rgb(0, (float)(trails[i].pos - j) / NUM_LEDS * 255, 255 - (float)(trails[i].pos - j) / NUM_LEDS * 255)));
+                set_clr(trails[i].pos - j,
+                    f_mul_rgb(
+                        pow((1 - (float)j / trails[i].trail_length), 10),
+                        trails[i].clr));
             }
             trails[i].pos += trails[i].velocity * delta_t;
             if (trails[i].pos > NUM_LEDS + trails[i].trail_length) trails[i].active = false;

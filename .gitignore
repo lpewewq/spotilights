@@ -11,3 +11,6 @@ callgrind*
 
 # Spotify credentials
 auth.sh
+
+# Python files
+__pycache__/

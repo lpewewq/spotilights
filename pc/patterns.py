@@ -7,7 +7,7 @@ def setRGB(colors, pos, color):
         colors[pos] = color
 
 colA = RGB(255, 0, 0)
-colB = RGB(0, 0, 255)
+colB = RGB(0, 255, 0)
 total = 0
 factor = 1
 evenFactor = 0.5
@@ -18,7 +18,7 @@ beat_num = 0
 
 def sectionCallback(state, section):
     state = state
-    print("new section")
+    print(section)
 
 def barCallback(state, bar):
     global factor
@@ -30,16 +30,19 @@ def beatCallback(state, beat):
     global beat_num
     global factor
     global brightness
-    total += math.pi / 2
-    if beat_num % 2 == 0:
-        brightness += 0.5
-    beat_num += 1
+    if (beat["confidence"] > 0.2):
+        total += math.pi / 2
+        if beat_num % 2 == 0:
+            brightness += 0.5
+        beat_num += 1
+    print("beat ")
+    print(beat["confidence"])
 
 def tatumCallback(state, tatum):
-    state = state
+    print("tatum ")
+    print(tatum["confidence"])
 
 def segmentCallback(state, segment):
-    #print("new segment")
     state = state
 
 def genericCallback(state, delta):
@@ -58,4 +61,4 @@ def genericCallback(state, delta):
         ii = i / state.num_leds * math.pi
         state.colors[i] = (colA * abs(math.sin(ii + total)) + colB * abs(math.cos(ii + total))) * brightness
     for i in range(0, state.num_leds):
-        state.colors[i] = RGB(int(state.colors[i].r), int(state.colors[i].g), int(state.colors[i].b))
+        state.colors[i] = RGB(min(255, abs(int(state.colors[i].r))), min(255, abs(int(state.colors[i].g))), min(255, abs(int(state.colors[i].b))))

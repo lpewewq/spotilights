@@ -14,3 +14,4 @@ auth.sh
 
 # Python files
 __pycache__/
+.cache

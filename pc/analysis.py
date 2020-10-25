@@ -47,7 +47,8 @@ class AnalysisState:
         if self.currBeat + 1 < self.lenBeats:
             while self.data["beats"][self.currBeat]["start"] + self.data["beats"][self.currBeat]["duration"] < newElapsed:
                 self.currBeat += 1
-                self.beatUpdate = True
+                if self.data["beats"][self.currBeat]["start"] + self.data["beats"][self.currBeat]["duration"] >= newElapsed:
+                    self.beatUpdate = True
 
         if self.currTatum + 1 < self.lenTatums:
             while self.data["tatums"][self.currTatum]["start"] + self.data["tatums"][self.currTatum]["duration"] < newElapsed:

@@ -1,6 +1,6 @@
 from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 from analysis import AnalysisState
-from threading import Thread
+import threading
 import time
 
 class RGB:
@@ -69,22 +69,34 @@ class VisualizationState:
         for x in range(0, self.num_leds):
             self.connection.write(bytes([self.colors[x].g, self.colors[x].r, self.colors[x].b]))
 
+class StoppableThread(threading.Thread):
+    def __init__(self,  *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
 thread = None
 
 def loop(state):
-    while True:
+    while not thread.stopped():
         state.updateVisualization()
 
 def startUpdater(state, data, elapsedSoFar):
     global thread
     endUpdater()
     state.startVisualization(data, elapsedSoFar)
-    thread = Thread(target = loop, args = [state])
+    thread = StoppableThread(target = loop, args = [state])
     thread.start()
     #loop(state)
 
 def endUpdater():
     global thread
     if thread is not None:
-        thread._stop()
+        thread.stop()
+        thread.join()
         thread = None

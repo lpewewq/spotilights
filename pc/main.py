@@ -12,8 +12,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "<h1><a href=/test>Test</a></h1><br>" \
-        "<h1><a href=/start>Start</a></h1>"
+    return "<h1><a href=/start>Fetch song</a></h1>"
 
 @app.route('/start')
 def start():
@@ -21,10 +20,10 @@ def start():
     track = sp.current_playback()
     if track is None:
         return "No track playing right now"
+    endUpdater()
     analysis = sp.audio_analysis(track["item"]["id"])
     start = time.time()
     track = sp.current_playback()
-    endUpdater()
-    print((time.time() - start) * 0.6)
-    startUpdater(vs, analysis, track["progress_ms"] / 1000 + (time.time() - start) * 0.6)
+    print((time.time() - start) / 2)
+    startUpdater(vs, analysis, track["progress_ms"] / 1000 + (time.time() - start) / 2)
     return redirect("/")

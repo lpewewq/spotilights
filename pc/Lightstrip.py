@@ -57,6 +57,11 @@ class LightstripState:
             delta = now - self.lastUpdate
             self.lastUpdate = now
             self.updateCallback(self, delta)
+            for i in range(0, self.num_leds):
+                self.colors[i] = RGB(
+                min(255, abs(int(self.colors[i].r))),
+                min(255, abs(int(self.colors[i].g))),
+                min(255, abs(int(self.colors[i].b))))
             self.show()
 
 class StoppableThread(threading.Thread):

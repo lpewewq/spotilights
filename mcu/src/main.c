@@ -4,13 +4,13 @@
 #include <util/delay.h>
 #include <avr/io.h>
 
-#include "../../common.h"
-
-#define BUFFER_SIZE (NUM_LEDS * 3)
-
-#define LED_DDR  DDRB
-#define LED_PORT PORTB
-#define LED_PIN  2
+#define NUM_LEDS     180
+#define BUFFER_SIZE (NUM_LEDS*3)
+#define HEADER_SIZE  5
+#define HEADER_START 42
+#define LED_DDR  DDRD
+#define LED_PORT PORTD
+#define LED_PIN  3
 
 extern void output_grb(uint8_t *buffer, uint16_t bytes);
 

@@ -2,17 +2,13 @@ from LightstripState import RGB
 import math
 
 class AmbientVisualizer:
-    leds       = None
-    colA       = RGB(0, 255, 0)
-    colB       = RGB(0, 0, 0)
-    brightness = 0.5
+    colA       = RGB(0, 0, 255)
+    colB       = RGB(0, 255, 0)
+    brightness = 1
     wavePos    = 0
 
-    def __init__(self, leds):
-        self.leds = leds
-
-    def callback(self, delta):
+    def callback(self, leds, delta):
         self.wavePos += delta / 2
-        for i in range(0, self.leds.num_leds):
-            ii = i / self.leds.num_leds * math.pi
-            self.leds.colors[i] = (self.colA * abs(math.sin(ii + self.wavePos)) + self.colB * abs(math.cos(ii + self.wavePos))) * self.brightness
+        for i in range(0, leds.num_leds):
+            ii = i / leds.num_leds * math.pi
+            leds.colors[i] = (self.colA * abs(math.sin(ii + self.wavePos)) + self.colB * abs(math.cos(ii + self.wavePos))) * self.brightness

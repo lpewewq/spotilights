@@ -54,12 +54,12 @@ class MusicVisualizer:
     def segmentCallback(self, segment):
         segment = segment
 
-    def genericCallback(self, delta):
+    def genericCallback(self, leds, delta):
         if (self.isBeatActive):
             self.brightness *= 0.98
         self.wavePos += delta
 
         # Calculate new colors
-        for i in range(0, self.leds.num_leds):
-            ii = i / self.leds.num_leds * math.pi
-            self.leds.colors[i] = (self.colA * abs(math.sin(ii + self.wavePos)) + self.colB * abs(math.cos(ii + self.wavePos))) * self.brightness
+        for i in range(0, leds.num_leds):
+            ii = i / leds.num_leds * math.pi
+            leds.colors[i] = (self.colA * abs(math.sin(ii + self.wavePos)) + self.colB * abs(math.cos(ii + self.wavePos))) * self.brightness

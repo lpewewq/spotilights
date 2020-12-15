@@ -15,8 +15,9 @@ class MusicPlaybackState:
     lenTatums      = 0
     lenSegments    = 0
     musicVisualizer = None
+    endCallback    = None
 
-    def __init__(self, data, secondsOffset, musicVisualizer):
+    def __init__(self, data, secondsOffset, musicVisualizer, endCallback):
         self.data = data
         self.progress = secondsOffset
         self.lenSections = len(data["sections"])
@@ -25,22 +26,25 @@ class MusicPlaybackState:
         self.lenTatums = len(data["tatums"])
         self.lenSegments = len(data["segments"])
         self.musicVisualizer = musicVisualizer
+        self.endCallback = endCallback
 
-    def callback(self, delta):
+    def callback(self, leds, delta):
         self.progress += delta
-        while self.data["sections"][self.currSection]["start"] < self.progress and self.currSection < self.lenSections:
-            self.currSection += 1
+        while self.currSection < self.lenSections and self.data["sections"][self.currSection]["start"] < self.progress:
             self.musicVisualizer.sectionCallback(self.data["sections"][self.currSection])
-        while self.data["bars"][self.currBar]["start"] < self.progress and self.currBar < self.lenBars:
-            self.currBar += 1
+            self.currSection += 1
+        while self.currBar < self.lenBars and self.data["bars"][self.currBar]["start"] < self.progress:
             self.musicVisualizer.barCallback(self.data["bars"][self.currBar])
-        while self.data["beats"][self.currBeat]["start"] + self.data["beats"][self.currBeat]["duration"] < self.progress and self.currBeat < self.lenBeats:
-            self.currBeat += 1
+            self.currBar += 1
+        while self.currBeat < self.lenBeats and self.data["beats"][self.currBeat]["start"] < self.progress:
             self.musicVisualizer.beatCallback(self.data["beats"][self.currBeat])
-        while self.data["tatums"][self.currTatum]["start"] + self.data["tatums"][self.currTatum]["duration"] < self.progress and self.currTatum < self.lenTatums:
-            self.currTatum += 1
+            self.currBeat += 1
+        while self.currTatum < self.lenTatums and self.data["tatums"][self.currTatum]["start"] < self.progress:
             self.musicVisualizer.tatumCallback(self.data["tatums"][self.currTatum])
-        while self.data["segments"][self.currSegment]["start"] + self.data["segments"][self.currSegment]["duration"] < self.progress and self.currSegment < self.lenSegments:
-            self.currSegment += 1
+            self.currTatum += 1
+        while self.currSegment < self.lenSegments and self.data["segments"][self.currSegment]["start"] < self.progress:
             self.musicVisualizer.segmentCallback(self.data["segments"][self.currSegment])
-        self.musicVisualizer.genericCallback(delta)
+            self.currSegment += 1
+        self.musicVisualizer.genericCallback(leds, delta)
+        if (self.currSection == self.lenSections):
+            self.endCallback()

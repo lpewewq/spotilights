@@ -19,11 +19,11 @@ class Visualizer:
     updateCallback = None
     thread         = None
 
-    def __init__(self, leds, updateCallback):
+    def __init__(self, leds):
         self.leds = leds
-        self.updateCallback = updateCallback
 
-    def startVisualization(self):
+    def startVisualization(self, updateCallback):
+        self.updateCallback = updateCallback
         self.thread = StoppableThread(target = self.loop, args = [])
         self.startTime = time.time()
         self.lastUpdate = self.startTime
@@ -40,5 +40,5 @@ class Visualizer:
             now = time.time()
             delta = now - self.lastUpdate
             self.lastUpdate = now
-            self.updateCallback(delta)
+            self.updateCallback(self.leds, delta)
             self.leds.show()

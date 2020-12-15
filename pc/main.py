@@ -3,23 +3,28 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
 
-from Lightstrip import LightstripState
-from MusicVisualizationState import MusicVisualizationState
-from MusicPatterns import sectionCallback, barCallback, beatCallback, tatumCallback, segmentCallback, genericCallback
-from NormalPatterns import callback
+from LightstripState import LightstripState
+from Visualizer import Visualizer
+from MusicPlaybackState import MusicPlaybackState
+from MusicVisualizer import MusicVisualizer
+from AmbientVisualizer import AmbientVisualizer
 
-sp  = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="user-read-playback-state", redirect_uri='http://127.0.0.1:5001'))
-vs  = LightstripState("/dev/ttyUSB0", 180)
+sp                = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="user-read-playback-state", redirect_uri='http://127.0.0.1:5001'))
+leds              = LightstripState("/dev/ttyUSB0", 180)
+currVisualization = Visualizer(leds, AmbientVisualizer(leds).callback)
+currVisualization.startVisualization()
+
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return "<h1><a href=/spotify>Spotify light</a></h1>" \
-        "<h1><a href=/ambient>Ambient light</a></h1>"
+           "<h1><a href=/ambient>Ambient light</a></h1>"
 
 @app.route('/spotify')
 def spotify():
-    global vs
+    global leds
+    global currVisualization
 
     track = sp.current_playback()
     if track is None:
@@ -29,14 +34,15 @@ def spotify():
     track = sp.current_playback()
     time_offset = track["progress_ms"] / 1000 + (time.time() - start) / 2
 
-    vs.endVisualization()
-    ms = MusicVisualizationState(analysis, time_offset, sectionCallback, barCallback, beatCallback, tatumCallback, segmentCallback, genericCallback)
-    vs.startVisualization(ms.update)
-
+    currVisualization.endVisualization()
+    currVisualization = Visualizer(leds, MusicPlaybackState(analysis, time_offset, MusicVisualizer(leds)).callback)
+    currVisualization.startVisualization()
     return redirect("/")
 
 @app.route('/ambient')
 def ambient():
-    vs.endVisualization()
-    vs.startVisualization(callback)
+    global currVisualization
+    currVisualization.endVisualization()
+    currVisualization = Visualizer(leds, AmbientVisualizer(leds).callback)
+    currVisualization.startVisualization()
     return redirect("/")

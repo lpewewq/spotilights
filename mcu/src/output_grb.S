@@ -10,8 +10,8 @@
 ; r24:25 = 16-bit count
 ; r26:27 (X) = data pointer
 
-.equ LED_PORT, PORTB
-.equ LED_PIN,  2
+.equ LED_PORT, PORTD
+.equ LED_PIN,  3
 
 .global output_grb
 output_grb:

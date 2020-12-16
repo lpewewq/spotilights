@@ -17,7 +17,7 @@ class SpotifyPlayer:
         analysis = self.spotify.audio_analysis(track["item"]["id"])
         start = time.time()
         track = self.spotify.current_playback()
-        time_offset = track["progress_ms"] / 1000 + (time.time() - start) / 2
+        time_offset = track["progress_ms"] / 1000
         self.visualizer.startVisualization(MusicPlaybackState(analysis, time_offset, MusicVisualizer(self.visualizer.leds), self.endCallback).callback)
 
     def endCallback(self):

@@ -24,10 +24,11 @@ class Visualizer:
 
     def startVisualization(self, updateCallback):
         self.updateCallback = updateCallback
-        self.thread = StoppableThread(target = self.loop, args = [])
         self.startTime = time.time()
         self.lastUpdate = self.startTime
-        self.thread.start()
+        if self.thread == None:
+            self.thread = StoppableThread(target = self.loop, args = [])
+            self.thread.start()
 
     def endVisualization(self):
         if self.thread is not None:

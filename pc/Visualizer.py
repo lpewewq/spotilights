@@ -41,5 +41,5 @@ class Visualizer:
             now = time.time()
             delta = now - self.lastUpdate
             self.lastUpdate = now
-            self.updateCallback(self.leds, delta)
+            self.updateCallback(delta)
             self.leds.show()

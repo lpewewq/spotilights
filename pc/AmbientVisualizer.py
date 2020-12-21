@@ -6,8 +6,12 @@ class AmbientVisualizer:
     colB       = RGB(0, 255, 0)
     brightness = 1
     wavePos    = 0
+    leds       = None
 
-    def callback(self, leds, delta):
+    def __init__(self, leds):
+        self.leds = leds
+
+    def callback(self, delta):
         self.wavePos += delta / 2
         for i in range(0, leds.num_leds):
             ii = i / leds.num_leds * math.pi

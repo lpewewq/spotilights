@@ -28,7 +28,7 @@ class MusicPlaybackState:
         self.musicVisualizer = musicVisualizer
         self.endCallback = endCallback
 
-    def callback(self, leds, delta):
+    def callback(self, delta):
         self.progress += delta
         #print(self.progress)
         while self.currSection < self.lenSections and self.data["sections"][self.currSection]["start"] <= self.progress:
@@ -46,7 +46,7 @@ class MusicPlaybackState:
         while self.currSegment < self.lenSegments and self.data["segments"][self.currSegment]["start"] <= self.progress:
             self.musicVisualizer.segmentCallback(self.data["segments"][self.currSegment])
             self.currSegment += 1
-        self.musicVisualizer.genericCallback(leds, delta)
+        self.musicVisualizer.genericCallback(delta)
 
         if (self.currSection == self.lenSections):
             if (self.data["sections"][self.currSection - 1]["start"] + self.data["sections"][self.currSection - 1]["duration"] <= self.progress):

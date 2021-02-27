@@ -4,8 +4,8 @@
 #include <util/delay.h>
 #include <avr/io.h>
 
-#define NUM_LEDS    180
-#define BUFFER_SIZE (NUM_LEDS * 3)
+#define numLEDs    180
+#define BUFFER_SIZE (numLEDs * 3)
 #define HEADER_SIZE  5
 #define HEADER_START 42
 #define LED_DDR      DDRD

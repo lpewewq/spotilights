@@ -31,41 +31,41 @@ class RGB:
 class LightstripState:
     connection     = None
     colors         = None
-    num_leds       = 0
+    numLEDs       = 0
 
-    def __init__(self, device_path, num_leds):
+    def __init__(self, device_path, numLEDs):
         self.connection = Serial(device_path, 500000, EIGHTBITS, PARITY_NONE, STOPBITS_ONE, timeout=None)
-        self.colors = [RGB(0, 0, 0)] * num_leds
-        self.num_leds = num_leds
+        self.colors = [RGB(0, 0, 0)] * numLEDs
+        self.numLEDs = numLEDs
 
     def show(self):
         # Put new data to LEDs
-        self.connection.write(bytes([42, 43, 44, 45, 46]))
-        for i in range(0, self.num_leds):
+        self.connection.write(bytes([42, 43, 44, 45, 46])) # Header
+        for i in range(0, self.numLEDs):
             self.connection.write(bytes([int(255 * self.colors[i].g), int(255 * self.colors[i].r), int(255 * self.colors[i].b)]))
 
     def fill(self, color):
-        for i in range(0, self.num_leds):
+        for i in range(0, self.numLEDs):
             self.colors[i] = color
 
     def invert(self):
-        for i in range(0, self.num_leds):
+        for i in range(0, self.numLEDs):
             self.colors[i] = RGB(1 - self.colors[i].r, 1 - self.colors[i].g, 1 - self.colors[i].b)
 
     def setColor(self, index, color):
-        if (int(index) < 0 or int(index) >= self.num_leds):
+        if (int(index) < 0 or int(index) >= self.numLEDs):
             return
         self.colors[int(index)] = color
         self.sanitize(int(index))
 
     def addColor(self, index, color):
-        if (int(index) < 0 or int(index) >= self.num_leds):
+        if (int(index) < 0 or int(index) >= self.numLEDs):
             return
         self.colors[int(index)] += color
         self.sanitize(int(index))
 
     def mulColor(self, index, color):
-        if (int(index) < 0 or int(index) >= self.num_leds):
+        if (int(index) < 0 or int(index) >= self.numLEDs):
             return
         self.colors[int(index)] *= color
         self.sanitize(int(index))

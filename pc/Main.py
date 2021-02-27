@@ -19,7 +19,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return "<h1><a href=/spotify>Spotify light</a></h1>" \
-           "<h1><a href=/ambient>Ambient light</a></h1>"
+           "<h1><a href=/ambient>Rainbow</a></h1>"
 
 @app.route('/spotify')
 def spotify():
@@ -29,5 +29,5 @@ def spotify():
 @app.route('/ambient')
 def ambient():
     visualizer.endVisualization()
-    visualizer.startVisualization(AmbientVisualizer().callback)
+    visualizer.startVisualization(AmbientVisualizer(visualizer.leds).callback)
     return redirect("/")

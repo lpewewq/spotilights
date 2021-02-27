@@ -45,13 +45,16 @@ class MusicVisualizer:
 
     def __init__(self, leds):
         self.state = State(leds)
-        self.center = self.state.leds.num_leds / 2
-        self.brightness = [RGB(1, 1, 1)] * self.state.leds.num_leds
+        self.center = self.state.leds.numLEDs / 2
+        self.brightness = [RGB(1, 1, 1)] * self.state.leds.numLEDs
 
     def swapCols(self):
         colTmp = self.colA
         self.colA = self.colB
         self.colB = colTmp
+        colTmp = self.colC
+        self.colC = self.colD
+        self.colD = colTmp
 
     def sectionCallback(self, section):
         self.state.sectionLoudness = section["loudness"]
@@ -94,15 +97,16 @@ class MusicVisualizer:
         self.state.beatProgress = 0
         self.state.beatDuration = beat["duration"]
 
+        self.swapCols()
+
         if self.state.sectionNum % 4 != 3:
-            self.swapCols()
             if self.state.beatNum % 2 == 1:
-                self.brightness = [RGB(1, 1, 1)] * self.state.leds.num_leds
+                self.brightness = [RGB(1, 1, 1)] * self.state.leds.numLEDs
                 self.state.beatPairProgress = 0
                 self.state.beatPairDuration = self.state.beatDuration * 2
 
         if self.state.sectionNum % 4 == 3:
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 self.brightness[i] += RGB(1, 1, 1) * getBell((i - ((self.state.beatNum % 5) / 4) * 180) / 10)
 
         print(beat)
@@ -126,6 +130,7 @@ class MusicVisualizer:
         self.state.segmentProgress += delta
         self.state.barProgress += delta
 
+        # Lerp colors in first bar of section (todo: lerp in HSV, not in RGB)
         if (self.state.barNum == 0):
             cA = self.colA.lerp(self.colC, 0)
             cB = self.colB.lerp(self.colD, 0)
@@ -153,7 +158,7 @@ class MusicVisualizer:
                     cycleProc = 1 - beatPairProc
             else:
                 cycleProc = (self.state.beatNum % 8) / 8
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 if (i > self.center):
                     self.state.leds.addColor(i, RGB(1, 1, 1)
                         * (1 / pow(1 + pow((i - self.center - cycleProc * self.center) / 10, 2), 3 / 2)))
@@ -167,7 +172,7 @@ class MusicVisualizer:
 
         # Only looks good with time_signature=4
         if self.state.sectionNum % numModes == 1:
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 self.brightness[i] *= 0.96
             self.waveFreq = 2
             self.wavePos += self.waveVel * (delta / 2)
@@ -175,28 +180,28 @@ class MusicVisualizer:
                 proc = beatPairProc
             else:
                 proc = (1 - beatPairProc)
-            for i in range(0, int(self.state.leds.num_leds / 2) + 1):
-                ii = i / self.state.leds.num_leds
+            for i in range(0, int(self.state.leds.numLEDs / 2) + 1):
+                ii = i / self.state.leds.numLEDs
                 self.state.leds.setColor(i, RGB(1, 1, 1) * self.brightness[i] * pow(math.sin(ii * math.pi), 3)) # Mask edges
                 self.state.leds.addColor(i, RGB(1, 1, 1) * (1 - proc)
                     * pow(getBell((i - self.center + proc * self.center) / 10), 2))
-                self.state.leds.setColor(self.state.leds.num_leds - i, self.state.leds.colors[i])
+                self.state.leds.setColor(self.state.leds.numLEDs - i, self.state.leds.colors[i])
 
         if self.state.sectionNum % numModes == 2:
             self.waveFreq = 2
             self.wavePos += self.waveVel * delta
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 self.brightness[i] *= 0.975
-            for i in range(0, self.state.leds.num_leds):
-                ii = i / self.state.leds.num_leds
+            for i in range(0, self.state.leds.numLEDs):
+                ii = i / self.state.leds.numLEDs
                 self.state.leds.setColor(i, self.brightness[i] * pow(math.sin(ii * math.pi), 2)) # Mask edges
 
         if self.state.sectionNum % numModes == 3:
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 self.brightness[i] *= 0.96
-            for i in range(0, self.state.leds.num_leds):
+            for i in range(0, self.state.leds.numLEDs):
                 self.state.leds.setColor(i, self.brightness[i])
 
-        for i in range(0, self.state.leds.num_leds):
-            ii = ((i - self.state.leds.num_leds / 2) / self.state.leds.num_leds) * math.pi * self.waveFreq
+        for i in range(0, self.state.leds.numLEDs):
+            ii = ((i - self.state.leds.numLEDs / 2) / self.state.leds.numLEDs) * math.pi * self.waveFreq
             self.state.leds.mulColor(i, cA * abs(math.sin(ii + self.wavePos)) + cB * abs(math.cos(ii + self.wavePos)))

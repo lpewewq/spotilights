@@ -14,4 +14,3 @@ means opening a serial connection over this port.
 ## References
 
 https://www.embeddedrelated.com/showarticle/528.php
-https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/#basic-setup-in-c

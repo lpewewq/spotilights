@@ -11,7 +11,7 @@ Compile and run with ```make run```.
 Don't forget to adjust USB device in PC Makefile (usually the same as in MCU Makefile) because running the application
 means opening a serial connection over this port.
 
-## Sources
+## References
 
 https://www.embeddedrelated.com/showarticle/528.php
 https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/#basic-setup-in-c

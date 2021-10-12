@@ -11,7 +11,7 @@
 ; r26:27 (X) = data pointer
 
 .equ LED_PORT, PORTD
-.equ LED_PIN,  3
+.equ LED_PIN,  4
 
 .global output_grb
 output_grb:

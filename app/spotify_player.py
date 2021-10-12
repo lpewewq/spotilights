@@ -3,7 +3,6 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from app.lightstrip_state import RGB
 from app.music_visualizer import MusicVisualizer
 
 
@@ -22,8 +21,9 @@ class SpotifyVisualizer:
             )
         )
         self.music_visualizer = MusicVisualizer(leds)
+        self.leds = leds
 
-    def update(self, delta, leds):
+    def update(self, delta):
         # update playback track and audio analysis
         if (
             self.playback_update_time is None
@@ -33,9 +33,9 @@ class SpotifyVisualizer:
             new_playback = self.spotify.current_playback()
             if new_playback is None:
                 print("Playback unavailable.", end="\r")
-                leds.clear()
+                self.leds.clear()
                 self.playback = None
-                return leds
+                return self.leds
             # correct playback progress (ms -> s) and correction term for current_playback call
             new_playback["progress_ms"] = (
                 new_playback["progress_ms"] / 1000
@@ -43,22 +43,25 @@ class SpotifyVisualizer:
             )
 
             # update analysis of new item
-            new_item_id = new_playback["item"]["id"]
-            if self.playback is None or self.playback["item"]["id"] != new_item_id:
+            try:
+                new_item_id = new_playback["item"]["id"]
+                if self.playback is None or self.playback["item"]["id"] != new_item_id:
 
-                self.analysis = self.spotify.audio_analysis(new_item_id)
-                self.curr_section = 0
-                self.curr_bar = 0
-                self.curr_beat = 0
-                self.curr_tatum = 0
-                self.curr_segment = 0
+                    self.analysis = self.spotify.audio_analysis(new_item_id)
+                    self.curr_section = 0
+                    self.curr_bar = 0
+                    self.curr_beat = 0
+                    self.curr_tatum = 0
+                    self.curr_segment = 0
 
-            # update playback
-            self.playback = new_playback
+                # update playback
+                self.playback = new_playback
+            except TypeError:
+                self.analysis = None
 
         if self.playback is None or not self.playback["is_playing"]:
-            leds.clear()
-            return leds
+            self.leds.clear()
+            return self.leds
 
         # update playback progress
         self.playback["progress_ms"] += delta
@@ -116,4 +119,4 @@ class SpotifyVisualizer:
             # trigger instant update if track ends
             if self.playback["progress_ms"] > self.analysis["track"]["duration"]:
                 self.playback_update_time = None
-        return leds
+        return self.leds

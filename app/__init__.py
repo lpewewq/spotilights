@@ -1,16 +1,16 @@
 from flask import Flask, redirect
 
 from app.ambient_visualizer import AmbientVisualizer
-from app.lightstrip_state import LightstripState
+from app.lightstrip_state import Lightstrip
 from app.spotify_player import SpotifyVisualizer
 from app.visualizer import Visualizer
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 
-
-visualizer = Visualizer(LightstripState(app))
-spotify_visualizer = SpotifyVisualizer(app, visualizer.leds)
+visualizer = Visualizer()
+leds = Lightstrip(app)
+spotify_visualizer = SpotifyVisualizer(app, leds)
 visualizer.start(spotify_visualizer)
 
 

@@ -1,4 +1,4 @@
-from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE, Serial
+from app.serial_controller import SerialController
 
 
 def lerp(a, b, p):
@@ -33,66 +33,51 @@ class RGB:
         )
 
 
-class LightstripState:
-    header = [42, 43, 44, 45, 46]
-
+class Lightstrip:
     def __init__(self, app):
-        self.connection = Serial(
-            app.config["SERIAL_PORT"],
-            500000,
-            EIGHTBITS,
-            PARITY_NONE,
-            STOPBITS_ONE,
-            timeout=None,
-        )
+        self.serial_controller = SerialController(app)
         self.n_leds = app.config["N_LEDS"]
-        self.clear()
+        self.leds = [RGB(0, 0, 0) for _ in range(0, self.n_leds)]
 
-    def show(self, audio_filter):
-        power = audio_filter.lowpass_power()
-        # soften the brightness
-        power = (1 + 9 * power) / 10
-        # Put new data to LEDs
-        self.connection.write(bytes(self.header))
-        for i in range(0, self.n_leds):
-            r = int(255 * self.colors[i].r * power)
-            b = int(255 * self.colors[i].g * power)
-            g = int(255 * self.colors[i].b * power)
-            self.connection.write(bytes([g, r, b]))
+    def __iter__(self):
+        return iter(self.leds)
+
+    def show(self):
+        self.serial_controller.write(self)
 
     def fill(self, color):
-        self.colors = [color for _ in range(0, self.n_leds)]
+        self.leds = [color for _ in range(0, self.n_leds)]
 
     def clear(self):
         self.fill(RGB(0, 0, 0))
 
     def invert(self):
         for i in range(0, self.n_leds):
-            self.colors[i] = RGB(
-                1 - self.colors[i].r, 1 - self.colors[i].g, 1 - self.colors[i].b
+            self.leds[i] = RGB(
+                1 - self.leds[i].r, 1 - self.leds[i].g, 1 - self.leds[i].b
             )
 
     def set_color(self, index, color):
         if int(index) < 0 or int(index) >= self.n_leds:
             return
-        self.colors[int(index)] = color
+        self.leds[int(index)] = color
         self.sanitize(int(index))
 
     def add_color(self, index, color):
         if int(index) < 0 or int(index) >= self.n_leds:
             return
-        self.colors[int(index)] += color
+        self.leds[int(index)] += color
         self.sanitize(int(index))
 
     def mul_color(self, index, color):
         if int(index) < 0 or int(index) >= self.n_leds:
             return
-        self.colors[int(index)] *= color
+        self.leds[int(index)] *= color
         self.sanitize(int(index))
 
     def sanitize(self, index):
-        self.colors[index] = RGB(
-            min(1, abs(self.colors[index].r)),
-            min(1, abs(self.colors[index].g)),
-            min(1, abs(self.colors[index].b)),
+        self.leds[index] = RGB(
+            min(1, abs(self.leds[index].r)),
+            min(1, abs(self.leds[index].g)),
+            min(1, abs(self.leds[index].b)),
         )

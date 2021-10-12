@@ -22,9 +22,6 @@ class Visualizer:
     _visualizer = None
     thread = None
 
-    def __init__(self, leds):
-        self.leds = leds
-
     def start(self, visualizer):
         self._visualizer = visualizer
         self.start_time = time.time()
@@ -40,10 +37,8 @@ class Visualizer:
             self.thread = None
 
     def loop(self):
-        audio_stream = AudioStream()
         while not self.thread.stopped():
             now = time.time()
             delta = now - self.last_update
             self.last_update = now
-            self.leds = self._visualizer.update(delta, self.leds)
-            self.leds.show(audio_stream.read())
+            self._visualizer.update(delta).show()

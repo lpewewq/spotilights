@@ -251,7 +251,7 @@ class MusicVisualizer:
                     * pow(get_bell((i - self.center + proc * self.center) / 10), 2),
                 )
                 self.state.leds.set_color(
-                    self.state.leds.n_leds - i, self.state.leds.colors[i]
+                    self.state.leds.n_leds - i, self.state.leds.leds[i]
                 )
 
         if self.state.section_num % numModes == 2:

@@ -1,7 +1,7 @@
 import math
 import random
 
-from app.lightstrip_state import RGB
+from app.lightstrip import RGB
 
 
 def get_bell(x):

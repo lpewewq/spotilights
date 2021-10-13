@@ -1,6 +1,3 @@
-from app.serial_controller import SerialController
-
-
 def lerp(a, b, p):
     return a + (b - a) * p
 
@@ -35,15 +32,11 @@ class RGB:
 
 class Lightstrip:
     def __init__(self, app):
-        self.serial_controller = SerialController(app)
         self.n_leds = app.config["N_LEDS"]
         self.leds = [RGB(0, 0, 0) for _ in range(0, self.n_leds)]
 
     def __iter__(self):
         return iter(self.leds)
-
-    def show(self):
-        self.serial_controller.write(self)
 
     def fill(self, color):
         self.leds = [color for _ in range(0, self.n_leds)]

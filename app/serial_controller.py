@@ -16,11 +16,11 @@ class SerialController:
             timeout=None,
         )
 
-    def write(self, light_strip):
+    def write(self, lightstrip):
         # scale and clamp values from [0, 1] to [0, 255]
         clamp_to_byte = lambda x: min(255, max(0, int(255 * x)))
         self.serial_connection.write(bytes(self.header))
-        for led in light_strip:
+        for led in lightstrip:
             r = clamp_to_byte(led.r)
             b = clamp_to_byte(led.g)
             g = clamp_to_byte(led.b)

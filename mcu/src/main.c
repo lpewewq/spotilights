@@ -31,9 +31,9 @@ void LEDs_init()
 
 void uart_init()
 {
-    // Baud rate: 500000 bps
-    UBRR0H = (uint8_t)(3 >> 8);
-    UBRR0L = (uint8_t)(3 & 0xFF);
+    // Baud rate: 2000000 bps
+    UBRR0H = 0;
+    UBRR0L = 0;
     UCSR0A = (1 << U2X0);                  // Double speed
     UCSR0B = (1 << RXEN0) | (0 << TXEN0);  // Enable the receiver, disable transmitter
     UCSR0C = (1 << USBS0) | (3 << UCSZ00); // 2 stop bits, 8 bit data

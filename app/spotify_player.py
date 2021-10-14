@@ -50,6 +50,7 @@ class SpotifyVisualizer:
             with self.lock:
                 self.playback = None
                 self.analysis = None
+            return
 
         # correct playback progress (ms -> s) and correction term for current_playback call
         new_playback["progress_ms"] = (

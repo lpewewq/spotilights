@@ -2,9 +2,8 @@ from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE, Serial
 
 
 class SerialController:
-    header = [42, 43, 44, 45, 46]
-
     def __init__(self, app):
+        self.header = [42, 43, 44, 45, 46]
         port = app.config["SERIAL_PORT"]
         baud_rate = app.config["BAUD_RATE"]
         self.serial_connection = Serial(
@@ -17,11 +16,12 @@ class SerialController:
         )
 
     def write(self, lightstrip):
-        # scale and clamp values from [0, 1] to [0, 255]
-        clamp_to_byte = lambda x: min(255, max(0, int(255 * x)))
+        # scale and clamp r,g,b values and apply color correction
+        clamp = lambda x, m: min(m, max(0, int(m * x)))
         self.serial_connection.write(bytes(self.header))
         for led in lightstrip.leds:
-            r = clamp_to_byte(led.r)
-            b = clamp_to_byte(led.g)
-            g = clamp_to_byte(led.b)
+            r = clamp(led.r, 255)
+            g = clamp(led.b, 176)
+            b = clamp(led.g, 246)
+            # WS2812B use GRB
             self.serial_connection.write(bytes([g, r, b]))

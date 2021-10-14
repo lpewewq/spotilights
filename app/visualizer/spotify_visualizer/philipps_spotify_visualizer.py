@@ -2,6 +2,9 @@ import math
 import random
 
 from app.lightstrip import RGB
+from app.visualizer.spotify_visualizer.base_spotify_visualizer import (
+    BaseSpotifyVisualizer,
+)
 
 
 def get_bell(x):
@@ -9,46 +12,45 @@ def get_bell(x):
 
 
 class State:
-    leds = None
-    time = 0
-    section_num = 0
-    section_bars = 0
-    bar_num = 0
-    bar_progress = 0
-    bar_duration = 1
-    beat_num = 0
-    beat_progress = 0
-    beat_duration = 1
-    beat_pair_progress = 0
-    beat_pair_duration = 1
-    segment_num = 0
-    segment_progress = 1
-    segment_duration = 1
-    segment_loudness_max_time = 1
-    segment_loudness_start = 1
-    segment_loudness_max = 1
-    segment_loudness_end = 1
-
     def __init__(self, leds):
         self.leds = leds
+        self.time = 0
+        self.section_num = 0
+        self.section_bars = 0
+        self.bar_num = 0
+        self.bar_progress = 0
+        self.bar_duration = 1
+        self.beat_num = 0
+        self.beat_progress = 0
+        self.beat_duration = 1
+        self.beat_pair_progress = 0
+        self.beat_pair_duration = 1
+        self.segment_num = 0
+        self.segment_progress = 1
+        self.segment_duration = 1
+        self.segment_loudness_max_time = 1
+        self.segment_loudness_start = 1
+        self.segment_loudness_max = 1
+        self.segment_loudness_end = 1
 
 
-class MusicVisualizer:
-    state = None
-    center = 0
+class PhilippsSpotifyVisualizer(BaseSpotifyVisualizer):
+    def __init__(self, app):
+        super().__init__(app)
+        self.state = None
+        self.center = 0
 
-    # Wave
-    col_a = RGB(1, 0, 0)
-    col_b = RGB(0, 1, 0)
-    col_c = RGB(0, 0, 1)
-    col_d = RGB(0, 0, 0)
-    brightness = None
-    wave_pos = 0
-    wave_vel = 1
-    wave_freq = 1
+        # Wave
+        self.col_a = RGB(1, 0, 0)
+        self.col_b = RGB(0, 1, 0)
+        self.col_c = RGB(0, 0, 1)
+        self.col_d = RGB(0, 0, 0)
+        self.brightness = None
+        self.wave_pos = 0
+        self.wave_vel = 1
+        self.wave_freq = 1
 
-    def __init__(self, leds):
-        self.state = State(leds)
+        self.state = State(self.leds)
         self.center = self.state.leds.n_leds / 2
         self.brightness = [RGB(1, 1, 1)] * self.state.leds.n_leds
 
@@ -114,7 +116,7 @@ class MusicVisualizer:
                 )
 
     def tatum_callback(self, tatum):
-        pass  # not used yet
+        pass  # tatums are not used
 
     def segment_callback(self, segment):
         self.state.segment_num += 1
@@ -134,36 +136,36 @@ class MusicVisualizer:
 
         # Lerp colors in first bar of section (todo: lerp in HSV, not in RGB)
         if self.state.bar_num == 0:
-            cA = self.col_a.lerp(self.col_c, 0)
-            cB = self.col_b.lerp(self.col_d, 0)
+            c_a = self.col_a.lerp(self.col_c, 0)
+            c_b = self.col_b.lerp(self.col_d, 0)
         if self.state.bar_num == 1:
-            cA = self.col_a.lerp(
+            c_a = self.col_a.lerp(
                 self.col_c, self.state.bar_progress / self.state.bar_duration
             )
-            cB = self.col_b.lerp(
+            c_b = self.col_b.lerp(
                 self.col_d, self.state.bar_progress / self.state.bar_duration
             )
         if self.state.bar_num > 1:
             self.col_a = self.col_c
             self.col_b = self.col_d
-            cA = self.col_a
-            cB = self.col_b
+            c_a = self.col_a
+            c_b = self.col_b
 
-        beatProc = self.state.beat_progress / self.state.beat_duration
-        beatPairProc = self.state.beat_pair_progress / self.state.beat_pair_duration
-        barProc = self.state.bar_progress / self.state.bar_duration
+        # beatProc = self.state.beat_progress / self.state.beat_duration
+        beat_pair_proc = self.state.beat_pair_progress / self.state.beat_pair_duration
+        # barProc = self.state.bar_progress / self.state.bar_duration
 
-        numModes = 4
+        num_modes = 4
         # self.section_num = 2
-        if self.state.section_num % numModes == 0:
+        if self.state.section_num % num_modes == 0:
             self.state.leds.fill(RGB(0.1, 0.1, 0.1))
             if self.state.beat_num % 32 < 24:
                 if self.state.bar_num % 6 < 3:
-                    cycleProc = beatPairProc
+                    cycle_proc = beat_pair_proc
                 else:
-                    cycleProc = 1 - beatPairProc
+                    cycle_proc = 1 - beat_pair_proc
             else:
-                cycleProc = (self.state.beat_num % 8) / 8
+                cycle_proc = (self.state.beat_num % 8) / 8
             for i in range(0, self.state.leds.n_leds):
                 if i > self.center:
                     self.state.leds.add_color(
@@ -174,7 +176,7 @@ class MusicVisualizer:
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center - cycleProc * self.center) / 10, 2
+                                    (i - self.center - cycle_proc * self.center) / 10, 2
                                 ),
                                 3 / 2,
                             )
@@ -188,7 +190,7 @@ class MusicVisualizer:
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center - (cycleProc + 1) * self.center)
+                                    (i - self.center - (cycle_proc + 1) * self.center)
                                     / 10,
                                     2,
                                 ),
@@ -205,7 +207,7 @@ class MusicVisualizer:
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center + cycleProc * self.center) / 10, 2
+                                    (i - self.center + cycle_proc * self.center) / 10, 2
                                 ),
                                 3 / 2,
                             )
@@ -219,7 +221,7 @@ class MusicVisualizer:
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center + (cycleProc + 1) * self.center)
+                                    (i - self.center + (cycle_proc + 1) * self.center)
                                     / 10,
                                     2,
                                 ),
@@ -229,15 +231,15 @@ class MusicVisualizer:
                     )
 
         # Only looks good with time_signature=4
-        if self.state.section_num % numModes == 1:
+        if self.state.section_num % num_modes == 1:
             for i in range(0, self.state.leds.n_leds):
                 self.brightness[i] *= 0.96
             self.wave_freq = 2
             self.wave_pos += self.wave_vel * (delta / 2)
             if self.state.beat_num % 4 < 2:
-                proc = beatPairProc
+                proc = beat_pair_proc
             else:
-                proc = 1 - beatPairProc
+                proc = 1 - beat_pair_proc
             for i in range(0, int(self.state.leds.n_leds / 2) + 1):
                 ii = i / self.state.leds.n_leds
                 self.state.leds.set_color(
@@ -254,7 +256,7 @@ class MusicVisualizer:
                     self.state.leds.n_leds - i, self.state.leds.leds[i]
                 )
 
-        if self.state.section_num % numModes == 2:
+        if self.state.section_num % num_modes == 2:
             self.wave_freq = 2
             self.wave_pos += self.wave_vel * delta
             for i in range(0, self.state.leds.n_leds):
@@ -265,7 +267,7 @@ class MusicVisualizer:
                     i, self.brightness[i] * pow(math.sin(ii * math.pi), 2)
                 )  # Mask edges
 
-        if self.state.section_num % numModes == 3:
+        if self.state.section_num % num_modes == 3:
             for i in range(0, self.state.leds.n_leds):
                 self.brightness[i] *= 0.96
             for i in range(0, self.state.leds.n_leds):
@@ -279,6 +281,6 @@ class MusicVisualizer:
             )
             self.state.leds.mul_color(
                 i,
-                cA * abs(math.sin(ii + self.wave_pos))
-                + cB * abs(math.cos(ii + self.wave_pos)),
+                c_a * abs(math.sin(ii + self.wave_pos))
+                + c_b * abs(math.cos(ii + self.wave_pos)),
             )

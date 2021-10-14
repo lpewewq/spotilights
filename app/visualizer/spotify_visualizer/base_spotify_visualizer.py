@@ -1,16 +1,15 @@
 import time
+from abc import ABC, abstractmethod
 from datetime import datetime
 from threading import Lock
 
 import spotipy
+from app.lightstrip import Lightstrip
 from apscheduler.schedulers.background import BackgroundScheduler
 from spotipy.oauth2 import SpotifyOAuth
 
-from app.lightstrip import Lightstrip
-from app.music_visualizer import MusicVisualizer
 
-
-class SpotifyVisualizer:
+class BaseSpotifyVisualizer(ABC):
     def __init__(self, app):
         self.playback = None
         self.analysis = None
@@ -22,7 +21,6 @@ class SpotifyVisualizer:
         self.lock = Lock()
 
         self.leds = Lightstrip(app)
-        self.music_visualizer = MusicVisualizer(self.leds)
         self.spotify = spotipy.Spotify(
             auth_manager=SpotifyOAuth(
                 client_id=app.config["SPOTIPY_CLIENT_ID"],
@@ -130,13 +128,37 @@ class SpotifyVisualizer:
                     # check if index changed
                     if curr_index != getattr(self, self_attr):
                         setattr(self, self_attr, curr_index)
-                        getattr(self.music_visualizer, attr_callback)(
+                        getattr(self, attr_callback)(
                             self.analysis[analysis_attr][curr_index]
                         )
-                self.music_visualizer.generic_callback(delta)
+                self.generic_callback(delta)
 
                 # trigger instant update if track ends
                 if self.playback["progress_ms"] > self.analysis["track"]["duration"]:
                     self.playback_update_job.modify(next_run_time=datetime.now())
                     self.playback = None
             return self.leds
+
+    @abstractmethod
+    def section_callback(self, section):
+        pass
+
+    @abstractmethod
+    def bar_callback(self, bar):
+        pass
+
+    @abstractmethod
+    def beat_callback(self, beat):
+        pass
+
+    @abstractmethod
+    def tatum_callback(self, tatum):
+        pass
+
+    @abstractmethod
+    def segment_callback(self, segment):
+        pass
+
+    @abstractmethod
+    def generic_callback(self, delta):
+        pass

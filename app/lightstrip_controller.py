@@ -6,20 +6,23 @@ from app.serial_controller import SerialController
 
 
 class LightstripController:
-    last_update = 0
-    visualization = None
-
-    def __init__(self, app, visualization):
-        self.visualization = visualization
+    def __init__(self, app):
+        self.last_update = 0
+        self.job_running = False
         self.serial_controller = SerialController(app)
         self.scheduler = BackgroundScheduler()
-        self.scheduler.add_job(self.loop)
         self.scheduler.start()
 
-    def loop(self):
-        while True:
+    def start_visualization(self, visualization):
+        self.job_running = False
+        time.sleep(0.1)  # let the loop thread end
+        self.job_running = True
+        self.scheduler.add_job(func=self.loop, args=(visualization,))
+
+    def loop(self, visualization):
+        while self.job_running:
             now = time.time()
             time_delta = now - self.last_update
             self.last_update = now
-            lightstrip = self.visualization.update(time_delta)
+            lightstrip = visualization.update(time_delta)
             self.serial_controller.write(lightstrip)

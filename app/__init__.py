@@ -7,7 +7,8 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 
 spotify_visualizer = SpotifyVisualizer(app)
-lightstrip_controller = LightstripController(app, spotify_visualizer)
+lightstrip_controller = LightstripController(app)
+lightstrip_controller.start_visualization(spotify_visualizer)
 
 
 @app.route("/")
@@ -17,4 +18,5 @@ def index():
 
 @app.route("/spotify")
 def spotify():
+    lightstrip_controller.start_visualization(spotify_visualizer)
     return redirect("/")

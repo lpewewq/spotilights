@@ -1,13 +1,33 @@
+from threading import RLock
+
 import numpy as np
 import pyaudio
+from app.visualizer.base import BaseVisualizer
+from apscheduler.schedulers.background import BackgroundScheduler
 from scipy.signal import butter, filtfilt
 
 
-class AudioStream:
-    rate = 44100
+class BaseAudioVisualizer(BaseVisualizer):
+    def __init__(self, app):
+        super().__init__(app)
+        self.audio_stream = AudioStream()
+        self.audio_filter = None
+        self.lock = RLock()
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.read_stream)
+        self.scheduler.start()
 
+    def read_stream(self):
+        while True:
+            audio_filter = self.audio_stream.read()
+            with self.lock:
+                self.audio_filter = audio_filter
+
+
+class AudioStream:
     def __init__(self):
         self.chunk = 256
+        self.rate = 44100
         self.pa = pyaudio.PyAudio()
         self.audio_stream = self.pa.open(
             frames_per_buffer=self.chunk,
@@ -18,11 +38,9 @@ class AudioStream:
         )
 
     def read(self):
-        data = self.audio_stream.read(self.chunk, exception_on_overflow=False)
+        num_frames = max(self.audio_stream.get_read_available(), self.chunk)
+        data = self.audio_stream.read(num_frames, exception_on_overflow=False)
         signal = np.frombuffer(data, dtype=np.int16).astype(np.float)
-        self.audio_stream.read(
-            self.audio_stream.get_read_available(), exception_on_overflow=False
-        )
         return AudioFilter(signal, self.rate)
 
     def close(self):

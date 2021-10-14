@@ -1,16 +1,17 @@
 import time
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from datetime import datetime
 from threading import Lock
 
 import spotipy
-from app.lightstrip import Lightstrip
+from app.visualizer.base import BaseVisualizer
 from apscheduler.schedulers.background import BackgroundScheduler
 from spotipy.oauth2 import SpotifyOAuth
 
 
-class BaseSpotifyVisualizer(ABC):
+class BaseSpotifyVisualizer(BaseVisualizer):
     def __init__(self, app):
+        super().__init__(app)
         self.playback = None
         self.analysis = None
         self.curr_section = 0
@@ -20,7 +21,6 @@ class BaseSpotifyVisualizer(ABC):
         self.curr_segment = 0
         self.lock = Lock()
 
-        self.leds = Lightstrip(app)
         self.spotify = spotipy.Spotify(
             auth_manager=SpotifyOAuth(
                 client_id=app.config["SPOTIPY_CLIENT_ID"],

@@ -7,5 +7,10 @@ class PhilippsAudioSpotifyVisualizer(BaseAudioVisualizer, PhilippsSpotifyVisuali
         super().generic_callback(delta)
         with self.lock:
             audio_filter = self.audio_filter
-        power = (1 + 9 * audio_filter.power()) / 10
-        return self.leds * power
+        if audio_filter:
+            power = (1 + 9 * audio_filter.power()) / 10
+            for i in range(self.leds.n_leds):
+                self.leds.mul_color(i, power)
+
+
+# TODO: cleanup does not work with multi inheritance

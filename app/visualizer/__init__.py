@@ -12,6 +12,9 @@ class RGB:
         self.g = g
         self.b = b
 
+    def __repr__(self) -> str:
+        return f"RGB {self.r} {self.g} {self.b}"
+
     def __add__(self, other):
         if isinstance(other, self.__class__):
             return RGB(self.r + other.r, self.g + other.g, self.b + other.b)

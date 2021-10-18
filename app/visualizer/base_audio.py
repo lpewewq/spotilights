@@ -17,6 +17,10 @@ class BaseAudioVisualizer(BaseVisualizer):
         self.scheduler.add_job(self.read_stream)
         self.scheduler.start()
 
+    def cleanup(self):
+        self.scheduler.shutdown()
+        return super().cleanup()
+
     def read_stream(self):
         while True:
             audio_filter = self.audio_stream.read()

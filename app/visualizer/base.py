@@ -10,3 +10,6 @@ class BaseVisualizer(ABC):
     @abstractmethod
     def update(self, delta):
         return self.leds
+
+    def cleanup(self):
+        pass  # cleanup ressources

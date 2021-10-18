@@ -26,3 +26,4 @@ class LightstripController:
             self.last_update = now
             lightstrip = visualization.update(time_delta)
             self.serial_controller.write(lightstrip)
+        visualization.cleanup()

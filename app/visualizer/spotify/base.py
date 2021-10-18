@@ -39,6 +39,9 @@ class BaseSpotifyVisualizer(BaseVisualizer):
         )
         self.scheduler.start()
 
+    def cleanup(self):
+        self.scheduler.shutdown()
+
     def playback_update(self):
         # update playback track and audio analysis
         playback_update_time = time.time()

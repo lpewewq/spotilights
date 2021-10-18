@@ -38,10 +38,6 @@ class Lightstrip:
         self.n_leds = app.config["N_LEDS"]
         self.leds = [RGB(0, 0, 0) for _ in range(0, self.n_leds)]
 
-    def __mul__(self, other):
-        self.leds = [led * other for led in self.leds]
-        return self
-
     def fill(self, color):
         self.leds = [color for _ in range(0, self.n_leds)]
 

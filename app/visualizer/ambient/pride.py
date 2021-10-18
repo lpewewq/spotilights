@@ -9,11 +9,11 @@ from app.visualizer import RGB
 from app.visualizer.base import BaseVisualizer
 
 
-def beatsin(bpm, lowest=0.0, highest=1.0):
-    beat = time.time() * np.pi * bpm / 30
+def beatsin88(bpm, lowest, highest):
+    beat = time.time() * np.pi * bpm / 7680 
     beatsin = (np.sin(beat) + 1) / 2
     rangewidth = highest - lowest
-    return lowest + rangewidth * beatsin
+    return int(lowest + rangewidth * beatsin)
 
 
 class PrideVisualizer(BaseVisualizer):
@@ -25,19 +25,19 @@ class PrideVisualizer(BaseVisualizer):
     def update(self, delta):
         deltams = ct.c_uint16(int(delta * 1000))
 
-        sat8 = ct.c_uint8(int(beatsin(87.0 / 256, 220, 250)))
-        brightdepth = ct.c_uint8(int(beatsin(341.0 / 256, 96, 224)))
-        brightnessthetainc16 = ct.c_uint16(int(beatsin(203.0 / 256, 6400, 10240)))
-        msmultiplier = ct.c_uint8(int(beatsin(147.0 / 256, 23, 60)))
+        sat8 = ct.c_uint8(beatsin88(87, 220, 250))
+        brightdepth = ct.c_uint8(beatsin88(341, 96, 224))
+        brightnessthetainc16 = ct.c_uint16(beatsin88(203, 6400, 10240))
+        msmultiplier = ct.c_uint8(beatsin88(147, 23, 60))
 
         hue16 = ct.c_uint16(self.sHue16.value)
-        hueinc16 = ct.c_uint16(int(beatsin(113.0 / 256, 1, 3000)))
+        hueinc16 = ct.c_uint16(beatsin88(113, 1, 3000))
 
         self.sPseudotime = ct.c_uint16(
             self.sPseudotime.value + deltams.value * msmultiplier.value
         )
         self.sHue16 = ct.c_uint16(
-            self.sHue16.value + deltams.value * int(beatsin(400.0 / 256, 5, 9))
+            self.sHue16.value + deltams.value * beatsin88(400, 5, 9)
         )
         brightnesstheta16 = ct.c_uint16(self.sPseudotime.value)
 

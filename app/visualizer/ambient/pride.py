@@ -10,7 +10,7 @@ from app.visualizer.base import BaseVisualizer
 
 
 def beatsin88(bpm, lowest, highest):
-    beat = time.time() * np.pi * bpm / 7680 
+    beat = time.time() * np.pi * bpm / 7680
     beatsin = (np.sin(beat) + 1) / 2
     rangewidth = highest - lowest
     return int(lowest + rangewidth * beatsin)
@@ -43,7 +43,7 @@ class PrideVisualizer(BaseVisualizer):
 
         for led in self.leds.leds:
             hue16 = ct.c_uint16(hue16.value + hueinc16.value)
-            hue8 = ct.c_uint8(int(hue16.value / 256))
+            hue8 = ct.c_uint8(hue16.value // 256)
 
             brightnesstheta16 = ct.c_uint16(
                 brightnesstheta16.value + brightnessthetainc16.value
@@ -52,8 +52,8 @@ class PrideVisualizer(BaseVisualizer):
                 int((np.sin(np.pi * (brightnesstheta16.value / 32768)) + 1) * 32768)
             )
 
-            bri16 = ct.c_uint16(int((b16.value * b16.value) / 65536))
-            bri8 = ct.c_uint8(int((bri16.value * brightdepth.value) / 65536))
+            bri16 = ct.c_uint16((b16.value * b16.value) // 65536)
+            bri8 = ct.c_uint8((bri16.value * brightdepth.value) // 65536)
             bri8 = ct.c_uint8(bri8.value + 255 - brightdepth.value)
             newcolor = RGB(
                 *hsv_to_rgb(hue8.value / 255, sat8.value / 255, bri8.value / 255)

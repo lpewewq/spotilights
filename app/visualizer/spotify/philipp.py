@@ -35,13 +35,6 @@ class PhilippsSpotifyVisualizer(BaseSpotifyVisualizer):
         self.beat_duration = 1
         self.beat_pair_progress = 0
         self.beat_pair_duration = 1
-        self.segment_num = 0
-        self.segment_progress = 1
-        self.segment_duration = 1
-        self.segment_loudness_max_time = 1
-        self.segment_loudness_start = 1
-        self.segment_loudness_max = 1
-        self.segment_loudness_end = 1
         self.center = self.leds.n_leds / 2
         self.brightness = [RGB(1, 1, 1)] * self.leds.n_leds
 
@@ -54,8 +47,10 @@ class PhilippsSpotifyVisualizer(BaseSpotifyVisualizer):
         self.col_d = col_tmp
 
     def section_callback(self, section):
-        self.sectionLoudness = section["loudness"]
-        self.wave_vel = section["tempo"] / 100
+        if section is None:
+            return
+        self.sectionLoudness = section.loudness
+        self.wave_vel = section.tempo / 100
         self.wave_freq = 1
 
         # Center color again
@@ -84,14 +79,18 @@ class PhilippsSpotifyVisualizer(BaseSpotifyVisualizer):
         self.section_num += 1
 
     def bar_callback(self, bar):
+        if bar is None:
+            return
         self.bar_num += 1
-        self.bar_duration = bar["duration"]
-        self.bar_progress = 0
+        self.bar_duration = bar.duration
+        self.bar_progress = bar.progress
 
     def beat_callback(self, beat):
+        if beat is None:
+            return
         self.beat_num += 1
-        self.beat_progress = 0
-        self.beat_duration = beat["duration"]
+        self.beat_duration = beat.duration
+        self.beat_progress = beat.progress
 
         self.swap_cols()
 
@@ -110,19 +109,12 @@ class PhilippsSpotifyVisualizer(BaseSpotifyVisualizer):
         pass  # tatums are not used
 
     def segment_callback(self, segment):
-        self.segment_num += 1
-        self.segment_progress = 0
-        self.segment_duration = segment["duration"]
-        self.segment_loudness_start = segment["loudness_start"]
-        self.segment_loudness_max = segment["loudness_max"]
-        self.segment_loudness_end = segment["loudness_end"]
-        self.segment_loudness_max_time = segment["loudness_max_time"]
+        pass # segments are not used
 
     def generic_callback(self, delta):
         self.time += delta
         self.beat_progress += delta
         self.beat_pair_progress += delta
-        self.segment_progress += delta
         self.bar_progress += delta
 
         # Lerp colors in first bar of section (todo: lerp in HSV, not in RGB)

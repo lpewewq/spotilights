@@ -7,18 +7,14 @@ import spotipy
 from app.visualizer.base import BaseVisualizer
 from apscheduler.schedulers.background import BackgroundScheduler
 from spotipy.oauth2 import SpotifyOAuth
+from app.visualizer.spotify.analysis_provider import AnalysisProvider
 
 
 class BaseSpotifyVisualizer(BaseVisualizer):
     def __init__(self, app):
         super().__init__(app)
         self.playback = None
-        self.analysis = None
-        self.curr_section = 0
-        self.curr_bar = 0
-        self.curr_beat = 0
-        self.curr_tatum = 0
-        self.curr_segment = 0
+        self.analysis_provider = None
         self.lock = Lock()
 
         self.spotify = spotipy.Spotify(
@@ -51,14 +47,11 @@ class BaseSpotifyVisualizer(BaseVisualizer):
         if new_playback is None:
             with self.lock:
                 self.playback = None
-                self.analysis = None
+                self.analysis_provider = None
             return
 
         # correct playback progress (ms -> s) and correction term for current_playback call
-        new_playback["progress_ms"] = (
-            new_playback["progress_ms"] / 1000
-            + (time.time() - playback_update_time) / 2
-        )
+        new_playback["progress_ms"] = new_playback["progress_ms"] / 1000 + (time.time() - playback_update_time) / 2
 
         # update analysis of new item
         new_analysis = None
@@ -70,12 +63,7 @@ class BaseSpotifyVisualizer(BaseVisualizer):
         with self.lock:
             self.playback = new_playback
             if new_analysis:
-                self.analysis = new_analysis
-                self.curr_section = 0
-                self.curr_bar = 0
-                self.curr_beat = 0
-                self.curr_tatum = 0
-                self.curr_segment = 0
+                self.analysis_provider = AnalysisProvider(new_analysis)
 
     def update(self, delta):
         with self.lock:
@@ -89,9 +77,7 @@ class BaseSpotifyVisualizer(BaseVisualizer):
 
             # console logging
             playback_track_info = self.playback["item"]["name"]
-            playback_artist_info = ", ".join(
-                [a["name"] for a in self.playback["item"]["artists"]]
-            )
+            playback_artist_info = ", ".join([a["name"] for a in self.playback["item"]["artists"]])
             playback_progress = int(self.playback["progress_ms"])
             playback_fps = int(1.0 / delta)
             print(
@@ -99,46 +85,28 @@ class BaseSpotifyVisualizer(BaseVisualizer):
                 end="\r",
             )
 
-            # visualizer callbacks
-            def intersects(analysis_attr, curr_index):
-                start = self.analysis[analysis_attr][curr_index]["start"]
-                duration = self.analysis[analysis_attr][curr_index]["duration"]
-                return start <= self.playback["progress_ms"] < start + duration
+            if self.analysis_provider:
+                time = self.playback["progress_ms"]
+                current_section, has_changed = self.analysis_provider.get_current_section(time)
+                if has_changed:
+                    self.section_callback(current_section)
+                current_bar, has_changed = self.analysis_provider.get_current_bar(time)
+                if has_changed:
+                    self.bar_callback(current_bar)
+                current_beat, has_changed = self.analysis_provider.get_current_beat(time)
+                if has_changed:
+                    self.beat_callback(current_beat)
+                current_tatum, has_changed = self.analysis_provider.get_current_tatum(time)
+                if has_changed:
+                    self.tatum_callback(current_tatum)
+                current_segment, has_changed = self.analysis_provider.get_current_segment(time)
+                if has_changed:
+                    self.segment_callback(current_segment)
 
-            if self.analysis:
-                # calling the callback functions the dirty way
-                for analysis_item in ["section", "bar", "beat", "tatum", "segment"]:
-                    self_attr = "curr_" + analysis_item
-                    analysis_attr = analysis_item + "s"
-                    attr_callback = analysis_item + "_callback"
-
-                    curr_index = getattr(self, self_attr)
-                    if (
-                        self.analysis[analysis_attr][curr_index]["start"]
-                        <= self.playback["progress_ms"]
-                    ):
-                        # increment index to a newer item
-                        while not intersects(
-                            analysis_attr, curr_index
-                        ) and curr_index + 1 < len(self.analysis[analysis_attr]):
-                            curr_index += 1
-                    else:
-                        # decrement index to a previous item
-                        while (
-                            not intersects(analysis_attr, curr_index)
-                            and curr_index - 1 >= 0
-                        ):
-                            curr_index -= 1
-                    # check if index changed
-                    if curr_index != getattr(self, self_attr):
-                        setattr(self, self_attr, curr_index)
-                        getattr(self, attr_callback)(
-                            self.analysis[analysis_attr][curr_index]
-                        )
                 self.generic_callback(delta)
 
                 # trigger instant update if track ends
-                if self.playback["progress_ms"] > self.analysis["track"]["duration"]:
+                if self.playback["progress_ms"] > self.analysis_provider.track.duration:
                     self.playback_update_job.modify(next_run_time=datetime.now())
                     self.playback = None
             return self.leds

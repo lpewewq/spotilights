@@ -21,7 +21,7 @@ class SerialController:
         for led in lightstrip.leds:
             # color correction
             r = clamp(led.r, 255 * self.brightness)
-            g = clamp(led.b, 176 * self.brightness)
-            b = clamp(led.g, 246 * self.brightness)
+            g = clamp(led.g, 246 * self.brightness)
+            b = clamp(led.b, 176 * self.brightness)
             # WS2812B use GRB
             self.serial_connection.write(bytes([g, r, b]))

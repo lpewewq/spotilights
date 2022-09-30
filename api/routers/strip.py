@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Body
 from pydantic import BaseModel, condecimal
 from rpi_ws281x import Color
 
@@ -43,8 +43,8 @@ def get_brightness():
 
 
 @router.post("/brightness")
-def set_brightness(brightness: float = Query(ge=0.0, le=1.0)):
-    strip.setBrightness(to_byte(brightness))
+def set_brightness(brightness: int = Body(ge=0, le=255)):
+    strip.setBrightness(brightness)
 
 
 @router.post("/fill")
@@ -53,7 +53,7 @@ async def start_fill(color_model: ColorModel):
 
 
 @router.post("/rainbow")
-async def start_rainbow(delay: float = Query(0.5, ge=0.0)):
+async def start_rainbow(delay: float = Body(0.5, ge=0.0)):
     strip.start_animation(rainbow, delay)
 
 
@@ -62,5 +62,5 @@ async def start_pride():
     strip.start_animation(pride)
 
 @router.post("/theater")
-async def start_theater(delay: float = Query(0.05, ge=0.0)):
+async def start_theater(delay: float = Body(0.05, ge=0.0)):
     strip.start_animation(theater, delay)

@@ -12,9 +12,12 @@ class LEDStrip(PixelStrip):
         self.fillColor(Color(0, 0, 0))
         self.show()
 
-    def start_animation(self, animation_function, *args):
+    def stop_animation(self):
         if self.animation_task is not None and not self.animation_task.done():
             self.animation_task.cancel()
+
+    def start_animation(self, animation_function, *args):
+        self.stop_animation()
         self.animation_task = asyncio.create_task(animation_function(self, *args))
 
     def fillColor(self, color):

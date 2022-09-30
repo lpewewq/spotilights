@@ -1,21 +1,18 @@
 from fastapi import APIRouter, Body
-from pydantic import BaseModel, condecimal
+from pydantic import BaseModel, conint
 from rpi_ws281x import Color
 
-from ..scheduler import to_byte, fill, rainbow, pride, theater
+from ..scheduler import fill, rainbow, pride, theater
 from ..strip import strip
 
 
 class ColorModel(BaseModel):
-    red: condecimal(ge=0.0, le=1.0)
-    green: condecimal(ge=0.0, le=1.0)
-    blue: condecimal(ge=0.0, le=1.0)
+    red: conint(ge=0, le=255)
+    green: conint(ge=0, le=255)
+    blue: conint(ge=0, le=255)
 
     def get_color(self):
-        r = to_byte(self.red)
-        g = to_byte(self.green)
-        b = to_byte(self.blue)
-        return Color(r, g, b)
+        return Color(self.red, self.green, self.blue)
 
 
 router = APIRouter(prefix="/strip")
@@ -23,6 +20,7 @@ router = APIRouter(prefix="/strip")
 
 @router.on_event("shutdown")
 def shutdown():
+    strip.stop_animation()
     strip.fillColor(Color(0, 0, 0))
     strip.show()
 

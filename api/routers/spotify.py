@@ -18,9 +18,19 @@ def index():
     return get_spotify().me()
 
 
+@router.get("/currently-playing")
+def index():
+    if spotify_auth_manager.get_cached_token() is None:
+        return None
+
+    return get_spotify().currently_playing()
+
+
 @router.get("/oauth")
 def oauth():
-    return spotify_auth_manager.get_authorize_url()
+    return {
+        "authorize_url": spotify_auth_manager.get_authorize_url()
+    }
 
 
 @router.get("/oauth-callback")

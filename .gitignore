@@ -1,19 +1,8 @@
-# Build artifacts
-bin/
-
 # Visual Studio configuration files
 .vscode
 
-# Valgrind files
-vgcore*
-massif*
-callgrind*
-
-# Spotify credentials
-auth.sh
-
 # Python files
-__pycache__/
+__pycache__
 .cache
 venv
-instance
+.env

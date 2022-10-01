@@ -14,7 +14,7 @@
 	}
     function getMe() {
         if(browser) {
-            fetch("/api/spotify/me")
+            fetch("/api/spotify/current-user")
             .then((response) => response.json())
             .then((me) => {
 				spotify_me_fetched = true;

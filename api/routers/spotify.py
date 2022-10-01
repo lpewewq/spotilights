@@ -1,43 +1,59 @@
-import random
-
+import tekore as tk
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 
 from ..config import settings
-from ..spotify import get_spotify, spotify_auth_manager
+
+file = "tekore.cfg"
+current_user_auth = None
+scope = tk.scope.user_read_playback_state
+cred = tk.Credentials(client_id=settings.spotify_client_id, redirect_uri=settings.spotify_redirect_uri, asynchronous=True)
+spotify = tk.Spotify(asynchronous=True)
+
 
 router = APIRouter(prefix="/spotify")
 
 
-@router.get("/me")
-def index():
-    if spotify_auth_manager.get_cached_token() is None:
+@router.on_event("startup")
+async def update_token():
+    try:
+        conf = tk.config_from_file(file, return_refresh=True)
+        spotify.token = await cred.refresh_pkce_token(conf[3])
+        tk.config_to_file(file, (None, None, None, spotify.token.refresh_token))
+    except FileNotFoundError:
+        print("config not found")
+
+
+@router.get("/current-user")
+async def current_user():
+    if spotify.token is None:
         return None
 
-    return get_spotify().me()
+    if spotify.token.is_expiring:
+        print("Token expired, update!")
+        spotify.token = cred.refresh(spotify.token)
+        tk.config_to_file(file, (None, None, None, spotify.token.refresh_token))
 
-
-@router.get("/currently-playing")
-def index():
-    if spotify_auth_manager.get_cached_token() is None:
-        return None
-
-    return get_spotify().currently_playing()
+    return await spotify.current_user()
 
 
 @router.get("/oauth")
 def oauth():
-    return {
-        "authorize_url": spotify_auth_manager.get_authorize_url()
-    }
+    global current_user_auth
+    current_user_auth = tk.UserAuth(cred, scope, pkce=True)
+    return {"authorize_url": current_user_auth.url}
 
 
 @router.get("/oauth-callback")
-def callback(code: str, state: int):
-    if state != spotify_auth_manager.state:
-        raise HTTPException(status_code=401)
+async def callback(code: str, state: str):
+    if current_user_auth is None:
+        raise HTTPException(status_code=400)
 
-    spotify_auth_manager.state = random.randint(1, 10e10)
-    spotify_auth_manager.get_access_token(code, check_cache=False)
+    try:
+        spotify.token = await current_user_auth.request_token(code, state)
+        tk.config_to_file(file, (None, None, None, spotify.token.refresh_token))
+    except AssertionError:
+        raise HTTPException(status_code=400)
+
     return RedirectResponse("/")

@@ -3,6 +3,6 @@
 
 # Python files
 __pycache__
-.cache
 venv
 .env
+tekore.cfg

@@ -5,11 +5,13 @@
 	import RainbowAnimation from './RainbowAnimation.svelte';
 	import PrideAnimation from './PrideAnimation.svelte';
 	import TheaterAnimation from './TheaterAnimation.svelte';
+	import SpotifyAnimation from './SpotifyAnimation.svelte';
 </script>
 
 <main>
 	<Spotify/>
 	<Brightness/>
+	<SpotifyAnimation/>
 	<FillAnimation/>
 	<RainbowAnimation/>
 	<PrideAnimation/>

@@ -6,12 +6,19 @@ from colorsys import hsv_to_rgb
 import numpy as np
 from rpi_ws281x import Color
 
+from .routers.spotify import spotify
+
 
 def to_byte(value: float, lower=0.0, upper=1.0):
     res = min(value, upper)
     res = max(lower, res)
     return int(res * 255)
 
+def beatsin88(bpm, lowest, highest):
+    beat = time.time() * np.pi * bpm / 7680
+    beatsin = (np.sin(beat) + 1) / 2
+    rangewidth = highest - lowest
+    return int(lowest + rangewidth * beatsin)
 
 def wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
@@ -55,13 +62,6 @@ async def fill(strip, color):
 
 async def pride(strip):
     # Adapted from https://github.com/FastLED/FastLED/tree/b5874b588ade1d2639925e4e9719fa7d3c9d9e94/examples/Pride2015
-
-    def beatsin88(bpm, lowest, highest):
-        beat = time.time() * np.pi * bpm / 7680
-        beatsin = (np.sin(beat) + 1) / 2
-        rangewidth = highest - lowest
-        return int(lowest + rangewidth * beatsin)
-
     sPseudotime = ct.c_uint16(0)
     sLastMillis = time.time() * 1000
     sHue16 = ct.c_uint16(0)
@@ -101,3 +101,38 @@ async def pride(strip):
             strip.setPixelColorRGB(i, to_byte(r), to_byte(g), to_byte(b))
         strip.show()
         await asyncio.sleep(0)
+
+
+def get_bell(x):
+    return 1 / pow(1 + pow(x, 2), 3 / 2)
+
+async def spotify_animation(strip, red, green, blue):
+    update_interval = 10
+    audio_analysis = None
+    item_id = None
+    while True:
+        currently_playing = await spotify.playback_currently_playing()
+
+        if currently_playing is None:
+            print("currently_playing None")
+            await asyncio.sleep(10)
+            continue
+
+        is_playing = currently_playing.is_playing
+        if not is_playing:
+            print("is_playing False")
+            await asyncio.sleep(10)
+            continue
+
+        _item_id = currently_playing.item.id
+        if _item_id != item_id:
+            item_id = _item_id
+            audio_analysis = await spotify.track_audio_analysis(item_id)
+
+        bpm = audio_analysis.track["tempo"]
+        start = time.time()
+        while time.time() - start < update_interval:
+            beat = beatsin88(int(bpm * 256), 128, 255) / 255
+            strip.fillColor(Color(int(red * beat), int(green * beat), int(blue * beat)))
+            strip.show()
+            await asyncio.sleep(0)

@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     # Spotify
     spotify_client_id: str
     spotify_redirect_uri: str
-    spotify_scope: str = "user-read-playback-state"
 
     class Config:
         env_file = ".env"

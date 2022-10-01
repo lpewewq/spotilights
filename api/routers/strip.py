@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body
 from pydantic import BaseModel, conint
 from rpi_ws281x import Color
 
-from ..scheduler import fill, rainbow, pride, theater
+from ..animations import fill, rainbow, pride, theater, spotify_animation
 from ..strip import strip
 
 
@@ -59,6 +59,12 @@ async def start_rainbow(delay: float = Body(0.5, ge=0.0)):
 async def start_pride():
     strip.start_animation(pride)
 
+
 @router.post("/theater")
 async def start_theater(delay: float = Body(0.05, ge=0.0)):
     strip.start_animation(theater, delay)
+
+
+@router.post("/spotify")
+async def start_spotify(color_model: ColorModel):
+    strip.start_animation(spotify_animation, color_model.red, color_model.green, color_model.blue)

@@ -1,14 +1,10 @@
 <script>
-    import { browser } from '$app/environment';
-
     let delay = 50;
 	function start() {
-        if(browser) {
-            fetch("/api/strip/theater", {
-                method: "POST",
-                body: (delay / 1000).toString()
-            });
-        }
+		fetch("/api/strip/theater", {
+			method: "POST",
+			body: (delay / 1000).toString()
+		});
 	}
 </script>
 
@@ -22,7 +18,7 @@
 	h1 {
 		color: #ff3e00;
 		text-transform: uppercase;
-		font-size: 1.5em;
+		font-size: 1em;
 		font-weight: 100;
 	}
 </style>

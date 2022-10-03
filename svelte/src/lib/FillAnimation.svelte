@@ -11,7 +11,7 @@
 	function start() {
         if(color != null) {
             let rgb = hex_to_RGB(color);
-            fetch("/api/strip/fill", {
+            fetch("/api/animation/fill", {
                 method: "POST",
                 headers: {
                 'Accept': 'application/json',

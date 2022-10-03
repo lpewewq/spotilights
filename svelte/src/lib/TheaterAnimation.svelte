@@ -1,7 +1,7 @@
 <script>
     let delay = 50;
 	function start() {
-		fetch("/api/strip/theater", {
+		fetch("/api/animation/theater", {
 			method: "POST",
 			body: (delay / 1000).toString()
 		});

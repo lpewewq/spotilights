@@ -37,16 +37,24 @@ class PrideAnimation(BaseAnimation):
         ms = time.time() * 1000
         deltams = ct.c_uint16(int(ms - self.sLastMillis))
         self.sLastMillis = ms
-        self.sPseudotime = ct.c_uint16(self.sPseudotime.value + deltams.value * msmultiplier.value)
-        self.sHue16 = ct.c_uint16(self.sHue16.value + deltams.value * self.beatsin88(400, 5, 9))
+        self.sPseudotime = ct.c_uint16(
+            self.sPseudotime.value + deltams.value * msmultiplier.value
+        )
+        self.sHue16 = ct.c_uint16(
+            self.sHue16.value + deltams.value * self.beatsin88(400, 5, 9)
+        )
         brightnesstheta16 = ct.c_uint16(self.sPseudotime.value)
 
         for i in range(self.strip.numPixels()):
             hue16 = ct.c_uint16(hue16.value + hueinc16.value)
             hue8 = ct.c_uint8(hue16.value // 256)
 
-            brightnesstheta16 = ct.c_uint16(brightnesstheta16.value + brightnessthetainc16.value)
-            b16 = ct.c_uint16(int((np.sin(np.pi * (brightnesstheta16.value / 32768)) + 1) * 32768))
+            brightnesstheta16 = ct.c_uint16(
+                brightnesstheta16.value + brightnessthetainc16.value
+            )
+            b16 = ct.c_uint16(
+                int((np.sin(np.pi * (brightnesstheta16.value / 32768)) + 1) * 32768)
+            )
 
             bri16 = ct.c_uint16((b16.value * b16.value) // 65536)
             bri8 = ct.c_uint8((bri16.value * brightdepth.value) // 65536)
@@ -57,5 +65,7 @@ class PrideAnimation(BaseAnimation):
             r = (3 * r + color.r / 255) / 4
             g = (3 * g + color.g / 255) / 4
             b = (3 * b + color.b / 255) / 4
-            self.strip.setPixelColorRGB(i, self.to_byte(r), self.to_byte(g), self.to_byte(b))
+            self.strip.setPixelColorRGB(
+                i, self.to_byte(r), self.to_byte(g), self.to_byte(b)
+            )
         self.strip.show()

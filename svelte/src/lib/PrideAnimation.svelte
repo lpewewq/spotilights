@@ -1,6 +1,6 @@
 <script>
 	function start() {
-		fetch("/api/strip/pride", {
+		fetch("/api/animation/pride", {
 			method: "POST",
 		});
 	}

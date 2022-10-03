@@ -1,61 +1,45 @@
-import asyncio
+import time
 
-from .base import BaseAnimation
+import numpy as np
+import tekore as tk
+from rpi_ws281x import Color
+
+from .base_spotify import BaseSpotifyAnimation
 
 
-class FillAnimation(BaseAnimation):
-    def __init__(self, strip: "LEDStrip", color: int) -> None:
+class FillAnimation(BaseSpotifyAnimation):
+    def __init__(self, strip: "LEDStrip", color_model: "ColorModel") -> None:
         super().__init__(strip)
-        self.color = color
+        self.color_model = color_model
+        self.bpm = None
+
+    def beatsin88(self, bpm, lowest, highest) -> int:
+        beat = time.time() * np.pi * bpm / 7680
+        beatsin = (np.sin(beat) + 1) / 2
+        rangewidth = highest - lowest
+        return int(lowest + rangewidth * beatsin)
 
     async def loop(self) -> None:
-        self.strip.fillColor(self.color)
+        if self.bpm:
+            beat = self.beatsin88(self.bpm * 256, 128, 255) / 255
+        else:
+            beat = 1.0
+        red = int(self.color_model.red * beat)
+        green = int(self.color_model.green * beat)
+        blue = int(self.color_model.blue * beat)
+        self.strip.fillColor(Color(red, green, blue))
         self.strip.show()
-        await asyncio.sleep(1)
 
+    async def on_track_change(
+        self,
+        currently_playing: tk.model.CurrentlyPlaying,
+        audio_analysis: tk.model.AudioAnalysis,
+    ) -> None:
+        self.bpm = audio_analysis.track["tempo"]
+        print("Changed track:", currently_playing.item.name, self.bpm)
 
-# from .spotify import SharedData, animation_loop, update_playback
-# async def fill(strip, _red, _green, _blue):
-#     beat = None
-#     red = _red
-#     green = _green
-#     blue = _blue
-#     shared_playback = SharedData()
-#     shared_analysis = SharedData()
+    async def on_beat(self, beat: tk.model.TimeInterval) -> None:
+        print("Beat!", beat.start, beat.duration)
 
-#     def on_playback_change(playback, analysis):
-#         print("now playing:", playback.item.name, playback.is_playing)
-
-#     def on_section(section):
-#         global red, green, blue
-#         red += 7
-#         green += 17
-#         blue += 13
-#         red %= 256
-#         green %= 256
-#         blue %= 256
-
-#     def on_beat(_beat):
-#         global beat
-#         beat = _beat
-
-#     def on_loop(progress):
-#         # global bpm
-#         # if bpm:
-#         #     beat = beatsin88(int(bpm * 256), 128, 255) / 255
-#         # else:
-#         #     beat = 1
-#         # strip.fillColor(Color(int(red * beat), int(green * beat), int(blue * beat)))
-#         global beat
-
-#         _beat = 1 - (progress - beat.start) / beat.duration
-#         strip.fillColor(Color(int(red * _beat), int(green * _beat), int(blue * _beat)))
-
-#         strip.show()
-
-#     try:
-#         update_playback_task = asyncio.create_task(update_playback(shared_playback, shared_analysis))
-#         await animation_loop(shared_playback, shared_analysis, on_loop=on_loop, on_section=on_section, on_beat=on_beat, on_playback_change=on_playback_change)
-#     finally:
-#         update_playback_task.cancel()
-
+    async def on_section(self, section: tk.model.TimeInterval) -> None:
+        print("Section!", section.start, section.duration)

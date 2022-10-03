@@ -10,4 +10,4 @@ api_router.include_router(spotify.router)
 api_router.include_router(strip.router)
 
 app.include_router(api_router)
-# app.mount("/", StaticFiles(directory="svelte/public", html=True))
+app.mount("/", StaticFiles(directory="svelte/dist", html=True))

@@ -1,3 +1,4 @@
+import tekore as tk
 from pydantic import BaseSettings
 
 
@@ -13,6 +14,8 @@ class Settings(BaseSettings):
     # Spotify
     spotify_client_id: str
     spotify_redirect_uri: str
+    spotify_scope: tk.scope = tk.scope.user_read_playback_state
+    spotify_cache: str = "tekore.cfg"
 
     class Config:
         env_file = ".env"

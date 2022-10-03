@@ -3,21 +3,24 @@ import time
 from colorsys import hsv_to_rgb
 
 import numpy as np
+from colour import Color
 
+from ..strip.base import LEDStrip
+from . import animator, router
 from .base import BaseAnimation
 
 
+@router.post("/pride")
+async def start_pride():
+    animator.start(PrideAnimation)
+
+
 class PrideAnimation(BaseAnimation):
-    def __init__(self, strip: "LEDStrip") -> None:
+    def __init__(self, strip: LEDStrip) -> None:
         super().__init__(strip)
         self.sPseudotime = ct.c_uint16(0)
         self.sLastMillis = time.time() * 1000
         self.sHue16 = ct.c_uint16(0)
-
-    def to_byte(self, value: float, lower=0.0, upper=1.0) -> int:
-        res = min(value, upper)
-        res = max(lower, res)
-        return int(res * 255)
 
     def beatsin88(self, bpm, lowest, highest) -> int:
         beat = time.time() * np.pi * bpm / 7680
@@ -45,7 +48,7 @@ class PrideAnimation(BaseAnimation):
         )
         brightnesstheta16 = ct.c_uint16(self.sPseudotime.value)
 
-        for i in range(self.strip.numPixels()):
+        for i in range(self.strip.num_pixels()):
             hue16 = ct.c_uint16(hue16.value + hueinc16.value)
             hue8 = ct.c_uint8(hue16.value // 256)
 
@@ -61,11 +64,9 @@ class PrideAnimation(BaseAnimation):
             bri8 = ct.c_uint8(bri8.value + 255 - brightdepth.value)
             r, g, b = hsv_to_rgb(hue8.value / 255, sat8.value / 255, bri8.value / 255)
 
-            color = self.strip.getPixelColorRGB(i)
-            r = (3 * r + color.r / 255) / 4
-            g = (3 * g + color.g / 255) / 4
-            b = (3 * b + color.b / 255) / 4
-            self.strip.setPixelColorRGB(
-                i, self.to_byte(r), self.to_byte(g), self.to_byte(b)
-            )
+            _r, _g, _b = self.strip.get_pixel_color(i).get_rgb()
+            r = (3 * r + _r) / 4
+            g = (3 * g + _g) / 4
+            b = (3 * b + _b) / 4
+            self.strip.set_pixel_color(i, Color(rgb=(r, g, b)))
         self.strip.show()

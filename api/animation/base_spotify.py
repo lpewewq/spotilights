@@ -5,7 +5,8 @@ from typing import List
 
 import tekore as tk
 
-from ..spotify import playback_currently_playing, track_audio_analysis
+from ..spotify import spotify_client
+from ..strip.base import LEDStrip
 from .base import BaseAnimation
 
 
@@ -33,7 +34,7 @@ class BaseSpotifyAnimation(BaseAnimation, ABC):
     """Interface for animations using the Spotify API."""
 
     def __init__(
-        self, strip: "LEDStrip", update_interval=10, no_playback_sleep=10
+        self, strip: LEDStrip, update_interval=10, no_playback_sleep=10
     ) -> None:
         super().__init__(strip)
         self.update_interval = update_interval
@@ -61,7 +62,7 @@ class BaseSpotifyAnimation(BaseAnimation, ABC):
     async def _update_playback(self, once=False):
         item_id = None
         while True:
-            currently_playing = await playback_currently_playing()
+            currently_playing = await spotify_client.playback_currently_playing()
             fetch_time = time.time()
 
             if (
@@ -76,7 +77,7 @@ class BaseSpotifyAnimation(BaseAnimation, ABC):
                 await self.set_currently_playing(currently_playing)
                 if currently_playing.item.id != item_id:
                     item_id = currently_playing.item.id
-                    audio_analysis = await track_audio_analysis(
+                    audio_analysis = await spotify_client.track_audio_analysis(
                         currently_playing.item.id
                     )
                     await self.set_audio_analysis(audio_analysis)

@@ -2,9 +2,14 @@ from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 
-from . import spotify_client
+from . import spotify_client, spotify_animator
 
 router = APIRouter(prefix="/spotify")
+
+
+@router.on_event("shutdown")
+def shutdown():
+    spotify_animator.stop()
 
 
 @router.on_event("startup")

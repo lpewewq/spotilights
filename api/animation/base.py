@@ -1,8 +1,9 @@
-import asyncio
-import traceback
-from abc import ABC, abstractmethod
+from abc import ABC
+
+import tekore as tk
 
 from ..color import Color
+from ..spotify.shared_data import SharedData
 from ..strip.base import LEDStrip
 
 
@@ -12,26 +13,38 @@ class BaseAnimation(ABC):
     def __repr__(self) -> str:
         return type(self).__name__ + "()"
 
-    def __init__(self, strip: LEDStrip) -> None:
+    def __init__(self, strip: LEDStrip, shared_data: SharedData) -> None:
         self.strip: LEDStrip = strip
+        self.shared_data: SharedData = shared_data
 
-    async def start(self) -> None:
-        try:
-            while True:
-                await self.loop()
-                await asyncio.sleep(0)
-        except Exception as e:
-            print(f"{self} excepted:", e)
-            traceback.print_exc()
-
-    @abstractmethod
-    async def loop(self) -> None:
+    async def on_loop(self) -> None:
         """Animation loop"""
+        pass
+
+    async def on_pause(self) -> None:
+        """Playback paused callback"""
+        pass
+
+    async def on_resume(self) -> None:
+        """Playback resumed callback"""
+        pass
+
+    async def on_track_change(self) -> None:
+        """Track change callback"""
+        pass
+
+    async def on_section(self, section: tk.model.TimeInterval) -> None:
+        """Section callback"""
+        pass
+
+    async def on_beat(self, beat: tk.model.TimeInterval) -> None:
+        """Beat callback"""
+        pass
 
 
 class BaseRainbowAnimation(BaseAnimation, ABC):
-    def __init__(self, strip: LEDStrip, delay: float) -> None:
-        super().__init__(strip)
+    def __init__(self, delay: float,  *args, **kwargs) -> None:
+        super().__init__( *args, **kwargs)
         self.delay = delay
         self.rainbow = [self.wheel(pos) for pos in range(256)]
 

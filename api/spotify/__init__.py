@@ -1,5 +1,9 @@
 from ..config import settings
 from .client import SpotifyClient
+from .updater import SpotifyUpdater
+from .animator import SpotifyAnimator
+from ..strip import strip
+
 
 spotify_client = SpotifyClient(
     client_id=settings.spotify_client_id,
@@ -7,4 +11,14 @@ spotify_client = SpotifyClient(
     scope=settings.spotify_scope,
     cache_file=settings.spotify_cache,
     timeout=settings.spotify_timeout,
+)
+
+spotify_updater = SpotifyUpdater(
+    spotify_client=spotify_client,
+    update_interval=settings.spotify_update_interval,
+)
+
+spotify_animator = SpotifyAnimator(
+    spotify_updater=spotify_updater,
+    strip=strip,
 )

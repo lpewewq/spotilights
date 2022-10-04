@@ -2,17 +2,18 @@ import asyncio
 
 from fastapi import Body
 
-from . import animator, router
+from ..spotify import spotify_animator
+from . import router
 from .base import BaseRainbowAnimation
 
 
 @router.post("/rainbow")
 async def start_rainbow(delay: float = Body(0.5, ge=0.0)):
-    animator.start(RainbowAnimation, delay)
+    await spotify_animator.start(RainbowAnimation, delay)
 
 
 class RainbowAnimation(BaseRainbowAnimation):
-    async def loop(self) -> None:
+    async def on_loop(self) -> None:
         for offset in range(256):
             for i in range(self.strip.num_pixels()):
                 self.strip.set_pixel_color(i, self.rainbow[(i + offset) % 256])

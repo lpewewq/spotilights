@@ -1,9 +1,9 @@
 import asyncio
-from abc import ABC
 
-from colour import Color
 from fastapi import Body
 
+from ..color import Color
+from ..strip.base import LEDStrip
 from . import animator, router
 from .base import BaseRainbowAnimation
 
@@ -14,14 +14,16 @@ async def start_theater(delay: float = Body(0.05, ge=0.0)):
 
 
 class TheaterAnimation(BaseRainbowAnimation):
+    def __init__(self, strip: LEDStrip, delay: float) -> None:
+        super().__init__(strip, delay)
+        self.black = Color(r=0, g=0, b=0)
+
     async def loop(self) -> None:
-        for j in range(256):
+        for offset in range(256):
             for q in range(3):
                 for i in range(0, self.strip.num_pixels(), 3):
-                    r, g, b = self.wheel((i + j) % 255)
-                    color = Color(rgb=(r / 255, g / 255, b / 255))
-                    self.strip.set_pixel_color(i + q, color)
+                    self.strip.set_pixel_color(i + q, self.rainbow[(i + offset) % 256])
                 self.strip.show()
                 await asyncio.sleep(self.delay)
                 for i in range(0, self.strip.num_pixels(), 3):
-                    self.strip.set_pixel_color(i + q, Color("black"))
+                    self.strip.set_pixel_color(i + q, self.black)

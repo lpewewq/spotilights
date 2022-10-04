@@ -1,10 +1,9 @@
 import ctypes as ct
 import time
-from colorsys import hsv_to_rgb
 
 import numpy as np
-from colour import Color
 
+from ..color import Color
 from ..strip.base import LEDStrip
 from . import animator, router
 from .base import BaseAnimation
@@ -62,11 +61,8 @@ class PrideAnimation(BaseAnimation):
             bri16 = ct.c_uint16((b16.value * b16.value) // 65536)
             bri8 = ct.c_uint8((bri16.value * brightdepth.value) // 65536)
             bri8 = ct.c_uint8(bri8.value + 255 - brightdepth.value)
-            r, g, b = hsv_to_rgb(hue8.value / 255, sat8.value / 255, bri8.value / 255)
 
-            _r, _g, _b = self.strip.get_pixel_color(i).get_rgb()
-            r = (3 * r + _r) / 4
-            g = (3 * g + _g) / 4
-            b = (3 * b + _b) / 4
-            self.strip.set_pixel_color(i, Color(rgb=(r, g, b)))
+            color = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
+            color = color.blend(self.strip.get_pixel_color(i), 0.25)
+            self.strip.set_pixel_color(i, color)
         self.strip.show()

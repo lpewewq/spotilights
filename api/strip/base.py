@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from colour import Color
+from ..color import Color
 
 
 class LEDStrip(ABC):
     def clear(self) -> None:
-        self.fill_color(Color("black"))
+        self.fill_color(Color(r=0, g=0, b=0))
         self.show()
 
     def fill_color(self, color: Color) -> None:

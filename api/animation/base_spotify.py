@@ -1,6 +1,7 @@
 import asyncio
 import time
-from abc import ABC
+import traceback
+from abc import ABC, abstractmethod
 from typing import List
 
 import tekore as tk
@@ -33,31 +34,22 @@ def find(list: List[tk.model.TimeInterval], timestamp, previous_index):
 class BaseSpotifyAnimation(BaseAnimation, ABC):
     """Interface for animations using the Spotify API."""
 
-    def __init__(
-        self, strip: LEDStrip, update_interval=10, no_playback_sleep=10
-    ) -> None:
+    def __init__(self, strip: LEDStrip, update_interval=10) -> None:
         super().__init__(strip)
         self.update_interval = update_interval
-        self.no_playback_sleep = no_playback_sleep
         self._fetch_time = 0.0
+        # shared data
+        self._shared_lock = asyncio.Lock()
         self._currently_playing: tk.model.CurrentlyPlaying = None
-        self._currently_playing_lock = asyncio.Lock()
         self._audio_analysis: tk.model.AudioAnalysis = None
-        self._audio_analysis_lock = asyncio.Lock()
 
-    def get_currently_playing(self):
-        return self._currently_playing
+    async def get_currently_playing(self):
+        async with self._shared_lock:
+            return self._currently_playing
 
-    async def set_currently_playing(self, currently_playing):
-        async with self._currently_playing_lock:
-            self._currently_playing = currently_playing
-
-    def get_audio_analysis(self):
-        return self._audio_analysis
-
-    async def set_audio_analysis(self, audio_analysis):
-        async with self._audio_analysis_lock:
-            self._audio_analysis = audio_analysis
+    async def get_audio_analysis(self):
+        async with self._shared_lock:
+            return self._audio_analysis
 
     async def _update_playback(self, once=False):
         item_id = None
@@ -70,17 +62,22 @@ class BaseSpotifyAnimation(BaseAnimation, ABC):
                 or currently_playing.item.type != "track"
                 or currently_playing.item.is_local
             ):
-                await self.set_currently_playing(None)
-                await self.set_audio_analysis(None)
+                async with self._shared_lock:
+                    self._currently_playing = None
+                    self._audio_analysis = None
             else:
                 currently_playing.timestamp = int(fetch_time * 1000)
-                await self.set_currently_playing(currently_playing)
                 if currently_playing.item.id != item_id:
                     item_id = currently_playing.item.id
                     audio_analysis = await spotify_client.track_audio_analysis(
                         currently_playing.item.id
                     )
-                    await self.set_audio_analysis(audio_analysis)
+                    async with self._shared_lock:
+                        self._currently_playing = currently_playing
+                        self._audio_analysis = audio_analysis
+                else:
+                    async with self._shared_lock:
+                        self._currently_playing = currently_playing
             if once:
                 break
             else:
@@ -89,65 +86,77 @@ class BaseSpotifyAnimation(BaseAnimation, ABC):
     async def start(self) -> None:
         await self._update_playback(once=True)
         update_playback_task = asyncio.create_task(self._update_playback())
+
         current_beat_index = None
         current_section_index = None
         item_id = None
+        is_playing = True
+
         try:
             while True:
-                currently_playing = self.get_currently_playing()
-                audio_analysis = self.get_audio_analysis()
-                if currently_playing is None or audio_analysis is None:
-                    await asyncio.sleep(self.no_playback_sleep)
-                    continue
+                currently_playing = await self.get_currently_playing()
+                audio_analysis = await self.get_audio_analysis()
+                if currently_playing and audio_analysis:
+                    if item_id != currently_playing.item.id:
+                        await self.on_track_change()
+                        item_id = currently_playing.item.id
+                        current_beat_index = None
+                        current_section_index = None
 
-                if item_id != currently_playing.item.id:
-                    await self.on_track_change(currently_playing, audio_analysis)
-                    item_id = currently_playing.item.id
-                    current_beat_index = None
-                    current_section_index = None
+                    progress = currently_playing.progress_ms / 1000
+                    if not currently_playing.is_playing:
+                        if is_playing:
+                            is_playing = False
+                            await self.on_pause()
+                    else:
+                        if not is_playing:
+                            is_playing = True
+                            await self.on_resume()
 
-                progress = currently_playing.progress_ms / 1000
-                if currently_playing.is_playing:
-                    progress += time.time() - currently_playing.timestamp / 1000
+                        progress += time.time() - currently_playing.timestamp / 1000
 
-                beat_index = find(audio_analysis.beats, progress, current_beat_index)
-                section_index = find(
-                    audio_analysis.sections, progress, current_section_index
-                )
+                        beat_index = find(
+                            audio_analysis.beats, progress, current_beat_index
+                        )
+                        section_index = find(
+                            audio_analysis.sections, progress, current_section_index
+                        )
 
-                if section_index and current_section_index != section_index:
-                    current_section_index = section_index
-                    await self.on_section(
-                        audio_analysis.sections[current_section_index]
-                    )
+                        if section_index and current_section_index != section_index:
+                            current_section_index = section_index
+                            await self.on_section(
+                                audio_analysis.sections[current_section_index]
+                            )
 
-                if beat_index and current_beat_index != beat_index:
-                    current_beat_index = beat_index
-                    await self.on_beat(audio_analysis.beats[current_beat_index])
+                        if beat_index and current_beat_index != beat_index:
+                            current_beat_index = beat_index
+                            await self.on_beat(audio_analysis.beats[current_beat_index])
 
                 await self.loop()
                 await asyncio.sleep(0)
 
         except Exception as e:
             print(f"{self} excepted:", e)
+            traceback.print_exc()
         finally:
             update_playback_task.cancel()
 
-    async def loop(self) -> None:
-        pass
+    @abstractmethod
+    async def on_pause(self) -> None:
+        """Playback paused callback"""
 
-    async def on_track_change(
-        self,
-        currently_playing: tk.model.CurrentlyPlaying,
-        audio_analysis: tk.model.AudioAnalysis,
-    ) -> None:
+    @abstractmethod
+    async def on_resume(self) -> None:
+        """Playback resumed callback"""
+
+    @abstractmethod
+    async def on_track_change(self) -> None:
         """Track change callback"""
-        pass
 
-    async def on_beat(self, beat: tk.model.TimeInterval) -> None:
-        """Beat callback"""
-        pass
-
+    @abstractmethod
     async def on_section(self, section: tk.model.TimeInterval) -> None:
         """Section callback"""
-        pass
+
+    @abstractmethod
+    async def on_beat(self, beat: tk.model.TimeInterval) -> None:
+        """Beat callback"""

@@ -1,8 +1,6 @@
 import asyncio
 
-from colour import Color
 from fastapi import APIRouter
-from pydantic import BaseModel, conint
 
 from ..strip import LEDStrip, strip
 from .base import BaseAnimation
@@ -23,15 +21,6 @@ class Animator:
         self.stop()
         animation = animation_cls(self.strip, *args)
         self.animation_task = asyncio.create_task(animation.start())
-
-
-class ColorModel(BaseModel):
-    red: conint(ge=0, le=255, strict=True)
-    green: conint(ge=0, le=255, strict=True)
-    blue: conint(ge=0, le=255, strict=True)
-
-    def get_color(self):
-        return Color(rgb=(self.red / 255, self.green / 255, self.blue / 255))
 
 
 animator = Animator(strip)

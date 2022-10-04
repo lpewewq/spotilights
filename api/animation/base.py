@@ -33,18 +33,30 @@ class BaseAnimation(ABC):
         """Track change callback"""
         pass
 
-    async def on_section(self, section: tk.model.TimeInterval) -> None:
+    async def on_section(self, section: tk.model.Section, progress: float) -> None:
         """Section callback"""
         pass
 
-    async def on_beat(self, beat: tk.model.TimeInterval) -> None:
+    async def on_bar(self, beat: tk.model.TimeInterval, progress: float) -> None:
+        """Bar callback"""
+        pass
+
+    async def on_beat(self, beat: tk.model.TimeInterval, progress: float) -> None:
         """Beat callback"""
+        pass
+
+    async def on_tatum(self, beat: tk.model.TimeInterval, progress: float) -> None:
+        """Tatum callback"""
+        pass
+
+    async def on_segment(self, beat: tk.model.Segment, progress: float) -> None:
+        """Segment callback"""
         pass
 
 
 class BaseRainbowAnimation(BaseAnimation, ABC):
-    def __init__(self, delay: float,  *args, **kwargs) -> None:
-        super().__init__( *args, **kwargs)
+    def __init__(self, delay: float, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.delay = delay
         self.rainbow = [self.wheel(pos) for pos in range(256)]
 

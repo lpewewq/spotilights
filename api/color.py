@@ -31,17 +31,33 @@ class Color:
         b = int(self.b) & 255
         return (r << 16) | (g << 8) | b
 
-    def scale(self, f: float) -> "Color":
-        r = int(self.r * f) & 255
-        g = int(self.g * f) & 255
-        b = int(self.b * f) & 255
+    def blend(self, other: "Color", percentage: float = 0.5) -> "Color":
+        keep = 1 - percentage
+        r = int(self.r * keep + other.r * percentage) & 255
+        g = int(self.g * keep + other.g * percentage) & 255
+        b = int(self.b * keep + other.b * percentage) & 255
         return Color(r, g, b)
 
-    def blend(self, other: "Color", f: float = 0.5) -> "Color":
-        keep = 1 - f
-        r = int(self.r * keep + other.r * f) & 255
-        g = int(self.g * keep + other.g * f) & 255
-        b = int(self.b * keep + other.b * f) & 255
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            r = int(self.r + other.r) & 255
+            g = int(self.g + other.g) & 255
+            b = int(self.b + other.b) & 255
+        else:
+            r = int(self.r + other) & 255
+            g = int(self.g + other) & 255
+            b = int(self.b + other) & 255
+        return Color(r, g, b)
+
+    def __mul__(self, other):
+        if isinstance(other, self.__class__):
+            r = int(self.r * other.r / 255) & 255
+            g = int(self.g * other.g / 255) & 255
+            b = int(self.b * other.b / 255) & 255
+        else:
+            r = int(self.r * other) & 255
+            g = int(self.g * other) & 255
+            b = int(self.b * other) & 255
         return Color(r, g, b)
 
 

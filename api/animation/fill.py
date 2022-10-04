@@ -41,5 +41,5 @@ class FillAnimation(BaseAnimation):
         await self.set_beat()
 
     async def on_loop(self) -> None:
-        self.strip.fill_color(self.color.scale(self.beat()))
+        self.strip.fill_color(self.color * self.beat())
         self.strip.show()

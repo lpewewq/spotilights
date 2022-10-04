@@ -18,7 +18,9 @@ class SharedData:
         async with self._audio_analysis_lock:
             return self._audio_analysis
 
-    async def set_currently_playing(self, currently_playing: tk.model.CurrentlyPlaying) -> None:
+    async def set_currently_playing(
+        self, currently_playing: tk.model.CurrentlyPlaying
+    ) -> None:
         async with self._currently_playing_lock:
             self._currently_playing = currently_playing
 

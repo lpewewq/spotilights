@@ -42,3 +42,11 @@ class LEDStrip(ABC):
         """Fill enitre strip with single color"""
         for i in range(self.num_pixels()):
             self.set_pixel_color(i, color)
+
+    def add_pixel_color(self, n: int, color: Color) -> None:
+        """Add color to LED at position n"""
+        self.set_pixel_color(n, self.get_pixel_color(n) + color)
+
+    def mult_pixel_color(self, n: int, color: Color) -> None:
+        """Scale color of LED at position n"""
+        self.set_pixel_color(n, self.get_pixel_color(n) * s)

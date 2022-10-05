@@ -1,13 +1,12 @@
 from typing import List
 
-from rpi_ws281x import Color as rpi_color
 from rpi_ws281x import PixelStrip
 
-from ..color import Color
-from .base import LEDStrip
+from ...color import Color
+from ..base import ShowableStrip
 
 
-class RpiStrip(LEDStrip):
+class RPIStrip(ShowableStrip):
     def __init__(
         self,
         num: int,
@@ -29,6 +28,7 @@ class RpiStrip(LEDStrip):
         )
         self._rpi_strip.begin()
         self.clear()
+        self.show()
 
     def show(self) -> None:
         self._rpi_strip.show()

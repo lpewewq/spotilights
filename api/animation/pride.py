@@ -6,15 +6,16 @@ import numpy as np
 from ..color import Color
 from ..spotify import spotify_animator
 from . import router
-from .base import BaseAnimation
+from .base import Animation
 
 
 @router.post("/pride")
 async def start_pride():
-    await spotify_animator.start(PrideAnimation)
+    animation = PrideAnimation()
+    await spotify_animator.start(animation)
 
 
-class PrideAnimation(BaseAnimation):
+class PrideAnimation(Animation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.sPseudotime = ct.c_uint16(0)
@@ -65,4 +66,3 @@ class PrideAnimation(BaseAnimation):
             color = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
             color = color.blend(self.strip.get_pixel_color(i), 0.25)
             self.strip.set_pixel_color(i, color)
-        self.strip.show()

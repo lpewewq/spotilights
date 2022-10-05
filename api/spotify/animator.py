@@ -5,38 +5,34 @@ from typing import List
 
 import tekore as tk
 
-from ..animation.base import BaseAnimation
-from ..strip import LEDStrip
+from ..animation.base import Animation
+from ..strip.base import ShowableStrip
 from .updater import SpotifyUpdater
 
 
 class SpotifyAnimator:
-    def __init__(self, spotify_updater: SpotifyUpdater, strip: LEDStrip) -> None:
+    def __init__(self, spotify_updater: SpotifyUpdater, strip: ShowableStrip) -> None:
         self.spotify_updater = spotify_updater
         self.strip = strip
         self.animation_task: asyncio.Task = None
 
-    async def start(self, animation_cls: type[BaseAnimation], *args, **kwargs) -> None:
+    async def start(self, animation: Animation) -> None:
         await self.spotify_updater.start()
         self.cancel_animation_task()
-        animation = animation_cls(
-            *args,
-            **kwargs,
-            strip=self.strip,
-            shared_data=self.spotify_updater.shared_data,
-        )
+        animation.init_strip(self.strip)
         self.animation_task = asyncio.create_task(self._loop(animation))
 
     def stop(self) -> None:
         self.cancel_animation_task()
         self.spotify_updater.stop()
         self.strip.clear()
+        self.strip.show()
 
     def cancel_animation_task(self) -> None:
         if self.animation_task is not None and not self.animation_task.done():
             self.animation_task.cancel()
 
-    async def _loop(self, animation: BaseAnimation) -> None:
+    async def _loop(self, animation: Animation) -> None:
         current_segment_index = None
         current_tatum_index = None
         current_beat_index = None
@@ -55,7 +51,9 @@ class SpotifyAnimator:
                 )
                 if currently_playing and audio_analysis:
                     if item_id != currently_playing.item.id:
-                        await animation.on_track_change()
+                        await animation.on_track_change(
+                            self.spotify_updater.shared_data
+                        )
                         item_id = currently_playing.item.id
                         current_segment_index = None
                         current_tatum_index = None
@@ -67,11 +65,11 @@ class SpotifyAnimator:
                     if not currently_playing.is_playing:
                         if is_playing:
                             is_playing = False
-                            await animation.on_pause()
+                            await animation.on_pause(self.spotify_updater.shared_data)
                     else:
                         if not is_playing:
                             is_playing = True
-                            await animation.on_resume()
+                            await animation.on_resume(self.spotify_updater.shared_data)
 
                         progress += time.time() - currently_playing.timestamp / 1000
 
@@ -122,6 +120,7 @@ class SpotifyAnimator:
                             await animation.on_segment(segment, progress)
 
                 await animation.on_loop()
+                self.strip.show()
                 await asyncio.sleep(0)
 
         except Exception as e:

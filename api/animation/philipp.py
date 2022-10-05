@@ -7,15 +7,16 @@ import tekore as tk
 from ..color import Color
 from ..spotify import spotify_animator
 from . import router
-from .base import BaseAnimation
+from .base import Animation
 
 
 @router.post("/philipp")
 async def start_philipp():
-    await spotify_animator.start(PhilippAnimation)
+    animation = PhilippAnimation()
+    await spotify_animator.start(animation)
 
 
-class PhilippAnimation(BaseAnimation):
+class PhilippAnimation(Animation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.last_update = time.time()
@@ -279,4 +280,3 @@ class PhilippAnimation(BaseAnimation):
                 c_a * abs(math.sin(ii + self.wave_pos))
                 + c_b * abs(math.cos(ii + self.wave_pos)),
             )
-        self.strip.show()

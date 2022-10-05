@@ -1,8 +1,7 @@
 from ..config import settings
-from .base import LEDStrip
-from .rpi_strip import RpiStrip
+from .concrete import RPIStrip
 
-strip = RpiStrip(
+strip = RPIStrip(
     num=settings.led_count,
     pin=settings.led_pin,
     freq_hz=settings.led_freq_hz,

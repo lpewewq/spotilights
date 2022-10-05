@@ -1,9 +1,8 @@
 from ..config import settings
+from ..strip import strip
+from .animator import SpotifyAnimator
 from .client import SpotifyClient
 from .updater import SpotifyUpdater
-from .animator import SpotifyAnimator
-from ..strip import strip
-
 
 spotify_client = SpotifyClient(
     client_id=settings.spotify_client_id,

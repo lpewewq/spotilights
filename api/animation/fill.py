@@ -45,3 +45,7 @@ class FillAnimation(Animation):
 
     async def on_loop(self) -> None:
         self.strip.fill_color(self.color * self.beat())
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return True

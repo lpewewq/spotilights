@@ -66,3 +66,7 @@ class PrideAnimation(Animation):
             color = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
             color = color.blend(self.strip.get_pixel_color(i), 0.25)
             self.strip.set_pixel_color(i, color)
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return False

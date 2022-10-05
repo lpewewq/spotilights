@@ -47,3 +47,7 @@ class InverseAnimation(Animation):
 
     async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
         await self.animation.on_segment(segment, progress)
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return self.animation.depends_on_spotify

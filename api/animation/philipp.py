@@ -280,3 +280,7 @@ class PhilippAnimation(Animation):
                 c_a * abs(math.sin(ii + self.wave_pos))
                 + c_b * abs(math.cos(ii + self.wave_pos)),
             )
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return True

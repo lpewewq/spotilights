@@ -28,3 +28,7 @@ class RainbowAnimation(RainbowAnimation):
         for i in range(self.strip.num_pixels()):
             self.strip.set_pixel_color(i, self.rainbow[(i + self.offset) % 256])
         self.offset = (self.offset + 1) % 256
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return False

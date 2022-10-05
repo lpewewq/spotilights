@@ -72,3 +72,7 @@ class SplitAnimation(Animation):
     async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
         await self.left_animation.on_segment(segment, progress)
         await self.right_animation.on_segment(segment, progress)
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return self.left_animation.depends_on_spotify or self.right_animation.depends_on_spotify

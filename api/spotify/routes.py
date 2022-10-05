@@ -7,14 +7,19 @@ from . import spotify_client, spotify_animator
 router = APIRouter(prefix="/spotify")
 
 
+@router.on_event("startup")
+async def startup_load_token():
+    await spotify_client.load_token()
+
+
 @router.on_event("shutdown")
 def shutdown():
     spotify_animator.stop()
 
 
-@router.on_event("startup")
-async def startup_load_token():
-    await spotify_client.load_token()
+@router.post("/stop")
+async def stop_animator():
+    spotify_animator.stop()
 
 
 @router.get("/current-user")

@@ -42,3 +42,7 @@ class TheaterAnimation(RainbowAnimation):
 
         if self.q == 0:
             self.offset = (self.offset + 1) % 256
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return False

@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import tekore as tk
 
@@ -57,3 +57,8 @@ class Animation(ABC):
     async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
         """Segment callback"""
         pass
+
+    @property
+    @abstractmethod
+    def depends_on_spotify(self) -> bool:
+        """Property to identify spotify dependant animations"""

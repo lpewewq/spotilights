@@ -6,3 +6,6 @@ __pycache__
 venv
 .env
 tekore.cfg
+
+# Arduino
+bin

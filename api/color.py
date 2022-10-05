@@ -1,5 +1,6 @@
 from colorsys import hsv_to_rgb
 from dataclasses import dataclass
+from typing import Tuple
 
 from pydantic import BaseModel, confloat, conint
 
@@ -30,6 +31,12 @@ class Color:
         g = int(self.g) & 255
         b = int(self.b) & 255
         return (r << 16) | (g << 8) | b
+
+    def as_bytes(self) -> Tuple[int, int, int]:
+        r = int(self.r) & 255
+        g = int(self.g) & 255
+        b = int(self.b) & 255
+        return r, g, b
 
     def blend(self, other: "Color", percentage: float = 0.5) -> "Color":
         keep = 1 - percentage

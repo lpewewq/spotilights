@@ -6,6 +6,7 @@ import tekore as tk
 
 from ..color import Color
 from ..spotify import spotify_animator
+from ..strip.base.sub import SubStrip
 from . import router
 from .base import Animation
 
@@ -42,6 +43,9 @@ class PhilippAnimation(Animation):
         self.beat_duration = 1
         self.beat_pair_progress = 0
         self.beat_pair_duration = 1
+
+    def init_strip(self, strip: SubStrip) -> None:
+        super().init_strip(strip)
         self.center = self.strip.num_pixels() / 2
         self.brightness = [1.0] * self.strip.num_pixels()
 
@@ -111,9 +115,7 @@ class PhilippAnimation(Animation):
 
         if self.section_num % 4 == 3:
             for i in range(0, self.strip.num_pixels()):
-                self.brightness[i] += self.get_bell(
-                    (i - ((self.beat_num % 5) / 4) * 287) / 10
-                )
+                self.brightness[i] += self.get_bell((i - ((self.beat_num % 5) / 4) * 287) / 10)
 
     async def on_loop(self) -> None:
         now = time.time()
@@ -161,10 +163,7 @@ class PhilippAnimation(Animation):
                         * (
                             1
                             / pow(
-                                1
-                                + pow(
-                                    (i - self.center - cycle_proc * self.center) / 10, 2
-                                ),
+                                1 + pow((i - self.center - cycle_proc * self.center) / 10, 2),
                                 3 / 2,
                             )
                         ),
@@ -177,8 +176,7 @@ class PhilippAnimation(Animation):
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center - (cycle_proc + 1) * self.center)
-                                    / 10,
+                                    (i - self.center - (cycle_proc + 1) * self.center) / 10,
                                     2,
                                 ),
                                 3 / 2,
@@ -192,10 +190,7 @@ class PhilippAnimation(Animation):
                         * (
                             1
                             / pow(
-                                1
-                                + pow(
-                                    (i - self.center + cycle_proc * self.center) / 10, 2
-                                ),
+                                1 + pow((i - self.center + cycle_proc * self.center) / 10, 2),
                                 3 / 2,
                             )
                         ),
@@ -208,8 +203,7 @@ class PhilippAnimation(Animation):
                             / pow(
                                 1
                                 + pow(
-                                    (i - self.center + (cycle_proc + 1) * self.center)
-                                    / 10,
+                                    (i - self.center + (cycle_proc + 1) * self.center) / 10,
                                     2,
                                 ),
                                 3 / 2,
@@ -231,21 +225,15 @@ class PhilippAnimation(Animation):
                 ii = i / self.strip.num_pixels()
                 self.strip.set_pixel_color(
                     i,
-                    Color(r=255, g=255, b=255)
-                    * self.brightness[i]
-                    * pow(math.sin(ii * math.pi), 3),
+                    Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 3),
                 )  # Mask edges
                 self.strip.add_pixel_color(
                     i,
                     Color(r=255, g=255, b=255)
                     * (1 - proc)
-                    * pow(
-                        self.get_bell((i - self.center + proc * self.center) / 10), 2
-                    ),
+                    * pow(self.get_bell((i - self.center + proc * self.center) / 10), 2),
                 )
-                self.strip.set_pixel_color(
-                    self.strip.num_pixels() - i, self.strip.get_pixel_color(i)
-                )
+                self.strip.set_pixel_color(self.strip.num_pixels() - i - 1, self.strip.get_pixel_color(i))
 
         if self.section_num % num_modes == 2:
             self.wave_freq = 2
@@ -256,29 +244,20 @@ class PhilippAnimation(Animation):
                 ii = i / self.strip.num_pixels()
                 self.strip.set_pixel_color(
                     i,
-                    Color(r=255, g=255, b=255)
-                    * self.brightness[i]
-                    * pow(math.sin(ii * math.pi), 2),
+                    Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 2),
                 )  # Mask edges
 
         if self.section_num % num_modes == 3:
             for i in range(0, self.strip.num_pixels()):
                 self.brightness[i] *= 0.96
             for i in range(0, self.strip.num_pixels()):
-                self.strip.set_pixel_color(
-                    i, Color(r=255, g=255, b=255) * self.brightness[i]
-                )
+                self.strip.set_pixel_color(i, Color(r=255, g=255, b=255) * self.brightness[i])
 
         for i in range(0, self.strip.num_pixels()):
-            ii = (
-                ((i - self.strip.num_pixels() / 2) / self.strip.num_pixels())
-                * math.pi
-                * self.wave_freq
-            )
+            ii = ((i - self.strip.num_pixels() / 2) / self.strip.num_pixels()) * math.pi * self.wave_freq
             self.strip.mult_pixel_color(
                 i,
-                c_a * abs(math.sin(ii + self.wave_pos))
-                + c_b * abs(math.cos(ii + self.wave_pos)),
+                c_a * abs(math.sin(ii + self.wave_pos)) + c_b * abs(math.cos(ii + self.wave_pos)),
             )
 
     @property

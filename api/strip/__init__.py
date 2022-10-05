@@ -1,12 +1,25 @@
-from ..config import settings
-from .concrete import RPIStrip
+import warnings
 
-strip = RPIStrip(
-    num=settings.led_count,
-    pin=settings.led_pin,
-    freq_hz=settings.led_freq_hz,
-    dma=settings.led_dma,
-    invert=settings.led_invert,
-    brightness=settings.led_brightness,
-    channel=settings.led_channel,
-)
+from ..config import settings
+from .concrete import ArduinoStrip, RPIStrip
+
+if settings.use_backend == "raspberrypi":
+    strip = RPIStrip(
+        num=settings.led_count,
+        pin=settings.raspi_pin,
+        freq_hz=settings.raspi_freq_hz,
+        dma=settings.raspi_dma,
+        invert=settings.raspi_invert,
+        brightness=settings.led_brightness,
+        channel=settings.raspi_channel,
+    )
+elif settings.use_backend == "arduino":
+    strip = ArduinoStrip(
+        num=settings.led_count,
+        brightness=settings.led_brightness,
+        port=settings.arduino_serial_port,
+        baudrate=settings.arduino_serial_baudrate,
+        header=settings.arduino_serial_header,
+    )
+else:
+    warnings.warn("Unknown LED strip backend!")

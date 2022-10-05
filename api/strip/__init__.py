@@ -1,9 +1,10 @@
 import warnings
 
 from ..config import settings
-from .concrete import ArduinoStrip, RPIStrip
 
 if settings.use_backend == "raspberrypi":
+    from .concrete.raspberrypi import RPIStrip
+
     strip = RPIStrip(
         num=settings.led_count,
         pin=settings.raspi_pin,
@@ -14,6 +15,8 @@ if settings.use_backend == "raspberrypi":
         channel=settings.raspi_channel,
     )
 elif settings.use_backend == "arduino":
+    from .concrete.arduino import ArduinoStrip
+
     strip = ArduinoStrip(
         num=settings.led_count,
         brightness=settings.led_brightness,

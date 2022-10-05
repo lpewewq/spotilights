@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     # LED strip
-    use_backend: str = "arduino"  # "arduino" or "raspberrypi"
+    use_backend: str = "raspberrypi"  # "arduino" or "raspberrypi"
     led_count: int  # Number of LED pixels.
     led_brightness: float = 0.25  # in range between 0.0 and 1.0
     # Raspberry Pi specific

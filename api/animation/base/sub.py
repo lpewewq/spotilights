@@ -39,7 +39,7 @@ class SubAnimation(Animation):
         for weight in self.weights:
             weight_sum.append(weight_sum[-1] + weight)
         n = strip.num_pixels()
-        offsets = [int(ws * n) for ws in weight_sum]
+        offsets = [round(ws * n) for ws in weight_sum]
         for animation, offset, next_offset, inverse in zip(self.animations, offsets, offsets[1:], self.inverse):
             animation.init_strip(
                 SubStrip(

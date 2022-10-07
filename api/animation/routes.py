@@ -2,10 +2,10 @@ from fastapi import APIRouter, Body
 
 from ..color import IntColorModel
 from ..spotify import spotify_animator
+from .base import MirrorAnimation
 from .basic import FillAnimation, Wave2DAnimation
 from .complex import PhilippAnimation
 from .spotifyless import PrideAnimation, RainbowAnimation, TheaterAnimation
-
 
 router = APIRouter(prefix="/animation")
 
@@ -36,11 +36,11 @@ async def start_pride():
 
 @router.post("/rainbow")
 async def start_rainbow(delay: float = Body(0.5, ge=0)):
-    animation = RainbowAnimation(delay)
+    animation = MirrorAnimation(RainbowAnimation(delay), divisions=4)
     spotify_animator.start(animation)
 
 
 @router.post("/theater")
 async def start_theater(delay: float = Body(0.05, ge=0)):
-    animation = TheaterAnimation(delay)
+    animation = MirrorAnimation(TheaterAnimation(delay), divisions=2, inverse=[True, False])
     spotify_animator.start(animation)

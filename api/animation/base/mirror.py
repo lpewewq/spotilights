@@ -6,16 +6,18 @@ from .absract import Animation
 
 
 class MirrorAnimation(Animation):
-    def __init__(self, animation: Animation) -> None:
+    def __init__(self, animation: Animation, divisions: int = 2, inverse: list[bool] = None) -> None:
         super().__init__()
         self.animation = animation
+        self.divisions = divisions
+        self.inverse = inverse
 
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.animation})"
 
     def init_strip(self, strip: AbstractStrip) -> None:
         super().init_strip(strip)
-        self.animation.init_strip(MirroredStrip(strip=strip))
+        self.animation.init_strip(MirroredStrip(strip=strip, divisions=self.divisions, inverse=self.inverse))
 
     async def on_loop(self) -> None:
         await self.animation.on_loop()

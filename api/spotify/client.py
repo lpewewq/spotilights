@@ -4,15 +4,9 @@ import httpx
 import tekore as tk
 
 
-warnings.filterwarnings(
-    "ignore", message="`SPOTIFY_CLIENT_ID` missing! None returned instead."
-)
-warnings.filterwarnings(
-    "ignore", message="`SPOTIFY_CLIENT_SECRET` missing! None returned instead."
-)
-warnings.filterwarnings(
-    "ignore", message="`SPOTIFY_REDIRECT_URI` missing! None returned instead."
-)
+warnings.filterwarnings("ignore", message="`SPOTIFY_CLIENT_ID` missing! None returned instead.")
+warnings.filterwarnings("ignore", message="`SPOTIFY_CLIENT_SECRET` missing! None returned instead.")
+warnings.filterwarnings("ignore", message="`SPOTIFY_REDIRECT_URI` missing! None returned instead.")
 
 
 def wrap_token_refresh(coro):
@@ -23,9 +17,7 @@ def wrap_token_refresh(coro):
         if self._spotify.token.is_expiring:
             print("update token!")
             self._spotify.token = await self._credentials.refresh(self._spotify.token)
-            tk.config_to_file(
-                self.cache_file, (None, None, None, self._spotify.token.refresh_token)
-            )
+            tk.config_to_file(self.cache_file, (None, None, None, self._spotify.token.refresh_token))
 
         return await coro(self, *args, **kwargs)
 
@@ -48,24 +40,16 @@ class SpotifyClient:
 
     async def load_token(self):
         try:
-            _, _, _, refresh_token = tk.config_from_file(
-                self.cache_file, return_refresh=True
-            )
-            self._spotify.token = await self._credentials.refresh_pkce_token(
-                refresh_token
-            )
-            tk.config_to_file(
-                self.cache_file, (None, None, None, self._spotify.token.refresh_token)
-            )
+            _, _, _, refresh_token = tk.config_from_file(self.cache_file, return_refresh=True)
+            self._spotify.token = await self._credentials.refresh_pkce_token(refresh_token)
+            tk.config_to_file(self.cache_file, (None, None, None, self._spotify.token.refresh_token))
         except FileNotFoundError:
             pass
 
     async def save_token(self, code: str, state: str):
         assert self._user_auth is not None
         self._spotify.token = await self._user_auth.request_token(code, state)
-        tk.config_to_file(
-            self.cache_file, (None, None, None, self._spotify.token.refresh_token)
-        )
+        tk.config_to_file(self.cache_file, (None, None, None, self._spotify.token.refresh_token))
 
     def create_auth_url(self):
         self._user_auth = tk.UserAuth(self._credentials, self.scope, pkce=True)
@@ -77,7 +61,7 @@ class SpotifyClient:
 
     @wrap_token_refresh
     async def playback_currently_playing(self) -> tk.model.CurrentlyPlaying:
-        return await self._spotify.playback_currently_playing()
+        return await self._spotify.playback_currently_playing(tracks_only=True)
 
     @wrap_token_refresh
     async def track_audio_analysis(self, track_id) -> tk.model.AudioAnalysis:

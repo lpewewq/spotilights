@@ -1,23 +1,20 @@
 import time
+from typing import Generator
 
-from ..base import BaseRainbowAnimation
+from ..base import BaseIteratorAnimation
 
 
-class RainbowAnimation(BaseRainbowAnimation):
-    def __init__(self, delay: float) -> None:
-        super().__init__(delay)
-        self.offset = 0
-        self.last_update = time.time()
+class RainbowAnimation(BaseIteratorAnimation):
+    def infinite_generator(self) -> Generator[None, None, None]:
+        while True:
+            for offset in range(256):
+                for i in range(self.strip.num_pixels()):
+                    self.strip.set_pixel_color(i, self.rainbow[(i + offset) % 256])
 
-    async def on_loop(self) -> None:
-        now = time.time()
-        if (now - self.last_update) < self.delay:
-            return
-        self.last_update = now
-
-        for i in range(self.strip.num_pixels()):
-            self.strip.set_pixel_color(i, self.rainbow[(i + self.offset) % 256])
-        self.offset = (self.offset + 1) % 256
+                t = time.time()
+                yield
+                while (time.time() - t) < self.delay:
+                    yield
 
     @property
     def depends_on_spotify(self) -> bool:

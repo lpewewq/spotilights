@@ -35,36 +35,27 @@ class SpotifyAnimator:
             self.animation_task.cancel()
 
     async def _loop(self, animation: Animation) -> None:
-        current_segment_index = None
-        current_tatum_index = None
-        current_beat_index = None
-        current_bar_index = None
-        current_section_index = None
         item_id = None
+        # section, bar, beat, tatum, segment
+        current_indices = [None, None, None, None, None]
+        attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
+        callbacks = [animation.on_section, animation.on_bar, animation.on_beat, animation.on_tatum, animation.on_segment]
+
         is_playing = True
+        loop_start = time.time()
+        loop_count = 0
 
         try:
             while True:
-                currently_playing = (
-                    await self.spotify_updater.shared_data.get_currently_playing()
-                )
-                audio_analysis = (
-                    await self.spotify_updater.shared_data.get_audio_analysis()
-                )
+                currently_playing = await self.spotify_updater.shared_data.get_currently_playing()
+                audio_analysis = await self.spotify_updater.shared_data.get_audio_analysis()
                 if currently_playing and audio_analysis:
                     if item_id != currently_playing.item.id:
-                        await animation.on_track_change(
-                            self.spotify_updater.shared_data
-                        )
+                        await animation.on_track_change(self.spotify_updater.shared_data)
                         item_id = currently_playing.item.id
-                        current_segment_index = None
-                        current_tatum_index = None
-                        current_beat_index = None
-                        current_bar_index = None
-                        current_section_index = None
+                        current_indices = [None, None, None, None, None]
 
-                    progress = currently_playing.progress_ms / 1000
-                    if not currently_playing.is_playing:
+                    if not currently_playing.is_playing or currently_playing.progress_ms is None:
                         if is_playing:
                             is_playing = False
                             await animation.on_pause(self.spotify_updater.shared_data)
@@ -73,77 +64,44 @@ class SpotifyAnimator:
                             is_playing = True
                             await animation.on_resume(self.spotify_updater.shared_data)
 
+                        progress: float = currently_playing.progress_ms / 1000
                         progress += time.time() - currently_playing.timestamp / 1000
 
-                        segment_index = self.find(
-                            audio_analysis.segments, progress, current_segment_index
-                        )
-                        tatum_index = self.find(
-                            audio_analysis.tatums, progress, current_tatum_index
-                        )
-                        beat_index = self.find(
-                            audio_analysis.beats, progress, current_beat_index
-                        )
-                        bar_index = self.find(
-                            audio_analysis.bars, progress, current_bar_index
-                        )
-                        section_index = self.find(
-                            audio_analysis.sections, progress, current_section_index
-                        )
-
-                        if section_index and current_section_index != section_index:
-                            current_section_index = section_index
-                            section = audio_analysis.sections[current_section_index]
-                            progress = (progress - section.start) / section.duration
-                            await animation.on_section(section, progress)
-
-                        if bar_index and current_bar_index != bar_index:
-                            current_bar_index = bar_index
-                            bar = audio_analysis.bars[current_bar_index]
-                            progress = (progress - bar.start) / bar.duration
-                            await animation.on_bar(bar, progress)
-
-                        if beat_index and current_beat_index != beat_index:
-                            current_beat_index = beat_index
-                            beat = audio_analysis.beats[current_beat_index]
-                            progress = (progress - beat.start) / beat.duration
-                            await animation.on_beat(beat, progress)
-
-                        if tatum_index and current_tatum_index != tatum_index:
-                            current_tatum_index = tatum_index
-                            tatum = audio_analysis.tatums[current_tatum_index]
-                            progress = (progress - tatum.start) / tatum.duration
-                            await animation.on_tatum(tatum, progress)
-
-                        if segment_index and current_segment_index != segment_index:
-                            current_segment_index = segment_index
-                            segment = audio_analysis.segments[current_segment_index]
-                            progress = (progress - segment.start) / segment.duration
-                            await animation.on_segment(segment, progress)
+                        for i in range(5):
+                            item_list = getattr(audio_analysis, attribute_names[i])
+                            callback = callbacks[i]
+                            current_index = current_indices[i]
+                            index = self.find(item_list, progress, current_index)
+                            if index and current_index != index:
+                                current_indices[i] = index
+                                item = item_list[index]
+                                progress = (progress - item.start) / item.duration
+                                await callback(item, progress)
 
                 await animation.on_loop()
                 self.strip.show()
                 await asyncio.sleep(0)
+                loop_count += 1
+                if loop_count % 60 == 0:
+                    now = time.time()
+                    print("FPS:", 60 / (now - loop_start), end="\r")
+                    loop_start = now
 
         except Exception as e:
             print(f"{animation} excepted:", e)
             traceback.print_exc()
 
-    def find(self, list: list[tk.model.TimeInterval], timestamp, previous_index):
-        index = None
+    def find(self, list: list[tk.model.TimeInterval], timestamp: float, previous_index: int) -> int:
         if previous_index is None:
             for i, _beat in enumerate(list):
                 if _beat.start <= timestamp < _beat.start + _beat.duration:
-                    index = i
-                    break
+                    return i
         elif list[previous_index].start <= timestamp:
             for i, _beat in enumerate(list[previous_index:]):
                 if _beat.start <= timestamp < _beat.start + _beat.duration:
-                    index = previous_index + i
-                    break
+                    return previous_index + i
         else:
             for i, _beat in enumerate(list[previous_index::-1]):
                 if _beat.start <= timestamp < _beat.start + _beat.duration:
-                    index = previous_index - i
-                    break
-        return index
+                    return previous_index - i
+        return None

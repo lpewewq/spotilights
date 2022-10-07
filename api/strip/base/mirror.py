@@ -4,7 +4,7 @@ from .abstract import AbstractStrip
 
 class MirroredStrip(AbstractStrip):
     def __init__(self, strip: AbstractStrip) -> None:
-        super().__init__((self.strip.num_pixels() + 1) // 2)
+        super().__init__((strip.num_pixels() + 1) // 2)
         self.strip = strip
 
     def get_coord(self, i: int):

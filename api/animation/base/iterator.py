@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractclassmethod
 from typing import Generator
 
@@ -10,7 +11,7 @@ class BaseIteratorAnimation(Animation, ABC):
         super().__init__()
         self.delay = delay
         self.rainbow = [self.wheel(pos) for pos in range(256)]
-        self.generator = self.infinite_generator()
+        self._generator = self._infinite_generator()
 
     def wheel(self, pos: int) -> Color:
         """Generate rainbow colors across 0-255 positions."""
@@ -24,8 +25,20 @@ class BaseIteratorAnimation(Animation, ABC):
             return Color(r=0, g=pos * 3, b=255 - pos * 3)
 
     @abstractclassmethod
-    def infinite_generator(self) -> Generator[None, None, None]:
+    def generator(self) -> Generator[float, None, None]:
         """Animation generator"""
- 
+
+    def _infinite_generator(self) -> Generator[None, None, None]:
+        while True:
+            try:
+                for delay in self.generator():
+                    t = time.time()
+                    yield
+                    if delay:
+                        while (time.time() - t) < delay:
+                            yield
+            except StopIteration:
+                pass
+
     async def on_loop(self) -> None:
-        next(self.generator)
+        next(self._generator)

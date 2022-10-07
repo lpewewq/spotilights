@@ -38,7 +38,7 @@ class BaseIteratorAnimation(Animation, ABC):
                         while (time.time() - t) < delay:
                             yield
             except StopIteration:
-                pass
+                yield
 
     async def on_loop(self) -> None:
         next(self._generator)

@@ -1,4 +1,5 @@
 import time
+from typing import Generator
 
 import tekore as tk
 
@@ -21,35 +22,27 @@ class StrobeAnimation(SubAnimation):
         self.on_duration = on_duration
         self.off_duration = off_duration
         self.color = color
-
-        self.on_time = 0
-        self.off_time = 0
-        self.i_strobes = 0
-        self.toggle = True
+        self.strobe_generator = None
         self.activate = False  # set to True to strobe
 
-    def strobe(self):
-        if self.toggle:
-            if (time.time() - self.off_time) < self.off_duration:
-                return
-            self.on_time = time.time()
-
-            self.strip.fill_color(self.color)
-            self.toggle = not self.toggle
-        else:
-            if (time.time() - self.on_time) < self.on_duration:
-                return
-            self.off_time = time.time()
-
-            self.toggle = not self.toggle
-            self.i_strobes = (self.i_strobes + 1) % self.n_strobes
-            if self.i_strobes == 0:
-                self.activate = False
+    def strobe(self) -> Generator[None, None, None]:
+        for _ in range(self.n_strobes):
+            on = time.time()
+            while (time.time() - on) < self.on_duration:
+                self.strip.fill_color(self.color)
+                yield
+            off = time.time()
+            while (time.time() - off) < self.off_duration:
+                yield
 
     async def on_loop(self) -> None:
         await super().on_loop()
         if self.activate:
-            self.strobe()
+            if self.strobe_generator is None:
+                self.strobe_generator = self.strobe()
+            if next(self.strobe_generator, True):
+                self.strobe_generator = None
+                self.activate = False
 
 
 class StrobeOnSectionAnimation(StrobeAnimation):

@@ -1,5 +1,6 @@
 from .absract import Animation
 from .inverse import InverseAnimation
 from .mirror import MirrorAnimation
-from .rainbow import RainbowAnimation
-from .split import SplitAnimation
+from .rainbow import BaseRainbowAnimation
+from .strobe import StrobeAnimation, StrobeOnSectionAnimation
+from .sub import SubAnimation

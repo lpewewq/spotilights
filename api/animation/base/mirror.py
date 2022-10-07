@@ -1,7 +1,7 @@
 import tekore as tk
 
 from ...spotify.shared_data import SharedData
-from ...strip.base import SubStrip, MirroredStrip
+from ...strip.base import AbstractStrip, MirroredStrip
 from .absract import Animation
 
 
@@ -13,7 +13,7 @@ class MirrorAnimation(Animation):
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.animation})"
 
-    def init_strip(self, strip: SubStrip) -> None:
+    def init_strip(self, strip: AbstractStrip) -> None:
         super().init_strip(strip)
         self.animation.init_strip(MirroredStrip(strip=strip))
 

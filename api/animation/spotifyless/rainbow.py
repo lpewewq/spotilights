@@ -1,21 +1,11 @@
 import time
 
-from fastapi import Body
-
-from ..spotify import spotify_animator
-from . import router
-from .base import RainbowAnimation
+from ..base import BaseRainbowAnimation
 
 
-@router.post("/rainbow")
-async def start_rainbow(delay: float = Body(0.5, ge=0.0)):
-    animation = RainbowAnimation(delay)
-    await spotify_animator.start(animation)
-
-
-class RainbowAnimation(RainbowAnimation):
-    def __init__(self, delay: float, *args, **kwargs) -> None:
-        super().__init__(delay, *args, **kwargs)
+class RainbowAnimation(BaseRainbowAnimation):
+    def __init__(self, delay: float) -> None:
+        super().__init__(delay)
         self.offset = 0
         self.last_update = time.time()
 

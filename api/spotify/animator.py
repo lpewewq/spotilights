@@ -1,24 +1,23 @@
 import asyncio
 import time
 import traceback
-from typing import List
 
 import tekore as tk
 
 from ..animation.base import Animation
-from ..strip.base import ShowableStrip
+from ..strip.base import GlobalStrip
 from .updater import SpotifyUpdater
 
 
 class SpotifyAnimator:
-    def __init__(self, spotify_updater: SpotifyUpdater, strip: ShowableStrip) -> None:
+    def __init__(self, spotify_updater: SpotifyUpdater, strip: GlobalStrip) -> None:
         self.spotify_updater = spotify_updater
         self.strip = strip
         self.animation_task: asyncio.Task = None
 
-    async def start(self, animation: Animation) -> None:
+    def start(self, animation: Animation) -> None:
         if animation.depends_on_spotify:
-            await self.spotify_updater.start()
+            self.spotify_updater.start()
         else:
             self.spotify_updater.stop()
         self.cancel_animation_task()
@@ -46,11 +45,17 @@ class SpotifyAnimator:
 
         try:
             while True:
-                currently_playing = await self.spotify_updater.shared_data.get_currently_playing()
-                audio_analysis = await self.spotify_updater.shared_data.get_audio_analysis()
+                currently_playing = (
+                    await self.spotify_updater.shared_data.get_currently_playing()
+                )
+                audio_analysis = (
+                    await self.spotify_updater.shared_data.get_audio_analysis()
+                )
                 if currently_playing and audio_analysis:
                     if item_id != currently_playing.item.id:
-                        await animation.on_track_change(self.spotify_updater.shared_data)
+                        await animation.on_track_change(
+                            self.spotify_updater.shared_data
+                        )
                         item_id = currently_playing.item.id
                         current_segment_index = None
                         current_tatum_index = None
@@ -70,11 +75,21 @@ class SpotifyAnimator:
 
                         progress += time.time() - currently_playing.timestamp / 1000
 
-                        segment_index = self.find(audio_analysis.segments, progress, current_segment_index)
-                        tatum_index = self.find(audio_analysis.tatums, progress, current_tatum_index)
-                        beat_index = self.find(audio_analysis.beats, progress, current_beat_index)
-                        bar_index = self.find(audio_analysis.bars, progress, current_bar_index)
-                        section_index = self.find(audio_analysis.sections, progress, current_section_index)
+                        segment_index = self.find(
+                            audio_analysis.segments, progress, current_segment_index
+                        )
+                        tatum_index = self.find(
+                            audio_analysis.tatums, progress, current_tatum_index
+                        )
+                        beat_index = self.find(
+                            audio_analysis.beats, progress, current_beat_index
+                        )
+                        bar_index = self.find(
+                            audio_analysis.bars, progress, current_bar_index
+                        )
+                        section_index = self.find(
+                            audio_analysis.sections, progress, current_section_index
+                        )
 
                         if section_index and current_section_index != section_index:
                             current_section_index = section_index
@@ -114,7 +129,7 @@ class SpotifyAnimator:
             print(f"{animation} excepted:", e)
             traceback.print_exc()
 
-    def find(self, list: List[tk.model.TimeInterval], timestamp, previous_index):
+    def find(self, list: list[tk.model.TimeInterval], timestamp, previous_index):
         index = None
         if previous_index is None:
             for i, _beat in enumerate(list):

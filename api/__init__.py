@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .animation import router as animation_router
+from .animation.routes import router as animation_router
 from .spotify.routes import router as spotify_router
 from .strip.routes import router as strip_router
 

@@ -15,6 +15,7 @@ spotify_client = SpotifyClient(
 spotify_updater = SpotifyUpdater(
     spotify_client=spotify_client,
     update_interval=settings.spotify_update_interval,
+    offset_ms=settings.spotify_playback_offset_ms,
 )
 
 spotify_animator = SpotifyAnimator(

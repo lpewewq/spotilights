@@ -1,13 +1,20 @@
-from typing import Any, List
-
 from ...color import Color
-from ..base import ShowableStrip
+from ..base import GlobalStrip
 from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE, Serial
 
 
-class ArduinoStrip(ShowableStrip):
-    def __init__(self, num: int, brightness: float, port: Any, baudrate: int, header: List[int]):
-        self.data = [Color(r=0, g=0, b=0) for i in range(num)]
+class ArduinoStrip(GlobalStrip):
+    def __init__(
+        self,
+        brightness: float,
+        port: str,
+        baudrate: int,
+        header: list[int],
+        num_pixels: int,
+        xy: list[tuple[float, float]] = None,
+    ) -> None:
+        super().__init__(num_pixels, xy)
+        self.data = [Color(r=0, g=0, b=0) for i in range(num_pixels)]
         self.header = bytes(header)
         self.brightness = brightness
         self.serial_connection = Serial(
@@ -27,11 +34,11 @@ class ArduinoStrip(ShowableStrip):
             # WS2812B uses GRB
             self.serial_connection.write(bytes([g, r, b]))
 
-    def get_pixel_color(self, n: int) -> Color:
-        return self.data[n]
+    def get_pixel_color(self, i: int) -> Color:
+        return self.data[i]
 
-    def set_pixel_color(self, n: int, color: Color) -> None:
-        self.data[n] = color
+    def set_pixel_color(self, i: int, color: Color) -> None:
+        self.data[i] = color
 
     def get_brightness(self) -> int:
         return int(self.brightness * 255)
@@ -39,8 +46,5 @@ class ArduinoStrip(ShowableStrip):
     def set_brightness(self, brightness: int) -> None:
         self.brightness = brightness / 255
 
-    def get_pixels(self) -> List[Color]:
+    def get_pixels(self) -> list[Color]:
         return self.data
-
-    def num_pixels(self) -> int:
-        return len(self.data)

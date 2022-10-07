@@ -4,22 +4,14 @@ import time
 
 import tekore as tk
 
-from ..color import Color
-from ..spotify import spotify_animator
-from ..strip.base.sub import SubStrip
-from . import router
-from .base import Animation
-
-
-@router.post("/philipp")
-async def start_philipp():
-    animation = PhilippAnimation()
-    await spotify_animator.start(animation)
+from ...color import Color
+from ...strip.base.sub import AbstractStrip
+from ..base import Animation
 
 
 class PhilippAnimation(Animation):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self) -> None:
+        super().__init__()
         self.last_update = time.time()
         # Wave
         self.col_a = Color(r=255, g=0, b=0)
@@ -44,7 +36,7 @@ class PhilippAnimation(Animation):
         self.beat_pair_progress = 0
         self.beat_pair_duration = 1
 
-    def init_strip(self, strip: SubStrip) -> None:
+    def init_strip(self, strip: AbstractStrip) -> None:
         super().init_strip(strip)
         self.center = self.strip.num_pixels() / 2
         self.brightness = [1.0] * self.strip.num_pixels()

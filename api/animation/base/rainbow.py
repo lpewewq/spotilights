@@ -4,9 +4,9 @@ from ...color import Color
 from .absract import Animation
 
 
-class RainbowAnimation(Animation, ABC):
-    def __init__(self, delay: float, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+class BaseRainbowAnimation(Animation, ABC):
+    def __init__(self, delay: float) -> None:
+        super().__init__()
         self.delay = delay
         self.rainbow = [self.wheel(pos) for pos in range(256)]
 

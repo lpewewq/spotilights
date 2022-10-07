@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import tekore as tk
 
 from ...spotify.shared_data import SharedData
-from ...strip.base import SubStrip
+from ...strip.base import AbstractStrip
 
 
 class Animation(ABC):
@@ -13,18 +13,14 @@ class Animation(ABC):
         return type(self).__name__ + "()"
 
     def __init__(self) -> None:
-        self.strip: SubStrip = None
+        self.strip: AbstractStrip = None
 
-    def init_strip(self, strip: SubStrip) -> None:
+    def init_strip(self, strip: AbstractStrip) -> None:
         """
         Top down initialization of the LED strip.
         Must be called before the animation loop starts
         """
         self.strip = strip
-
-    async def on_loop(self) -> None:
-        """Animation loop"""
-        pass
 
     async def on_pause(self, shared_data: SharedData) -> None:
         """Playback paused callback"""
@@ -56,6 +52,10 @@ class Animation(ABC):
 
     async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
         """Segment callback"""
+        pass
+
+    async def on_loop(self) -> None:
+        """Animation loop"""
         pass
 
     @property

@@ -1,22 +1,12 @@
 import time
 
-from fastapi import Body
-
-from ..color import Color
-from ..spotify import spotify_animator
-from . import router
-from .base import RainbowAnimation
+from ...color import Color
+from ..base import BaseRainbowAnimation
 
 
-@router.post("/theater")
-async def start_theater(delay: float = Body(0.05, ge=0.0)):
-    animation = TheaterAnimation(delay)
-    await spotify_animator.start(animation)
-
-
-class TheaterAnimation(RainbowAnimation):
-    def __init__(self, delay: float, *args, **kwargs) -> None:
-        super().__init__(delay, *args, **kwargs)
+class TheaterAnimation(BaseRainbowAnimation):
+    def __init__(self, delay: float) -> None:
+        super().__init__(delay)
         self.black = Color(r=0, g=0, b=0)
         self.offset = 0
         self.q = 0

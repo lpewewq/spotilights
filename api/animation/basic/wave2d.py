@@ -21,7 +21,7 @@ class Wave2DAnimation(BPMAnimation):
         super().on_strip_change(parent_strip)
         coords = parent_strip.get_coords()
         # center
-        coords = coords - (coords.max(axis=0) - coords.min(axis=0)) / 2
+        coords = coords - (coords.max(axis=0) + coords.min(axis=0)) / 2
         # normalize
         self.coords = coords / np.max(np.linalg.norm(coords, axis=1))
         self.norms = np.linalg.norm(self.coords - self.origin, axis=1)

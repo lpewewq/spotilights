@@ -1,3 +1,5 @@
+import numpy as np
+
 from ...color import Color
 from .abstract import AbstractStrip
 
@@ -15,11 +17,11 @@ class MirroredStrip(AbstractStrip):
             self.inverse = inverse
         self.offsets = [round((i * strip.num_pixels()) / divisions) for i in range(divisions + 1)]
 
-    def get_coord(self, i: int):
+    def get_coord(self, i: int) -> np.ndarray:
         return self.strip.get_coord(i)
 
-    def get_norm(self, i: int) -> float:
-        return self.strip.get_norm(i)
+    def get_coords(self) -> np.ndarray:
+        return self.strip.get_coords()[:self.num_pixels()]
 
     def get_pixel_color(self, i: int) -> Color:
         return self.strip.get_pixel_color(i)

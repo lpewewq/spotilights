@@ -1,3 +1,5 @@
+import numpy as np
+
 from ...color import Color
 from .abstract import AbstractStrip
 
@@ -23,11 +25,15 @@ class SubStrip(AbstractStrip):
         else:
             return self.offset + i
 
-    def get_coord(self, i: int):
+    def get_coord(self, i: int) -> np.ndarray:
         return self.strip.get_coord(self.get_index(i))
 
-    def get_norm(self, i: int) -> float:
-        return self.strip.get_norm(self.get_index(i))
+    def get_coords(self) -> np.ndarray:
+        coords = self.strip.get_coords()[self.offset: self.offset + self.num_pixels()]
+        if self.inverse:
+            return coords[::-1]
+        else:
+            return coords
 
     def get_pixel_color(self, i: int) -> Color:
         return self.strip.get_pixel_color(self.get_index(i))

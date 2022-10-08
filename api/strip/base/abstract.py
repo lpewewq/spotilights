@@ -12,12 +12,12 @@ class AbstractStrip(ABC):
         self._num_pixels = num_pixels
 
     @abstractmethod
-    def get_coord(self, i: int):
+    def get_coord(self, i: int) -> np.ndarray:
         """Get 2D coordinates of pixel i"""
 
     @abstractmethod
-    def get_norm(self, i: int) -> float:
-        """Get 2D distance to origin of pixel i"""
+    def get_coords(self) -> np.ndarray:
+        """Get 2D coordinates of all pixels"""
 
     @abstractmethod
     def get_pixel_color(self, i: int) -> Color:
@@ -59,19 +59,14 @@ class GlobalStrip(AbstractStrip, ABC):
         if xy:
             assert len(xy) == num_pixels
             self._coords = np.array(xy)
-            # center
-            self._coords = self._coords - (self._coords.max(axis=0) - self._coords.min(axis=0)) / 2
-            # normalize
-            self._coords = self._coords / np.max(np.linalg.norm(self._coords, axis=1))
         else:
             self._coords = np.linspace([-1, 0], [1,0],num_pixels)
-        self._norms = np.linalg.norm(self._coords, axis=1)
 
-    def get_coord(self, i: int):
+    def get_coord(self, i: int) -> np.ndarray:
         return self._coords[i]
 
-    def get_norm(self, i: int) -> float:
-        return self._norms[i]
+    def get_coords(self) -> np.ndarray:
+        return self._coords
 
     @abstractmethod
     def show(self) -> None:

@@ -1,7 +1,6 @@
 import time
 
 import numpy as np
-import tekore as tk
 
 from ...spotify.shared_data import SharedData
 from ..base import Animation

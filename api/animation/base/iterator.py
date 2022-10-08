@@ -3,6 +3,7 @@ from abc import ABC, abstractclassmethod
 from typing import Generator
 
 from ...color import Color
+from ...strip.base import AbstractStrip
 from .absract import Animation
 
 
@@ -11,7 +12,7 @@ class BaseIteratorAnimation(Animation, ABC):
         super().__init__()
         self.delay = delay
         self.rainbow = [self.wheel(pos) for pos in range(256)]
-        self._generator = self._infinite_generator()
+        self._generator = None
 
     def wheel(self, pos: int) -> Color:
         """Generate rainbow colors across 0-255 positions."""
@@ -25,13 +26,13 @@ class BaseIteratorAnimation(Animation, ABC):
             return Color(r=0, g=pos * 3, b=255 - pos * 3)
 
     @abstractclassmethod
-    def generator(self) -> Generator[float, None, None]:
+    def generator(self, strip: AbstractStrip) -> Generator[float, None, None]:
         """Animation generator"""
 
-    def _infinite_generator(self) -> Generator[None, None, None]:
+    def _infinite_generator(self, strip: AbstractStrip) -> Generator[None, None, None]:
         while True:
             try:
-                for delay in self.generator():
+                for delay in self.generator(strip):
                     t = time.time()
                     yield
                     if delay:
@@ -40,5 +41,10 @@ class BaseIteratorAnimation(Animation, ABC):
             except StopIteration:
                 yield
 
-    async def on_loop(self) -> None:
+    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
+        super().on_strip_change(parent_strip)
+        self._generator = self._infinite_generator(parent_strip)
+
+    async def render(self, parent_strip: AbstractStrip) -> None:
+        await super().render(parent_strip)
         next(self._generator)

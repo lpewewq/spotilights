@@ -1,4 +1,5 @@
 from ...color import Color
+from ...strip.base import AbstractStrip
 from .bpm import BPMAnimation
 
 
@@ -8,8 +9,12 @@ class Wave2DAnimation(BPMAnimation):
         self.color = color
         self.fineness = fineness
 
-    async def on_loop(self) -> None:
-        for i in range(self.strip.num_pixels()):
-            norm = self.strip.get_norm(i)
+    def __repr__(self) -> str:
+        return type(self).__name__ + f"({self.color})"
+
+    async def render(self, parent_strip: AbstractStrip) -> None:
+        await super().render(parent_strip)
+        for i in range(parent_strip.num_pixels()):
+            norm = parent_strip.get_norm(i)
             scale = self.beat(norm * self.fineness)
-            self.strip.set_pixel_color(i, self.color * scale)
+            parent_strip.set_pixel_color(i, self.color * scale)

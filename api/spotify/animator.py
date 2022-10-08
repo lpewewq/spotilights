@@ -21,7 +21,6 @@ class SpotifyAnimator:
         else:
             self.spotify_updater.stop()
         self.cancel_animation_task()
-        animation.init_strip(self.strip)
         self.animation_task = asyncio.create_task(self._loop(animation))
 
     def stop(self) -> None:
@@ -78,7 +77,7 @@ class SpotifyAnimator:
                                 progress = (progress - item.start) / item.duration
                                 await callback(item, progress)
 
-                await animation.on_loop()
+                await animation.render(self.strip)
                 self.strip.show()
                 await asyncio.sleep(0)
                 loop_count += 1

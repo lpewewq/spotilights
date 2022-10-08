@@ -1,3 +1,5 @@
+from collections import deque
+
 import tekore as tk
 
 from ...spotify.shared_data import SharedData
@@ -14,7 +16,8 @@ class SubAnimation(Animation):
     ) -> None:
         super().__init__()
         assert len(animations) > 0
-        self.animations = animations
+        self.animations = deque(animations)
+        self.sub_strips = []
 
         if weights is None:
             normalizer = len(animations)
@@ -25,30 +28,13 @@ class SubAnimation(Animation):
             self.weights = [weight / normalizer for weight in weights]
 
         if inverse is None:
-            self.inverse = [i % 2 == 1 for i in range(len(animations))]
+            self.inverse = [False] * len(animations)
         else:
             assert len(animations) == len(inverse)
             self.inverse = inverse
 
     def __repr__(self) -> str:
-        return type(self).__name__ + f"({len(self.animations)})"
-
-    def init_strip(self, strip: AbstractStrip) -> None:
-        super().init_strip(strip)
-        weight_sum = [0]
-        for weight in self.weights:
-            weight_sum.append(weight_sum[-1] + weight)
-        n = strip.num_pixels()
-        offsets = [round(ws * n) for ws in weight_sum]
-        for animation, offset, next_offset, inverse in zip(self.animations, offsets, offsets[1:], self.inverse):
-            animation.init_strip(
-                SubStrip(
-                    strip=strip,
-                    offset=offset,
-                    num_pixels=next_offset - offset,
-                    inverse=inverse,
-                )
-            )
+        return type(self).__name__ + f"({len(self.animations)}, {self.weights}, {self.inverse})"
 
     async def on_pause(self, shared_data: SharedData) -> None:
         for animation in self.animations:
@@ -82,38 +68,49 @@ class SubAnimation(Animation):
         for animation in self.animations:
             await animation.on_segment(segment, progress)
 
-    async def on_loop(self) -> None:
-        for animation in self.animations:
-            await animation.on_loop()
+    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
+        super().on_strip_change(parent_strip)
+        weight_sum = [0]
+        for weight in self.weights:
+            weight_sum.append(weight_sum[-1] + weight)
+        n = parent_strip.num_pixels()
+        offsets = [round(ws * n) for ws in weight_sum]
+        self.sub_strips = [
+            SubStrip(
+                strip=parent_strip,
+                offset=offset,
+                num_pixels=next_offset - offset,
+                inverse=inverse,
+            )
+            for offset, next_offset, inverse in zip(offsets, offsets[1:], self.inverse)
+        ]
+
+    async def render(self, parent_strip: AbstractStrip) -> None:
+        await super().render(parent_strip)
+        for animation, sub_strip in zip(self.animations, self.sub_strips):
+            await animation.render(sub_strip)
 
     @property
     def depends_on_spotify(self) -> bool:
         return any(animation.depends_on_spotify for animation in self.animations)
 
-    def shift_forward(self) -> None:
-        """Shift each animation one substrip forward"""
-        overflow_strip = self.animations[0].strip
-        for left, right in zip(self.animations, self.animations[1:]):
-            left.strip = right.strip
-        self.animations[-1].strip = overflow_strip
+    def shift_forward(self, steps: int = 1) -> None:
+        """Shift each animation substrip forward"""
+        self.animations.rotate(steps)
 
-    def shift_backward(self) -> None:
-        """Shift each animation one substrip backward"""
-        overflow_strip = self.animations[-1].strip
-        for left, right in zip(self.animations[::-1][1:], self.animations[::-1]):
-            right.strip = left.strip
-        self.animations[0].strip = overflow_strip
+    def shift_backward(self, steps: int = 1) -> None:
+        """Shift each animation substrip backward"""
+        self.animations.rotate(-steps)
 
     def mirror(self) -> None:
         """Mirror animations around the middle animation"""
-        mid = len(self.animations) // 2
-        for left, right in zip(self.animations[:mid], self.animations[::-1][:mid]):
-            tmp = left.strip
-            left.strip = right.strip
-            right.strip = tmp
+        self.animations.reverse()
+        for i in range(len(self.sub_strips) // 2):
+            self.sub_strips[i].inverse ^= True
+            self.sub_strips[-(i + 1)].inverse ^= True
 
     def invert(self) -> None:
         """Invert each animation"""
-        for animation in self.animations:
+        for sub_strip in self.sub_strips:
             # invert SubStrip
-            animation.strip.inverse ^= True
+            sub_strip.inverse ^= True

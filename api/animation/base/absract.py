@@ -9,18 +9,12 @@ from ...strip.base import AbstractStrip
 class Animation(ABC):
     """Interface for animations."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._parent_strip: AbstractStrip = None
+
     def __repr__(self) -> str:
         return type(self).__name__ + "()"
-
-    def __init__(self) -> None:
-        self.strip: AbstractStrip = None
-
-    def init_strip(self, strip: AbstractStrip) -> None:
-        """
-        Top down initialization of the LED strip.
-        Must be called before the animation loop starts
-        """
-        self.strip = strip
 
     async def on_pause(self, shared_data: SharedData) -> None:
         """Playback paused callback"""
@@ -54,9 +48,18 @@ class Animation(ABC):
         """Segment callback"""
         pass
 
-    async def on_loop(self) -> None:
-        """Animation loop"""
-        pass
+    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
+        """Strip update callback"""
+        self._parent_strip = parent_strip
+
+    def trigger_on_strip_change(self, parent_strip: AbstractStrip) -> bool:
+        """Strip update callback trigger condition"""
+        return self._parent_strip != parent_strip
+
+    async def render(self, parent_strip: AbstractStrip) -> None:
+        """Render animation to strip"""
+        if self.trigger_on_strip_change(parent_strip):
+            self.on_strip_change(parent_strip)
 
     @property
     @abstractmethod

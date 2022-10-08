@@ -4,11 +4,12 @@ from typing import Generator
 import tekore as tk
 
 from ...color import Color
+from ...strip.base import AbstractStrip
 from .absract import Animation
-from .sub import SubAnimation
+from .single_sub import SingleSubAnimation
 
 
-class StrobeAnimation(SubAnimation):
+class StrobeAnimation(SingleSubAnimation):
     def __init__(
         self,
         animation: Animation,
@@ -17,7 +18,7 @@ class StrobeAnimation(SubAnimation):
         off_duration: float = 0.05,
         color: Color = Color(r=255, g=255, b=255),
     ) -> None:
-        super().__init__(animations=[animation])
+        super().__init__(animation=animation)
         self.n_strobes = n_strobes
         self.on_duration = on_duration
         self.off_duration = off_duration
@@ -25,24 +26,27 @@ class StrobeAnimation(SubAnimation):
         self.strobe_generator = None
         self.activate = False  # set to True to strobe
 
-    def strobe(self) -> Generator[None, None, None]:
+    def strobe(self, strip: AbstractStrip) -> Generator[None, None, None]:
         for _ in range(self.n_strobes):
             on = time.time()
             while (time.time() - on) < self.on_duration:
-                self.strip.fill_color(self.color)
+                strip.fill_color(self.color)
                 yield
             off = time.time()
             while (time.time() - off) < self.off_duration:
                 yield
 
-    async def on_loop(self) -> None:
-        await super().on_loop()
-        if self.activate:
-            if self.strobe_generator is None:
-                self.strobe_generator = self.strobe()
-            if next(self.strobe_generator, True):
-                self.strobe_generator = None
-                self.activate = False
+    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
+        super().on_strip_change(parent_strip)
+        self.strobe_generator = self.strobe(parent_strip)
+
+    async def render(self, parent_strip: AbstractStrip) -> None:
+        if self.trigger_on_strip_change(parent_strip):
+            self.on_strip_change(parent_strip)
+        await super().render(parent_strip)
+        if self.activate and next(self.strobe_generator, True):
+            self.strobe_generator = self.strobe(parent_strip)
+            self.activate = False
 
 
 class StrobeOnSectionAnimation(StrobeAnimation):

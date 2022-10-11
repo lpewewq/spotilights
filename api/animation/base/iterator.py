@@ -45,6 +45,6 @@ class BaseIteratorAnimation(Animation, ABC):
         super().on_strip_change(parent_strip)
         self._generator = self._infinite_generator(parent_strip)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
         next(self._generator)

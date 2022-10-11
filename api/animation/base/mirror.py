@@ -14,7 +14,7 @@ class MirrorAnimation(SingleSubAnimation):
         super().on_strip_change(parent_strip)
         self._mirrored_strip = MirroredStrip(strip=parent_strip, divisions=self.divisions, inverse=self.inverse)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
         if self.trigger_on_strip_change(parent_strip):
             self.on_strip_change(parent_strip)
-        await super().render(self._mirrored_strip)
+        await super().render(self._mirrored_strip, progress)

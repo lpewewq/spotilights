@@ -12,7 +12,7 @@ class InverseAnimation(SingleSubAnimation):
         super().on_strip_change(parent_strip)
         self._inverted_strip = SubStrip(strip=parent_strip, inverse=True)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
         if self.trigger_on_strip_change(parent_strip):
             self.on_strip_change(parent_strip)
-        await super().render(self._inverted_strip)
+        await super().render(self._inverted_strip, progress)

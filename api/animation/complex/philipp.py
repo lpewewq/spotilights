@@ -86,14 +86,14 @@ class PhilippAnimation(Animation):
             return
         self.bar_num += 1
         self.bar_duration = bar.duration
-        self.bar_progress = progress
+        self.bar_progress = (progress - bar.start) / bar.duration
 
     async def on_beat(self, beat: tk.model.TimeInterval, progress: float) -> None:
         if beat is None:
             return
         self.beat_num += 1
         self.beat_duration = beat.duration
-        self.beat_progress = progress
+        self.beat_progress = (progress - beat.start) / beat.duration
 
         self.swap_cols()
 
@@ -112,8 +112,8 @@ class PhilippAnimation(Animation):
         self.center = parent_strip.num_pixels() / 2
         self.brightness = [1.0] * parent_strip.num_pixels()
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
         now = time.time()
         delta = now - self.last_update
         self.last_update = now

@@ -46,6 +46,8 @@ class SpotifyAnimator:
 
         try:
             while True:
+                progress = time.time() - loop_start
+
                 currently_playing = await self.spotify_updater.shared_data.get_currently_playing()
                 audio_analysis = await self.spotify_updater.shared_data.get_audio_analysis()
                 if currently_playing and audio_analysis:
@@ -63,7 +65,7 @@ class SpotifyAnimator:
                             is_playing = True
                             await animation.on_resume(self.spotify_updater.shared_data)
 
-                        progress: float = currently_playing.progress_ms / 1000
+                        progress = currently_playing.progress_ms / 1000
                         progress += time.time() - currently_playing.timestamp / 1000
 
                         for i in range(5):
@@ -74,10 +76,9 @@ class SpotifyAnimator:
                             if index and current_index != index:
                                 current_indices[i] = index
                                 item = item_list[index]
-                                progress = (progress - item.start) / item.duration
                                 await callback(item, progress)
 
-                await animation.render(self.strip)
+                await animation.render(self.strip, progress)
                 self.strip.show()
                 await asyncio.sleep(0)
                 loop_count += 1

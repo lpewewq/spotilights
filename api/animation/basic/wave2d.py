@@ -26,8 +26,8 @@ class Wave2DAnimation(BPMAnimation):
         self.coords = coords / np.max(np.linalg.norm(coords, axis=1))
         self.norms = np.linalg.norm(self.coords - self.origin, axis=1)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
         for i in range(parent_strip.num_pixels()):
             scale = self.beat(self.norms[i] * self.fineness)
             parent_strip.set_pixel_color(i, self.color * scale)

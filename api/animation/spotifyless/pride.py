@@ -21,8 +21,8 @@ class PrideAnimation(Animation):
         rangewidth = highest - lowest
         return int(lowest + rangewidth * beatsin)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
         sat8 = ct.c_uint8(self.beatsin88(87, 220, 250))
         brightdepth = ct.c_uint8(self.beatsin88(341, 96, 224))
         brightnessthetainc16 = ct.c_uint16(self.beatsin88(203, 6400, 10240))

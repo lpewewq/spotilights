@@ -85,10 +85,10 @@ class SubAnimation(Animation):
             for offset, next_offset, inverse in zip(offsets, offsets[1:], self.inverse)
         ]
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
         for animation, sub_strip in zip(self.animations, self.sub_strips):
-            await animation.render(sub_strip)
+            await animation.render(sub_strip, progress)
 
     @property
     def depends_on_spotify(self) -> bool:

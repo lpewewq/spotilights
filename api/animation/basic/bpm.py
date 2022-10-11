@@ -11,10 +11,10 @@ class BPMAnimation(Animation):
         super().__init__()
         self.low = low
         self.high = high
-        self.bpm = 0
+        self.bpm: float = 0
 
-    def beat(self, shift: float = 0.0) -> float:
-        bps2pi = 2 * np.pi * self.bpm / 60
+    def beat(self, bpm: float, shift: float = 0.0) -> float:
+        bps2pi = 2 * np.pi * bpm / 60
         diff = self.high - self.low
         beat = (np.sin(-time.time() * bps2pi + shift) + 1) / 2
         return self.low + diff * beat

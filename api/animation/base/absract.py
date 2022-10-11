@@ -56,7 +56,7 @@ class Animation(ABC):
         """Strip update callback trigger condition"""
         return self._parent_strip != parent_strip
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
         """Render animation to strip"""
         if self.trigger_on_strip_change(parent_strip):
             self.on_strip_change(parent_strip)

@@ -11,6 +11,6 @@ class FillAnimation(BPMAnimation):
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.color})"
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await super().render(parent_strip)
-        parent_strip.fill_color(self.color * self.beat())
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await super().render(parent_strip, progress)
+        parent_strip.fill_color(self.color * self.beat(self.bpm))

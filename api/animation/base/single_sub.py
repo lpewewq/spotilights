@@ -39,8 +39,8 @@ class SingleSubAnimation(Animation, ABC):
     async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
         await self.animation.on_segment(segment, progress)
 
-    async def render(self, parent_strip: AbstractStrip) -> None:
-        await self.animation.render(parent_strip)
+    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
+        await self.animation.render(parent_strip, progress)
 
     @property
     def depends_on_spotify(self) -> bool:

@@ -2,6 +2,8 @@ import asyncio
 import time
 import traceback
 
+import tekore as tk
+
 from .client import SpotifyClient
 from .shared_data import SharedData
 
@@ -26,7 +28,8 @@ class SpotifyUpdater:
         item_id = None
         try:
             while True:
-                currently_playing = await self.spotify_client.playback_currently_playing()
+                sleep = self.update_interval
+                currently_playing: tk.model.CurrentlyPlaying = await self.spotify_client.playback_currently_playing()
                 fetch_time = time.time()
 
                 if currently_playing is None or currently_playing.item is None or currently_playing.item.is_local:
@@ -39,7 +42,10 @@ class SpotifyUpdater:
                         audio_analysis = await self.spotify_client.track_audio_analysis(currently_playing.item.id)
                         await self.shared_data.set_audio_analysis(audio_analysis)
                     await self.shared_data.set_currently_playing(currently_playing)
-                await asyncio.sleep(self.update_interval)
+                    if currently_playing.is_playing:
+                        remaining = (currently_playing.item.duration_ms - currently_playing.progress_ms) / 1000
+                        sleep = min(sleep, max(1, remaining))
+                await asyncio.sleep(sleep)
         except Exception as e:
             print(f"SpotifyUpdater excepted:", e)
             traceback.print_exc()

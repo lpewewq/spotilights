@@ -1,7 +1,6 @@
 from abc import ABC
 
-import tekore as tk
-
+from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
 from ...strip.base import AbstractStrip
 from .absract import Animation
@@ -24,19 +23,19 @@ class SingleSubAnimation(Animation, ABC):
     async def on_track_change(self, shared_data: SharedData) -> None:
         await self.animation.on_track_change(shared_data)
 
-    async def on_section(self, section: tk.model.Section, progress: float) -> None:
+    async def on_section(self, section: Section, progress: float) -> None:
         await self.animation.on_section(section, progress)
 
-    async def on_bar(self, bar: tk.model.TimeInterval, progress: float) -> None:
+    async def on_bar(self, bar: Bar, progress: float) -> None:
         await self.animation.on_bar(bar, progress)
 
-    async def on_beat(self, beat: tk.model.TimeInterval, progress: float) -> None:
+    async def on_beat(self, beat: Beat, progress: float) -> None:
         await self.animation.on_beat(beat, progress)
 
-    async def on_tatum(self, tatum: tk.model.TimeInterval, progress: float) -> None:
+    async def on_tatum(self, tatum: Tatum, progress: float) -> None:
         await self.animation.on_tatum(tatum, progress)
 
-    async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
+    async def on_segment(self, segment: Segment, progress: float) -> None:
         await self.animation.on_segment(segment, progress)
 
     async def render(self, parent_strip: AbstractStrip, progress: float) -> None:

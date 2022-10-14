@@ -9,3 +9,6 @@ tekore.cfg
 
 # Arduino
 bin
+
+*.png
+*.npy

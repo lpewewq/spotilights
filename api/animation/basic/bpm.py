@@ -23,12 +23,10 @@ class BPMAnimation(Animation):
         self.bpm = 0
 
     async def on_resume(self, shared_data: SharedData) -> None:
-        analysis = await shared_data.get_audio_analysis()
-        self.bpm = analysis.track["tempo"]
+        self.bpm = (await shared_data.get_audio_analysis()).tempo
 
     async def on_track_change(self, shared_data: SharedData) -> None:
-        analysis = await shared_data.get_audio_analysis()
-        self.bpm = analysis.track["tempo"]
+        self.bpm = (await shared_data.get_audio_analysis()).tempo
 
     @property
     def depends_on_spotify(self) -> bool:

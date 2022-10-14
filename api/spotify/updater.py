@@ -5,6 +5,7 @@ import traceback
 import tekore as tk
 
 from .client import SpotifyClient
+from .models import AudioAnalysis
 from .shared_data import SharedData
 
 
@@ -40,6 +41,7 @@ class SpotifyUpdater:
                     if currently_playing.item.id != item_id:
                         item_id = currently_playing.item.id
                         audio_analysis = await self.spotify_client.track_audio_analysis(currently_playing.item.id)
+                        audio_analysis = AudioAnalysis.from_tekore(audio_analysis)
                         await self.shared_data.set_audio_analysis(audio_analysis)
                     await self.shared_data.set_currently_playing(currently_playing)
                     if currently_playing.is_playing:

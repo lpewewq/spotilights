@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     spotify_timeout: int = 15  # timeout (s) when calling the API
     spotify_update_interval: int = 10  # playback update interval (s)
     spotify_playback_offset_ms: int = 0  # offset for spotify callbacks
+    # Finetuning
+    segment_loudness_resample_rate: int = 60
+    segment_loudness_smoothing_kernel_size: float = 2  # gaussian kernel window size in seconds
 
     class Config:
         env_file = ".env"

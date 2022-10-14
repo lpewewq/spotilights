@@ -2,9 +2,8 @@ import math
 import random
 import time
 
-import tekore as tk
-
 from ...color import Color
+from ...spotify.models import Bar, Beat, Section
 from ...strip.base.sub import AbstractStrip
 from ..base import Animation
 
@@ -49,7 +48,7 @@ class PhilippAnimation(Animation):
         self.col_c = self.col_d
         self.col_d = col_tmp
 
-    async def on_section(self, section: tk.model.Section, progress: float) -> None:
+    async def on_section(self, section: Section, progress: float) -> None:
         if section is None:
             return
         self.sectionLoudness = section.loudness
@@ -81,14 +80,14 @@ class PhilippAnimation(Animation):
 
         self.section_num += 1
 
-    async def on_bar(self, bar: tk.model.TimeInterval, progress: float) -> None:
+    async def on_bar(self, bar: Bar, progress: float) -> None:
         if bar is None:
             return
         self.bar_num += 1
         self.bar_duration = bar.duration
         self.bar_progress = (progress - bar.start) / bar.duration
 
-    async def on_beat(self, beat: tk.model.TimeInterval, progress: float) -> None:
+    async def on_beat(self, beat: Beat, progress: float) -> None:
         if beat is None:
             return
         self.beat_num += 1

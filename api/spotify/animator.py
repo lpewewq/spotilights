@@ -91,7 +91,7 @@ class SpotifyAnimator:
             print(f"{animation} excepted:", e)
             traceback.print_exc()
 
-    def find(self, list: list[tk.model.TimeInterval], timestamp: float, previous_index: int) -> int:
+    def find(self, list, timestamp: float, previous_index: int) -> int:
         if previous_index is None:
             for i, _beat in enumerate(list):
                 if _beat.start <= timestamp < _beat.start + _beat.duration:

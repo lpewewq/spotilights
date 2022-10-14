@@ -1,9 +1,8 @@
 import time
 from typing import Generator
 
-import tekore as tk
-
 from ...color import Color
+from ...spotify.models import Section, Segment
 from ...spotify.shared_data import SharedData
 from ...strip.base import AbstractStrip
 from .absract import Animation
@@ -29,15 +28,16 @@ class StrobeAnimation(SingleSubAnimation):
         self.bpm = 0.0
 
     async def on_pause(self, shared_data: SharedData) -> None:
+        await super().on_pause(shared_data)
         self.bpm = 0
 
     async def on_resume(self, shared_data: SharedData) -> None:
-        analysis = await shared_data.get_audio_analysis()
-        self.bpm = analysis.track["tempo"]
+        await super().on_resume(shared_data)
+        self.bpm = (await shared_data.get_audio_analysis()).tempo
 
     async def on_track_change(self, shared_data: SharedData) -> None:
-        analysis = await shared_data.get_audio_analysis()
-        self.bpm = analysis.track["tempo"]
+        await super().on_track_change(shared_data)
+        self.bpm = (await shared_data.get_audio_analysis()).tempo
 
     def strobe(self, strip: AbstractStrip) -> Generator[None, None, None]:
         start = time.time()
@@ -65,9 +65,20 @@ class StrobeAnimation(SingleSubAnimation):
 
 
 class StrobeOnSectionAnimation(StrobeAnimation):
-    async def on_section(self, section: tk.model.Section, progress: float) -> None:
+    async def on_section(self, section: Section, progress: float) -> None:
         self.activate = True
         return await super().on_section(section, progress)
+
+    @property
+    def depends_on_spotify(self) -> bool:
+        return True
+
+
+class StrobeOnLoudnessGradientAnimation(StrobeAnimation):
+    async def on_segment(self, segment: Segment, progress: float) -> None:
+        await super().on_segment(segment, progress)
+        if segment.loudness_start_gradient_suppressed > 0.3:
+            self.activate = True
 
     @property
     def depends_on_spotify(self) -> bool:

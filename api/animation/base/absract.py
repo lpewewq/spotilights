@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-import tekore as tk
-
+from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
 from ...strip.base import AbstractStrip
 
@@ -28,23 +27,23 @@ class Animation(ABC):
         """Track change callback"""
         pass
 
-    async def on_section(self, section: tk.model.Section, progress: float) -> None:
+    async def on_section(self, section: Section, progress: float) -> None:
         """Section callback"""
         pass
 
-    async def on_bar(self, bar: tk.model.TimeInterval, progress: float) -> None:
+    async def on_bar(self, bar: Bar, progress: float) -> None:
         """Bar callback"""
         pass
 
-    async def on_beat(self, beat: tk.model.TimeInterval, progress: float) -> None:
+    async def on_beat(self, beat: Beat, progress: float) -> None:
         """Beat callback"""
         pass
 
-    async def on_tatum(self, tatum: tk.model.TimeInterval, progress: float) -> None:
+    async def on_tatum(self, tatum: Tatum, progress: float) -> None:
         """Tatum callback"""
         pass
 
-    async def on_segment(self, segment: tk.model.Segment, progress: float) -> None:
+    async def on_segment(self, segment: Segment, progress: float) -> None:
         """Segment callback"""
         pass
 

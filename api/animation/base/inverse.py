@@ -1,18 +1,17 @@
-from ...strip.base import AbstractStrip, SubStrip
+import numpy as np
+
 from .absract import Animation
-from .single_sub import SingleSubAnimation
+from .sub import SingleSubAnimation
 
 
 class InverseAnimation(SingleSubAnimation):
-    def __init__(self, animation: Animation) -> None:
-        super().__init__(animation=animation)
-        self._inverted_strip = None
+    def __init__(self, animation: Animation, inverse=True) -> None:
+        super().__init__(animation)
+        self.inverse = inverse
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        super().on_strip_change(parent_strip)
-        self._inverted_strip = SubStrip(strip=parent_strip, inverse=True)
-
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        if self.trigger_on_strip_change(parent_strip):
-            self.on_strip_change(parent_strip)
-        await super().render(self._inverted_strip, progress)
+    def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
+        colors = super().render(progress, xy)
+        if self.inverse:
+            return colors[::-1]
+        else:
+            return colors

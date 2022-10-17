@@ -10,11 +10,6 @@ def num_pixels():
     return strip.num_pixels()
 
 
-@router.get("/pixels")
-def get_pixels():
-    return strip.get_pixels()
-
-
 @router.get("/brightness")
 def get_brightness():
     return strip.get_brightness()

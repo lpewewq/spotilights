@@ -4,8 +4,8 @@ import time
 import numpy as np
 
 from ...color import Color
-from ...strip.base import AbstractStrip
 from ..base import Animation
+from ..base.decorators import save_previous
 
 
 class PrideAnimation(Animation):
@@ -21,8 +21,8 @@ class PrideAnimation(Animation):
         rangewidth = highest - lowest
         return int(lowest + rangewidth * beatsin)
 
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        await super().render(parent_strip, progress)
+    @save_previous
+    def render(self, progress: float, xy: np.ndarray, previous: np.ndarray) -> np.ndarray:
         sat8 = ct.c_uint8(self.beatsin88(87, 220, 250))
         brightdepth = ct.c_uint8(self.beatsin88(341, 96, 224))
         brightnessthetainc16 = ct.c_uint16(self.beatsin88(203, 6400, 10240))
@@ -38,7 +38,9 @@ class PrideAnimation(Animation):
         self.sHue16 = ct.c_uint16(self.sHue16.value + deltams.value * self.beatsin88(400, 5, 9))
         brightnesstheta16 = ct.c_uint16(self.sPseudotime.value)
 
-        for i in range(parent_strip.num_pixels()):
+        n = len(xy)
+        colors = np.empty(n, dtype=Color)
+        for i, previous_color in enumerate(previous):
             hue16 = ct.c_uint16(hue16.value + hueinc16.value)
             hue8 = ct.c_uint8(hue16.value // 256)
 
@@ -50,8 +52,9 @@ class PrideAnimation(Animation):
             bri8 = ct.c_uint8(bri8.value + 255 - brightdepth.value)
 
             color = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
-            color = color.blend(parent_strip.get_pixel_color(i), 0.25)
-            parent_strip.set_pixel_color(i, color)
+            color = color.blend(previous_color, 0.25)
+            colors[i] = color
+        return colors
 
     @property
     def depends_on_spotify(self) -> bool:

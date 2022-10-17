@@ -1,5 +1,6 @@
+import numpy as np
+
 from ...color import Color
-from ...strip.base import AbstractStrip
 from .bpm import BPMAnimation
 
 
@@ -11,6 +12,6 @@ class FillAnimation(BPMAnimation):
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.color})"
 
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        await super().render(parent_strip, progress)
-        parent_strip.fill_color(self.color * self.beat(self.bpm))
+    def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
+        color = self.color * self.beat(self.bpm)
+        return np.full(len(xy), color)

@@ -2,10 +2,12 @@ import math
 import random
 import time
 
+import numpy as np
+
 from ...color import Color
 from ...spotify.models import Bar, Beat, Section
-from ...strip.base.sub import AbstractStrip
 from ..base import Animation
+from ..base.decorators import save_previous
 
 
 class PhilippAnimation(Animation):
@@ -48,7 +50,7 @@ class PhilippAnimation(Animation):
         self.col_c = self.col_d
         self.col_d = col_tmp
 
-    async def on_section(self, section: Section, progress: float) -> None:
+    def on_section(self, section: Section, progress: float) -> None:
         if section is None:
             return
         self.sectionLoudness = section.loudness
@@ -80,14 +82,14 @@ class PhilippAnimation(Animation):
 
         self.section_num += 1
 
-    async def on_bar(self, bar: Bar, progress: float) -> None:
+    def on_bar(self, bar: Bar, progress: float) -> None:
         if bar is None:
             return
         self.bar_num += 1
         self.bar_duration = bar.duration
         self.bar_progress = (progress - bar.start) / bar.duration
 
-    async def on_beat(self, beat: Beat, progress: float) -> None:
+    def on_beat(self, beat: Beat, progress: float) -> None:
         if beat is None:
             return
         self.beat_num += 1
@@ -105,14 +107,15 @@ class PhilippAnimation(Animation):
             for i in range(0, self.num_pixels):
                 self.brightness[i] += self.get_bell((i - ((self.beat_num % 5) / 4) * 287) / 10)
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        super().on_strip_change(parent_strip)
-        self.num_pixels = parent_strip.num_pixels()
-        self.center = parent_strip.num_pixels() / 2
-        self.brightness = [1.0] * parent_strip.num_pixels()
+    @save_previous
+    def render(self, progress: float, xy: np.ndarray, previous: np.ndarray) -> np.ndarray:
+        num_pixels = len(xy)
+        colors = np.empty(num_pixels, dtype=Color)
+        if self.num_pixels != num_pixels:
+            self.num_pixels = num_pixels
+            self.center = self.num_pixels // 2
+            self.brightness = [1.0] * self.num_pixels
 
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        await super().render(parent_strip, progress)
         now = time.time()
         delta = now - self.last_update
         self.last_update = now
@@ -142,7 +145,7 @@ class PhilippAnimation(Animation):
         num_modes = 4
         # self.section_num = 2
         if self.section_num % num_modes == 0:
-            parent_strip.fill_color(Color(r=25, g=25, b=25))
+            colors = np.full(len(xy), Color(r=25, g=25, b=25))
             if self.beat_num % 32 < 24:
                 if self.bar_num % 6 < 3:
                     cycle_proc = beat_pair_proc
@@ -150,65 +153,49 @@ class PhilippAnimation(Animation):
                     cycle_proc = 1 - beat_pair_proc
             else:
                 cycle_proc = (self.beat_num % 8) / 8
-            for i in range(0, parent_strip.num_pixels()):
+            for i in range(0, num_pixels):
                 if i > self.center:
-                    parent_strip.add_pixel_color(
-                        i,
-                        Color(r=255, g=255, b=255)
-                        * (
-                            1
-                            / pow(
-                                1 + pow((i - self.center - cycle_proc * self.center) / 10, 2),
-                                3 / 2,
-                            )
-                        ),
+                    colors[i] += Color(r=255, g=255, b=255) * (
+                        1
+                        / pow(
+                            1 + pow((i - self.center - cycle_proc * self.center) / 10, 2),
+                            3 / 2,
+                        )
                     )
-                    parent_strip.add_pixel_color(
-                        i,
-                        Color(r=255, g=255, b=255)
-                        * (
+                    colors[i] += Color(r=255, g=255, b=255) * (
+                        1
+                        / pow(
                             1
-                            / pow(
-                                1
-                                + pow(
-                                    (i - self.center - (cycle_proc + 1) * self.center) / 10,
-                                    2,
-                                ),
-                                3 / 2,
-                            )
-                        ),
+                            + pow(
+                                (i - self.center - (cycle_proc + 1) * self.center) / 10,
+                                2,
+                            ),
+                            3 / 2,
+                        )
                     )
                 else:
-                    parent_strip.add_pixel_color(
-                        i,
-                        Color(r=255, g=255, b=255)
-                        * (
-                            1
-                            / pow(
-                                1 + pow((i - self.center + cycle_proc * self.center) / 10, 2),
-                                3 / 2,
-                            )
-                        ),
+                    colors[i] += Color(r=255, g=255, b=255) * (
+                        1
+                        / pow(
+                            1 + pow((i - self.center + cycle_proc * self.center) / 10, 2),
+                            3 / 2,
+                        )
                     )
-                    parent_strip.add_pixel_color(
-                        i,
-                        Color(r=255, g=255, b=255)
-                        * (
+                    colors[i] += Color(r=255, g=255, b=255) * (
+                        1
+                        / pow(
                             1
-                            / pow(
-                                1
-                                + pow(
-                                    (i - self.center + (cycle_proc + 1) * self.center) / 10,
-                                    2,
-                                ),
-                                3 / 2,
-                            )
-                        ),
+                            + pow(
+                                (i - self.center + (cycle_proc + 1) * self.center) / 10,
+                                2,
+                            ),
+                            3 / 2,
+                        )
                     )
 
         # Only looks good with time_signature=4
         if self.section_num % num_modes == 1:
-            for i in range(0, parent_strip.num_pixels()):
+            for i in range(0, num_pixels):
                 self.brightness[i] *= 0.96
             self.wave_freq = 2
             self.wave_pos += self.wave_vel * (delta / 2)
@@ -216,44 +203,36 @@ class PhilippAnimation(Animation):
                 proc = beat_pair_proc
             else:
                 proc = 1 - beat_pair_proc
-            for i in range(0, int(parent_strip.num_pixels() / 2) + 1):
-                ii = i / parent_strip.num_pixels()
-                parent_strip.set_pixel_color(
-                    i,
-                    Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 3),
-                )  # Mask edges
-                parent_strip.add_pixel_color(
-                    i,
+            for i in range(0, int(num_pixels / 2) + 1):
+                ii = i / num_pixels
+                colors[i] = Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 3)
+                colors[i] += (
                     Color(r=255, g=255, b=255)
                     * (1 - proc)
-                    * pow(self.get_bell((i - self.center + proc * self.center) / 10), 2),
+                    * pow(self.get_bell((i - self.center + proc * self.center) / 10), 2)
                 )
-                parent_strip.set_pixel_color(parent_strip.num_pixels() - i - 1, parent_strip.get_pixel_color(i))
+                colors[num_pixels - i - 1] = previous[i]
 
         if self.section_num % num_modes == 2:
             self.wave_freq = 2
             self.wave_pos += self.wave_vel * delta
-            for i in range(0, parent_strip.num_pixels()):
+            for i in range(0, num_pixels):
                 self.brightness[i] *= 0.975
-            for i in range(0, parent_strip.num_pixels()):
-                ii = i / parent_strip.num_pixels()
-                parent_strip.set_pixel_color(
-                    i,
-                    Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 2),
-                )  # Mask edges
+            for i in range(0, num_pixels):
+                ii = i / num_pixels
+                colors[i] = Color(r=255, g=255, b=255) * self.brightness[i] * pow(math.sin(ii * math.pi), 2)
 
         if self.section_num % num_modes == 3:
-            for i in range(0, parent_strip.num_pixels()):
+            for i in range(0, num_pixels):
                 self.brightness[i] *= 0.96
-            for i in range(0, parent_strip.num_pixels()):
-                parent_strip.set_pixel_color(i, Color(r=255, g=255, b=255) * self.brightness[i])
+            for i in range(0, num_pixels):
+                colors[i] = Color(r=255, g=255, b=255) * self.brightness[i]
 
-        for i in range(0, parent_strip.num_pixels()):
-            ii = ((i - parent_strip.num_pixels() / 2) / parent_strip.num_pixels()) * math.pi * self.wave_freq
-            parent_strip.mult_pixel_color(
-                i,
-                c_a * abs(math.sin(ii + self.wave_pos)) + c_b * abs(math.cos(ii + self.wave_pos)),
-            )
+        for i in range(0, num_pixels):
+            ii = ((i - num_pixels / 2) / num_pixels) * math.pi * self.wave_freq
+            colors[i] *= c_a * abs(math.sin(ii + self.wave_pos)) + c_b * abs(math.cos(ii + self.wave_pos))
+
+        return colors
 
     @property
     def depends_on_spotify(self) -> bool:

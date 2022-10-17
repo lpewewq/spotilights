@@ -1,16 +1,20 @@
-import time
 from typing import Generator
 
-from ...strip.base import AbstractStrip
+import numpy as np
+
+from ...color import Color
 from ..base import BaseIteratorAnimation
 
 
 class RainbowAnimation(BaseIteratorAnimation):
-    def generator(self, strip: AbstractStrip) -> Generator[float, None, None]:
+    def __init__(self, delay: float) -> None:
+        super().__init__()
+        self.delay = delay
+        self.rainbow = np.array([Color.wheel(pos) for pos in range(256)])
+
+    def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         for offset in range(256):
-            for i in range(strip.num_pixels()):
-                strip.set_pixel_color(i, self.rainbow[(i + offset) % 256])
-            yield self.delay
+            yield self.rainbow.take(range(offset, offset + len(xy)), mode="wrap"), self.delay
 
     @property
     def depends_on_spotify(self) -> bool:

@@ -1,10 +1,10 @@
+import numpy as np
 from rpi_ws281x import PixelStrip
 
-from ...color import Color
-from ..base import GlobalStrip
+from ..abstract import AbstractStrip
 
 
-class RPIStrip(GlobalStrip):
+class RPIStrip(AbstractStrip):
     def __init__(
         self,
         pin: int,
@@ -28,16 +28,11 @@ class RPIStrip(GlobalStrip):
         )
         self._rpi_strip.begin()
         self.clear()
-        self.show()
 
-    def show(self) -> None:
+    def show(self, colors: np.ndarray) -> None:
+        for i, color in enumerate(colors):
+            self._rpi_strip.setPixelColor(i, color.as_int())
         self._rpi_strip.show()
-
-    def get_pixel_color(self, i: int) -> Color:
-        return Color.from_int(self._rpi_strip.getPixelColor(i))
-
-    def set_pixel_color(self, i: int, color: Color) -> None:
-        self._rpi_strip.setPixelColor(i, color.as_int())
 
     def get_brightness(self) -> int:
         return self._rpi_strip.getBrightness()
@@ -46,6 +41,3 @@ class RPIStrip(GlobalStrip):
         brightness = min(brightness, 255)
         brightness = max(brightness, 0)
         self._rpi_strip.setBrightness(int(brightness))
-
-    def get_pixels(self) -> list[Color]:
-        return [Color.from_int(x) for x in self._rpi_strip.getPixels()[:]]

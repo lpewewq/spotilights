@@ -2,15 +2,13 @@ import asyncio
 import time
 import traceback
 
-import tekore as tk
-
 from ..animation.base import Animation
-from ..strip.base import GlobalStrip
+from ..strip.abstract import AbstractStrip
 from .updater import SpotifyUpdater
 
 
 class SpotifyAnimator:
-    def __init__(self, spotify_updater: SpotifyUpdater, strip: GlobalStrip) -> None:
+    def __init__(self, spotify_updater: SpotifyUpdater, strip: AbstractStrip) -> None:
         self.spotify_updater = spotify_updater
         self.strip = strip
         self.animation_task: asyncio.Task = None
@@ -27,7 +25,6 @@ class SpotifyAnimator:
         self.cancel_animation_task()
         self.spotify_updater.stop()
         self.strip.clear()
-        self.strip.show()
 
     def cancel_animation_task(self) -> None:
         if self.animation_task is not None and not self.animation_task.done():
@@ -76,10 +73,10 @@ class SpotifyAnimator:
                             if index and current_index != index:
                                 current_indices[i] = index
                                 item = item_list[index]
-                                await callback(item, progress)
+                                callback(item, progress)
 
-                await animation.render(self.strip, progress)
-                self.strip.show()
+                colors = animation.render(progress, self.strip.xy)
+                self.strip.show(colors)
                 await asyncio.sleep(0)
                 loop_count += 1
                 if loop_count % 60 == 0:

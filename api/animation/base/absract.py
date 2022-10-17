@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
-from ...strip.base import AbstractStrip
 
 
 class Animation(ABC):
     """Interface for animations."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._parent_strip: AbstractStrip = None
 
     def __repr__(self) -> str:
         return type(self).__name__ + "()"
@@ -27,38 +24,33 @@ class Animation(ABC):
         """Track change callback"""
         pass
 
-    async def on_section(self, section: Section, progress: float) -> None:
+    def on_section(self, section: Section, progress: float) -> None:
         """Section callback"""
         pass
 
-    async def on_bar(self, bar: Bar, progress: float) -> None:
+    def on_bar(self, bar: Bar, progress: float) -> None:
         """Bar callback"""
         pass
 
-    async def on_beat(self, beat: Beat, progress: float) -> None:
+    def on_beat(self, beat: Beat, progress: float) -> None:
         """Beat callback"""
         pass
 
-    async def on_tatum(self, tatum: Tatum, progress: float) -> None:
+    def on_tatum(self, tatum: Tatum, progress: float) -> None:
         """Tatum callback"""
         pass
 
-    async def on_segment(self, segment: Segment, progress: float) -> None:
+    def on_segment(self, segment: Segment, progress: float) -> None:
         """Segment callback"""
         pass
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        """Strip update callback"""
-        self._parent_strip = parent_strip
+    def change_callback(self, xy: np.ndarray) -> None:
+        """Callback function used by @change_callback decorator when the xy coordinates change"""
+        pass
 
-    def trigger_on_strip_change(self, parent_strip: AbstractStrip) -> bool:
-        """Strip update callback trigger condition"""
-        return self._parent_strip != parent_strip
-
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        """Render animation to strip"""
-        if self.trigger_on_strip_change(parent_strip):
-            self.on_strip_change(parent_strip)
+    @abstractmethod
+    def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
+        """Return rendered animation. For each xy coordinate return a Color"""
 
     @property
     @abstractmethod

@@ -1,20 +1,45 @@
-from ...strip.base import AbstractStrip, MirroredStrip
+import numpy as np
+
+from ...color import Color
 from .absract import Animation
-from .single_sub import SingleSubAnimation
+from .decorators import on_change
+from .sub import SingleSubAnimation
 
 
 class MirrorAnimation(SingleSubAnimation):
     def __init__(self, animation: Animation, divisions: int = 2, inverse: list[bool] = None) -> None:
         super().__init__(animation=animation)
+        assert divisions > 0
         self.divisions = divisions
-        self.inverse = inverse
-        self._mirrored_strip = None
+        if inverse is None:
+            self.inverse = [i % 2 == 1 for i in range(divisions)]
+        else:
+            assert len(inverse) == divisions
+            self.inverse = inverse
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        super().on_strip_change(parent_strip)
-        self._mirrored_strip = MirroredStrip(strip=parent_strip, divisions=self.divisions, inverse=self.inverse)
+    def change_callback(self, xy: np.ndarray) -> None:
+        self.chunk_size, self.n_large_chunks = divmod(len(xy), self.divisions)
+        if self.n_large_chunks > 0:
+            self.chunk_size += 1
+        else:
+            self.n_large_chunks = self.divisions
 
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        if self.trigger_on_strip_change(parent_strip):
-            self.on_strip_change(parent_strip)
-        await super().render(self._mirrored_strip, progress)
+    @on_change
+    def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
+        sub_colors = super().render(progress, xy[: self.chunk_size])
+        colors = np.empty(len(xy), dtype=Color)
+
+        # fill colors with chunks of sub_colors
+        offset = 0
+        for i, inverse in zip(range(self.divisions), self.inverse):
+            if i < self.n_large_chunks:
+                chunk = sub_colors
+            else:
+                chunk = sub_colors[:-1]
+            if inverse:
+                chunk = chunk[::-1]
+            chunk_length = len(chunk)
+            colors[offset : offset + chunk_length] = chunk
+            offset += chunk_length
+
+        return colors

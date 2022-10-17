@@ -1,9 +1,10 @@
-from ...color import Color
-from ..base import GlobalStrip
+import numpy as np
 from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE, Serial
 
+from ..abstract import AbstractStrip
 
-class ArduinoStrip(GlobalStrip):
+
+class ArduinoStrip(AbstractStrip):
     def __init__(
         self,
         brightness: float,
@@ -14,7 +15,6 @@ class ArduinoStrip(GlobalStrip):
         xy: list[tuple[float, float]] = None,
     ) -> None:
         super().__init__(num_pixels, xy)
-        self.data = [Color(r=0, g=0, b=0) for i in range(num_pixels)]
         self.header = bytes(header)
         self.brightness = brightness
         self.serial_connection = Serial(
@@ -25,26 +25,19 @@ class ArduinoStrip(GlobalStrip):
             stopbits=STOPBITS_ONE,
             timeout=None,
         )
-        self.show()
+        self.clear()
 
-    def show(self) -> None:
+    def show(self,  colors: np.ndarray) -> None:
         self.serial_connection.write(self.header)
-        for color in self.data:
+        for color in colors:
             r, g, b = (color * self.brightness).as_bytes()
             # WS2812B uses GRB
             self.serial_connection.write(bytes([g, r, b]))
-
-    def get_pixel_color(self, i: int) -> Color:
-        return self.data[i]
-
-    def set_pixel_color(self, i: int, color: Color) -> None:
-        self.data[i] = color
 
     def get_brightness(self) -> int:
         return int(self.brightness * 255)
 
     def set_brightness(self, brightness: int) -> None:
+        brightness = min(brightness, 255)
+        brightness = max(brightness, 0)
         self.brightness = brightness / 255
-
-    def get_pixels(self) -> list[Color]:
-        return self.data

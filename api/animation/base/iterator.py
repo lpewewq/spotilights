@@ -1,50 +1,37 @@
 import time
 from abc import ABC, abstractclassmethod
-from typing import Generator
+from typing import Generator, Union
 
-from ...color import Color
-from ...strip.base import AbstractStrip
+import numpy as np
+
 from .absract import Animation
+from .decorators import on_change, save_previous
 
 
 class BaseIteratorAnimation(Animation, ABC):
-    def __init__(self, delay: float) -> None:
-        super().__init__()
-        self.delay = delay
-        self.rainbow = [self.wheel(pos) for pos in range(256)]
-        self._generator = None
-
-    def wheel(self, pos: int) -> Color:
-        """Generate rainbow colors across 0-255 positions."""
-        if pos < 85:
-            return Color(r=pos * 3, g=255 - pos * 3, b=0)
-        elif pos < 170:
-            pos -= 85
-            return Color(r=255 - pos * 3, g=0, b=pos * 3)
-        else:
-            pos -= 170
-            return Color(r=0, g=pos * 3, b=255 - pos * 3)
-
     @abstractclassmethod
-    def generator(self, strip: AbstractStrip) -> Generator[float, None, None]:
+    def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         """Animation generator"""
 
-    def _infinite_generator(self, strip: AbstractStrip) -> Generator[None, None, None]:
+    def infinite_generator(self, xy: np.ndarray) -> Generator[Union[np.ndarray, None], None, None]:
         while True:
             try:
-                for delay in self.generator(strip):
+                for generated, delay in self.generator(xy):
                     t = time.time()
-                    yield
-                    if delay:
-                        while (time.time() - t) < delay:
-                            yield
+                    yield generated
+                    while (time.time() - t) < delay:
+                        yield
             except StopIteration:
                 yield
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        super().on_strip_change(parent_strip)
-        self._generator = self._infinite_generator(parent_strip)
+    def change_callback(self, xy: np.ndarray) -> None:
+        self._generator = self.infinite_generator(xy)
 
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        await super().render(parent_strip, progress)
-        next(self._generator)
+    @on_change
+    @save_previous
+    def render(self, progress: float, xy: np.ndarray, previous: np.ndarray) -> np.ndarray:
+        generated = next(self._generator)
+        if generated is None:
+            return previous
+        else:
+            return generated

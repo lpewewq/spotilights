@@ -1,12 +1,13 @@
 import time
 from typing import Generator
 
+import numpy as np
+
 from ...color import Color
-from ...spotify.models import Section, Segment
+from ...spotify.models import Segment
 from ...spotify.shared_data import SharedData
-from ...strip.base import AbstractStrip
 from .absract import Animation
-from .single_sub import SingleSubAnimation
+from .sub import SingleSubAnimation
 
 
 class StrobeAnimation(SingleSubAnimation):
@@ -39,44 +40,32 @@ class StrobeAnimation(SingleSubAnimation):
         await super().on_track_change(shared_data)
         self.bpm = (await shared_data.get_audio_analysis()).tempo
 
-    def strobe(self, strip: AbstractStrip) -> Generator[None, None, None]:
+    def strobe(self, duration: float) -> Generator[bool, None, None]:
         start = time.time()
-        duration = self.duration_in_beats * 60 / self.bpm
         while (time.time() - start) < duration:
             on = time.time()
             while (time.time() - on) < self.on_duration:
-                strip.fill_color(self.color)
-                yield
+                yield True
             off = time.time()
             while (time.time() - off) < self.off_duration:
-                yield
+                yield False
 
-    def on_strip_change(self, parent_strip: AbstractStrip) -> None:
-        super().on_strip_change(parent_strip)
-        self.strobe_generator = self.strobe(parent_strip)
-
-    async def render(self, parent_strip: AbstractStrip, progress: float) -> None:
-        if self.trigger_on_strip_change(parent_strip):
-            self.on_strip_change(parent_strip)
-        await super().render(parent_strip, progress)
-        if self.activate and next(self.strobe_generator, True):
-            self.strobe_generator = self.strobe(parent_strip)
-            self.activate = False
-
-
-class StrobeOnSectionAnimation(StrobeAnimation):
-    async def on_section(self, section: Section, progress: float) -> None:
-        self.activate = True
-        return await super().on_section(section, progress)
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return True
+    def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
+        if self.activate:
+            if self.strobe_generator is None:
+                self.strobe_generator = self.strobe(self.duration_in_beats * 60 / self.bpm)
+            strobe = next(self.strobe_generator, None)
+            if strobe is None:  # strobe finished
+                self.strobe_generator = None
+                self.activate = False
+            elif strobe:
+                return np.full(len(xy), self.color)
+        return super().render(progress, xy)
 
 
 class StrobeOnLoudnessGradientAnimation(StrobeAnimation):
-    async def on_segment(self, segment: Segment, progress: float) -> None:
-        await super().on_segment(segment, progress)
+    def on_segment(self, segment: Segment, progress: float) -> None:
+        super().on_segment(segment, progress)
         if segment.loudness_start_gradient_suppressed > 0.3:
             self.activate = True
 

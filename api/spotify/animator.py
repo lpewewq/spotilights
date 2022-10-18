@@ -79,9 +79,9 @@ class SpotifyAnimator:
                 self.strip.show(colors)
                 await asyncio.sleep(0)
                 loop_count += 1
-                if loop_count % 60 == 0:
+                if loop_count % 10 == 0:
                     now = time.time()
-                    print("FPS:", 60 / (now - loop_start), end="\r")
+                    print("FPS:", 10 / (now - loop_start), end="\r")
                     loop_start = now
 
         except Exception as e:

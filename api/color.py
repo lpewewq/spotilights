@@ -23,13 +23,6 @@ class Color:
         return Color(r, g, b)
 
     @classmethod
-    def from_int(cls, x: int) -> "Color":
-        r = (x >> 16) & 255
-        g = (x >> 8) & 255
-        b = x & 255
-        return Color(r, g, b)
-
-    @classmethod
     def wheel(cls, pos: int) -> "Color":
         """Generate rainbow colors across 0-255 positions."""
         if pos < 85:
@@ -42,44 +35,41 @@ class Color:
             return Color(r=0, g=pos * 3, b=255 - pos * 3)
 
     def as_int(self) -> int:
-        r = int(self.r) & 255
-        g = int(self.g) & 255
-        b = int(self.b) & 255
+        r = clamp(self.r)
+        g = clamp(self.g)
+        b = clamp(self.b)
         return (r << 16) | (g << 8) | b
 
     def as_bytes(self) -> tuple[int, int, int]:
-        r = int(self.r) & 255
-        g = int(self.g) & 255
-        b = int(self.b) & 255
+        r = clamp(self.r)
+        g = clamp(self.g)
+        b = clamp(self.b)
         return r, g, b
 
-    def blend(self, other: "Color", percentage: float = 0.5) -> "Color":
-        keep = 1 - percentage
-        r = clamp(self.r * keep + other.r * percentage)
-        g = clamp(self.g * keep + other.g * percentage)
-        b = clamp(self.b * keep + other.b * percentage)
-        return Color(r, g, b)
+    @classmethod
+    def lerp(cls, a: "Color", b: "Color", percentage: float = 0.5) -> "Color":
+        return a * (1 - percentage) + b * percentage
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
-            r = clamp(self.r + other.r)
-            g = clamp(self.g + other.g)
-            b = clamp(self.b + other.b)
+            r = self.r + other.r
+            g = self.g + other.g
+            b = self.b + other.b
         else:
-            r = clamp(self.r + other)
-            g = clamp(self.g + other)
-            b = clamp(self.b + other)
+            r = self.r + other
+            g = self.g + other
+            b = self.b + other
         return Color(r, g, b)
 
     def __mul__(self, other):
         if isinstance(other, self.__class__):
-            r = clamp(self.r * other.r / 255)
-            g = clamp(self.g * other.g / 255)
-            b = clamp(self.b * other.b / 255)
+            r = self.r * other.r / 255
+            g = self.g * other.g / 255
+            b = self.b * other.b / 255
         else:
-            r = clamp(self.r * other)
-            g = clamp(self.g * other)
-            b = clamp(self.b * other)
+            r = self.r * other
+            g = self.g * other
+            b = self.b * other
         return Color(r, g, b)
 
 

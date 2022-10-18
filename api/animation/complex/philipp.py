@@ -127,11 +127,11 @@ class PhilippAnimation(Animation):
 
         # Lerp colors in first bar of section (todo: lerp in HSV, not in RGB)
         if self.bar_num == 0:
-            c_a = self.col_a.blend(self.col_c, 0)
-            c_b = self.col_b.blend(self.col_d, 0)
+            c_a = self.col_a
+            c_b = self.col_b
         if self.bar_num == 1:
-            c_a = self.col_a.blend(self.col_c, self.bar_progress / self.bar_duration)
-            c_b = self.col_b.blend(self.col_d, self.bar_progress / self.bar_duration)
+            c_a = Color.lerp(self.col_a, self.col_c, self.bar_progress / self.bar_duration)
+            c_b = Color.lerp(self.col_b, self.col_d, self.bar_progress / self.bar_duration)
         if self.bar_num > 1:
             self.col_a = self.col_c
             self.col_b = self.col_d

@@ -40,7 +40,7 @@ class PrideAnimation(Animation):
 
         n = len(xy)
         colors = np.empty(n, dtype=Color)
-        for i, previous_color in enumerate(previous):
+        for i in range(n):
             hue16 = ct.c_uint16(hue16.value + hueinc16.value)
             hue8 = ct.c_uint8(hue16.value // 256)
 
@@ -50,11 +50,9 @@ class PrideAnimation(Animation):
             bri16 = ct.c_uint16((b16.value * b16.value) // 65536)
             bri8 = ct.c_uint8((bri16.value * brightdepth.value) // 65536)
             bri8 = ct.c_uint8(bri8.value + 255 - brightdepth.value)
+            colors[i] = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
 
-            color = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
-            color = color.blend(previous_color, 0.25)
-            colors[i] = color
-        return colors
+        return Color.lerp(colors, previous, 0.25)
 
     @property
     def depends_on_spotify(self) -> bool:

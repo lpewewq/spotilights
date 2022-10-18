@@ -1,4 +1,5 @@
 from .absract import Animation
+from .composition import CompositeAnimation
 from .inverse import InverseAnimation
 from .iterator import BaseIteratorAnimation
 from .mirror import MirrorAnimation

@@ -72,6 +72,8 @@ class Color:
             b = self.b * other
         return Color(r, g, b)
 
+    def __rmul__(self, other):
+        return self * other
 
 class IntColorModel(BaseModel):
     red: conint(ge=0, le=255)

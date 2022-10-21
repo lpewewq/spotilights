@@ -1,3 +1,3 @@
-from .pride import PrideAnimation
-from .rainbow import RainbowAnimation
-from .theater import TheaterAnimation
+from .pride import Pride
+from .rainbow import Rainbow
+from .theater import Theater

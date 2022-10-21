@@ -13,4 +13,4 @@ api_router.include_router(strip_router)
 api_router.include_router(animation_router)
 
 app.include_router(api_router)
-app.mount("/", StaticFiles(directory="svelte/dist", html=True))
+# app.mount("/", StaticFiles(directory="svelte/dist", html=True))

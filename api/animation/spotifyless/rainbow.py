@@ -3,10 +3,10 @@ from typing import Generator
 import numpy as np
 
 from ...color import Color
-from ..base import BaseIteratorAnimation
+from ..base import BaseIterator
 
 
-class RainbowAnimation(BaseIteratorAnimation):
+class Rainbow(BaseIterator):
     def __init__(self, delay: float) -> None:
         super().__init__()
         self.delay = delay

@@ -8,7 +8,7 @@ from .absract import Animation
 from .decorators import on_change, save_previous
 
 
-class BaseIteratorAnimation(Animation, ABC):
+class BaseIterator(Animation, ABC):
     @abstractclassmethod
     def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         """Animation generator"""

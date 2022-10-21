@@ -3,10 +3,10 @@ import numpy as np
 from ...color import Color
 from .absract import Animation
 from .decorators import on_change
-from .sub import SingleSubAnimation
+from .sub import SingleSub
 
 
-class MirrorAnimation(SingleSubAnimation):
+class Mirror(SingleSub):
     def __init__(self, animation: Animation, divisions: int = 2, inverse: list[bool] = None) -> None:
         super().__init__(animation=animation)
         assert divisions > 0

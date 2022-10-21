@@ -1,1 +1,1 @@
-from .philipp import PhilippAnimation
+from .philipp import PhilippsAnimation

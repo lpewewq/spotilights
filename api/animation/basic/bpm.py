@@ -1,4 +1,5 @@
 import time
+from abc import ABC
 
 import numpy as np
 
@@ -6,7 +7,7 @@ from ...spotify.shared_data import SharedData
 from ..base import Animation
 
 
-class BPMAnimation(Animation):
+class BPM(Animation, ABC):
     def __init__(self, low: float = 0.0, high: float = 1.0) -> None:
         super().__init__()
         self.low = low

@@ -1,10 +1,10 @@
 import numpy as np
 
 from ...color import Color
-from .bpm import BPMAnimation
+from .bpm import BPM
 
 
-class FillAnimation(BPMAnimation):
+class Fill(BPM):
     def __init__(self, color: Color, low: float = 0, high: float = 1) -> None:
         super().__init__(low, high)
         self.color = color

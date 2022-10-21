@@ -1,4 +1,5 @@
 import time
+from abc import ABC
 from typing import Generator
 
 import numpy as np
@@ -7,10 +8,10 @@ from ...color import Color
 from ...spotify.models import Segment
 from ...spotify.shared_data import SharedData
 from .absract import Animation
-from .sub import SingleSubAnimation
+from .sub import SingleSub
 
 
-class StrobeAnimation(SingleSubAnimation):
+class Strobe(SingleSub, ABC):
     def __init__(
         self,
         animation: Animation,
@@ -63,7 +64,7 @@ class StrobeAnimation(SingleSubAnimation):
         return super().render(progress, xy)
 
 
-class StrobeOnLoudnessGradientAnimation(StrobeAnimation):
+class StrobeOnLoudnessGradient(Strobe):
     def on_segment(self, segment: Segment, progress: float) -> None:
         super().on_segment(segment, progress)
         if segment.loudness_start_gradient_suppressed > 0.3:

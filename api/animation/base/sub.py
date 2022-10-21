@@ -10,7 +10,7 @@ from .absract import Animation
 from .decorators import on_change
 
 
-class SingleSubAnimation(Animation, ABC):
+class SingleSub(Animation, ABC):
     def __init__(self, animation: Animation) -> None:
         super().__init__()
         self.animation = animation
@@ -50,7 +50,7 @@ class SingleSubAnimation(Animation, ABC):
         return self.animation.depends_on_spotify
 
 
-class MultiSubAnimation(Animation):
+class MultiSub(Animation):
     def __init__(
         self,
         animations: list[Animation],
@@ -136,16 +136,16 @@ class MultiSubAnimation(Animation):
         self.animations.reverse()
 
 
-class InvertableMultiSubAnimation(MultiSubAnimation):
+class MultiSubInvertable(MultiSub):
     def __init__(self, animations: list[Animation], weights: list[float] = None, inverse: list[bool] = None) -> None:
-        from .inverse import InverseAnimation
+        from .inverse import Inverse # circular import prevention
 
         if inverse is None:
             self.inverse = [i % 2 == 1 for i in range(len(animations))]
         else:
             assert len(animations) == len(inverse)
             self.inverse = inverse
-        animations = [InverseAnimation(a, inv) for a, inv in zip(animations, self.inverse)]
+        animations = [Inverse(a, inv) for a, inv in zip(animations, self.inverse)]
         super().__init__(animations, weights)
 
     def reverse(self) -> None:

@@ -8,7 +8,7 @@ from ..base import Animation
 from ..base.decorators import save_previous
 
 
-class PrideAnimation(Animation):
+class Pride(Animation):
     def __init__(self) -> None:
         super().__init__()
         self.sPseudotime = ct.c_uint16(0)

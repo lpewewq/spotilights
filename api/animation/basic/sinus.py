@@ -2,10 +2,10 @@ import numpy as np
 
 from ...color import Color
 from ..base.decorators import on_change
-from .bpm import BPMAnimation
+from .bpm import BPM
 
 
-class SinusAnimation(BPMAnimation):
+class Sinus(BPM):
     def __init__(self, color: Color, low: float = 0, high: float = 1) -> None:
         super().__init__(low, high)
         self.color = color

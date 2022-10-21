@@ -6,11 +6,12 @@ from ...spotify.shared_data import SharedData
 from .absract import Animation
 
 
-class CompositeAnimation(Animation):
-    def __init__(self, animations: list[Animation]) -> None:
+class Composite(Animation):
+    def __init__(self, animations: list[Animation], percentage: float = 0.5) -> None:
         super().__init__()
         assert len(animations) == 2
         self.animations = animations
+        self.percentage = percentage
 
     def __repr__(self) -> str:
         return type(self).__name__ + f"({len(self.animations)})"
@@ -48,7 +49,7 @@ class CompositeAnimation(Animation):
             animation.on_segment(segment, progress)
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
-        return Color.lerp(self.animations[0].render(progress, xy), self.animations[1].render(progress, xy), 0.5)
+        return Color.lerp(self.animations[0].render(progress, xy), self.animations[1].render(progress, xy), self.percentage)
 
     @property
     def depends_on_spotify(self) -> bool:

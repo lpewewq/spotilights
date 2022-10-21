@@ -6,7 +6,7 @@ from ..base import Animation
 
 
 # Experimental
-class BarAnimation(Animation):
+class Bar(Animation):
     black = Color(0, 0, 0)
     red = Color(255, 0, 0)
 

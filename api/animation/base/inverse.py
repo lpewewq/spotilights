@@ -1,10 +1,10 @@
 import numpy as np
 
 from .absract import Animation
-from .sub import SingleSubAnimation
+from .sub import SingleSub
 
 
-class InverseAnimation(SingleSubAnimation):
+class Inverse(SingleSub):
     def __init__(self, animation: Animation, inverse=True) -> None:
         super().__init__(animation)
         self.inverse = inverse

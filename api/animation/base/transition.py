@@ -1,13 +1,15 @@
-from matplotlib import animation
-import numpy as np
 import time
+from abc import ABC
+
+import numpy as np
+
 from ...color import Color
 from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
 from .absract import Animation
 
 
-class TransitionAnimation(Animation):
+class Transition(Animation, ABC):
     def __init__(self, animations: list[Animation], start: int = 0) -> None:
         super().__init__()
         self.animations = animations
@@ -75,7 +77,7 @@ class TransitionAnimation(Animation):
         return any(animation.depends_on_spotify for animation in self.animations)
 
 
-class TransitionOnSectionAnimation(TransitionAnimation):
+class TransitionOnSection(Transition):
     def on_section(self, section: Section, progress: float) -> None:
         super().on_section(section, progress)
         next = (self.current + 1) % len(self.animations)

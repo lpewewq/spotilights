@@ -1,8 +1,8 @@
 from .absract import Animation
-from .composition import CompositeAnimation
-from .inverse import InverseAnimation
-from .iterator import BaseIteratorAnimation
-from .mirror import MirrorAnimation
-from .strobe import StrobeAnimation, StrobeOnLoudnessGradientAnimation
-from .sub import InvertableMultiSubAnimation, MultiSubAnimation, SingleSubAnimation
-from .transition import TransitionAnimation, TransitionOnSectionAnimation
+from .composition import Composite
+from .inverse import Inverse
+from .iterator import BaseIterator
+from .mirror import Mirror
+from .strobe import Strobe, StrobeOnLoudnessGradient
+from .sub import MultiSub, MultiSubInvertable, SingleSub
+from .transition import Transition, TransitionOnSection

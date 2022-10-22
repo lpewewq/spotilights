@@ -80,5 +80,7 @@ class Transition(Animation, ABC):
 class TransitionOnSection(Transition):
     def on_section(self, section: Section, progress: float) -> None:
         super().on_section(section, progress)
-        next = (self.current + 1) % len(self.animations)
+        choices = list(range(len(self.animations)))
+        choices.remove(self.current)
+        next = np.random.choice(choices, 1)[0]
         self.transition(next)

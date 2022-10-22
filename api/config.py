@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     spotify_playback_offset_ms: int = 0  # offset for spotify callbacks
     # Finetuning
     segment_loudness_resample_rate: int = 60
-    segment_loudness_smoothing_kernel_size: float = 2  # gaussian kernel window size in seconds
+    segment_loudness_smoothing_kernel_size: float = 1  # gaussian kernel window size in seconds
 
     class Config:
         env_file = ".env"

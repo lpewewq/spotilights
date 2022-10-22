@@ -5,4 +5,5 @@ from .animation4 import Animation4
 from .bar import Bar
 from .fill import Fill
 from .sinus import Sinus
+from .slide import Slide
 from .wave2d import Wave2D

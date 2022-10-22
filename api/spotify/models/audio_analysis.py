@@ -61,6 +61,7 @@ class AudioAnalysis:
     beats: list[Beat]
     tatums: list[Tatum]
     segments: list[Segment]
+    loudness_interpolation: interpolate.interp1d
 
     @classmethod
     def from_tekore(cls, audio_analysis: tk.model.AudioAnalysis) -> "AudioAnalysis":
@@ -90,6 +91,7 @@ class AudioAnalysis:
         smoothing_kernel = gaussian(M, M / 4)
         smoothing_kernel /= smoothing_kernel.sum()
         y_smoothed = np.convolve(y_resampled, smoothing_kernel, mode="same")
+        # y_smoothed -= y_smoothed.min()
         y_smoothed /= y_smoothed.max()  # clamp to 1
 
         # loudness gradients
@@ -115,8 +117,10 @@ class AudioAnalysis:
 
         # plotting
         # import time
+
         # import matplotlib
         # import matplotlib.pyplot as plt
+
         # plt.rcParams["figure.figsize"] = [100, 5]
         # plt.rcParams["figure.autolayout"] = True
         # fig, ax = plt.subplots()
@@ -126,8 +130,10 @@ class AudioAnalysis:
         # ax.plot(x_resampled, y_gradients, label="Gradients")
         # ax.plot(x, y_gradients_down, label="Gradients Downsampled")
         # ax.plot(x, y_gradients_down_supr, label="Gradients Downsampled NES")
+        # ax.hlines(0.3, x[0], x[-1], label="Strobe Threshold")
         # ax.legend()
         # formatter = matplotlib.ticker.FuncFormatter(lambda s, x: time.strftime("%M:%S", time.gmtime(s)))
+        # ax.set_ylim(-1, 1)
         # ax.xaxis.set_major_formatter(formatter)
         # ax.xaxis.set_ticks(np.arange(min(x), max(x) + 1, 5))
         # fig.savefig("segment_loudness.png", dpi=75)
@@ -136,6 +142,7 @@ class AudioAnalysis:
             for i, next_i in zip(l, l[1:]):
                 i.next = next_i
 
+        loudness_interpolation = interpolate.interp1d(x, y_smoothed_down)
         return AudioAnalysis(
             duration=duration,
             end_of_fade_in=end_of_fade_in,
@@ -147,4 +154,5 @@ class AudioAnalysis:
             beats=beats,
             tatums=tatums,
             segments=segments,
+            loudness_interpolation=loudness_interpolation,
         )

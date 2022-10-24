@@ -11,7 +11,7 @@ class Theater(BaseIterator):
     rainbow = np.array([Color.wheel(pos) for pos in range(256)])
     black = Color(r=0, g=0, b=0)
 
-    def __init__(self, config: "Theater.Config" = None) -> None:
+    def __init__(self, config: "Theater.Config") -> None:
         super().__init__(config)
         self.config: Theater.Config
 

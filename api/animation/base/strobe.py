@@ -11,7 +11,7 @@ from .sub import SingleSub
 
 
 class Strobe(SingleSub, ABC):
-    def __init__(self, config: "Strobe.Config" = None) -> None:
+    def __init__(self, config: "Strobe.Config") -> None:
         super().__init__(config)
         self.config: Strobe.Config
         self.strobe_generator = None

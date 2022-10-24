@@ -10,7 +10,7 @@ from ..base import BaseIterator
 class Rainbow(BaseIterator):
     rainbow = np.array([Color.wheel(pos) for pos in range(256)])
 
-    def __init__(self, config: "Rainbow.Config" = None) -> None:
+    def __init__(self, config: "Rainbow.Config") -> None:
         super().__init__(config)
         self.config: Rainbow.Config
 

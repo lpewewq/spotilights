@@ -9,7 +9,7 @@ from ..base.decorators import save_previous
 
 
 class Pride(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.sPseudotime = ct.c_uint16(0)
         self.sLastMillis = time.time() * 1000

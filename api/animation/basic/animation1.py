@@ -9,7 +9,7 @@ from ..base import Animation
 
 
 class Animation1(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.last_update = time.time()
         # Wave

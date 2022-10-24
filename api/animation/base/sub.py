@@ -12,7 +12,7 @@ from .decorators import on_change
 
 
 class SingleSub(Animation, ABC):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.config: SingleSub.Config
         self.animation = self.config.sub.construct()
@@ -53,7 +53,7 @@ class SingleSub(Animation, ABC):
 
 
 class MultiSub(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.config: MultiSub.Config
         self.animations = deque([animation.construct() for animation in self.config.sub])
@@ -137,7 +137,7 @@ class MultiSub(Animation):
 
 
 class MultiSubInvertable(MultiSub):
-    def __init__(self, config: "MultiSub.Config" = None) -> None:
+    def __init__(self, config: "MultiSub.Config") -> None:
         from .inverse import Inverse
 
         # inject invert animation if needed

@@ -8,7 +8,7 @@ from .sub import SingleSub
 
 
 class Mirror(SingleSub):
-    def __init__(self, config: "Mirror.Config" = None) -> None:
+    def __init__(self, config: "Mirror.Config") -> None:
         super().__init__(config)
         self.config: Mirror.Config
 

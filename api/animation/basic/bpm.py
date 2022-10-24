@@ -8,7 +8,7 @@ from ..base import Animation
 
 
 class BPM(Animation, ABC):
-    def __init__(self, config: "BPM.Config" = None) -> None:
+    def __init__(self, config: "BPM.Config") -> None:
         super().__init__(config)
         self.config: BPM.Config
         self.bpm: float = 0

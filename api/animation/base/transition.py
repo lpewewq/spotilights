@@ -10,7 +10,7 @@ from .abstract import Animation, AnimationModel
 
 
 class Transition(Animation, ABC):
-    def __init__(self, config: "Transition.Config" = None) -> None:
+    def __init__(self, config: "Transition.Config") -> None:
         super().__init__(config)
         self.config: Transition.Config
         self.animations: list[Animation] = [animation.construct() for animation in self.config.sub]

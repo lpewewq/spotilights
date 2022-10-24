@@ -6,7 +6,7 @@ from .bpm import BPM
 
 
 class Sinus(BPM):
-    def __init__(self, config: "Sinus.Config" = None) -> None:
+    def __init__(self, config: "Sinus.Config") -> None:
         super().__init__(config)
         self.config: Sinus.Config
 

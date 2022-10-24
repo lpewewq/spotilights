@@ -10,7 +10,7 @@ class Bar(Animation):
     black = Color(0, 0, 0)
     red = Color(255, 0, 0)
 
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.loudness = lambda progress: 0
 

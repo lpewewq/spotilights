@@ -5,7 +5,7 @@ from .bpm import BPM
 
 
 class Fill(BPM):
-    def __init__(self, config: "Fill.Config" = None) -> None:
+    def __init__(self, config: "Fill.Config") -> None:
         super().__init__(config)
         self.config: Fill.Config
 

@@ -10,7 +10,7 @@ from ..base.decorators import on_change
 
 
 class Animation2(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.last_update = time.time()
         self.num_pixels = 0

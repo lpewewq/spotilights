@@ -9,7 +9,7 @@ from .ease import ease_out_quint
 
 
 class Slide(Animation):
-    def __init__(self, config: "Slide.Config" = None) -> None:
+    def __init__(self, config: "Slide.Config") -> None:
         super().__init__(config)
         self.config: Slide.Config
         self.beat_start = 0

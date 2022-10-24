@@ -8,7 +8,7 @@ from .abstract import Animation, AnimationModel
 
 
 class Composite(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.config: Composite.Config
         self.animations: list[Animation] = [animation.construct() for animation in self.config.animations]

@@ -1,5 +1,5 @@
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Type
+from typing import Optional, Type
 
 import numpy as np
 from pydantic import BaseModel, validator
@@ -13,9 +13,9 @@ animation_subclass_registry = dict()
 class Animation(ABC):
     """Interface for animations."""
 
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__()
-        self.config = config or self.Config()
+        self.config = config
 
     def __init_subclass__(cls) -> None:
         animation_subclass_registry[cls.__name__] = cls
@@ -75,7 +75,7 @@ class Animation(ABC):
 
 class AnimationModel(BaseModel):
     animation: Type[Animation]
-    config: Animation.Config
+    config: Optional[Animation.Config]
 
     class Config:
         json_encoders = {ABCMeta: lambda c: c.__name__}
@@ -93,14 +93,15 @@ class AnimationModel(BaseModel):
         except KeyError:
             raise ValueError(f'Unknown animation "{v}".')
 
-    @validator("config", pre=True)
+    @validator("config", pre=True, always=True)
     def validate_config(cls, v, values):
-        if v is None:
-            return v
         if "animation" not in values:
             raise ValueError("Animation class not found for config.")
-        animation: Animation = values["animation"]
-        return animation.Config.parse_obj(v)
+        animation_cls: Animation = values["animation"]
+        if v is None:
+            return animation_cls.Config()
+        else:
+            return animation_cls.Config.parse_obj(v)
 
     def construct(self):
         return self.animation(self.config)

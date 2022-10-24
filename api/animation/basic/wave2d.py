@@ -7,7 +7,7 @@ from .bpm import BPM
 
 
 class Wave2D(BPM):
-    def __init__(self, config: "Wave2D.Config" = None) -> None:
+    def __init__(self, config: "Wave2D.Config") -> None:
         super().__init__(config)
         self.config: Wave2D.Config
 

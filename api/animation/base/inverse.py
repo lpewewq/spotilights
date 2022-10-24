@@ -5,7 +5,7 @@ from .sub import SingleSub
 
 
 class Inverse(SingleSub):
-    def __init__(self, config: "Inverse.Config" = None) -> None:
+    def __init__(self, config: "Inverse.Config") -> None:
         super().__init__(config)
         self.config: Inverse.Config
 
@@ -21,7 +21,7 @@ class Inverse(SingleSub):
 
 
 class InverseOnBeat(Inverse):
-    def __init__(self, config: "Inverse.Config" = None) -> None:
+    def __init__(self, config: "Inverse.Config") -> None:
         super().__init__(config)
 
     def on_beat(self, beat: Beat, progress: float) -> None:

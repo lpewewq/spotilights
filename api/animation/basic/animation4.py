@@ -9,7 +9,7 @@ from ..base.decorators import on_change
 
 
 class Animation4(Animation):
-    def __init__(self, config: "Animation.Config" = None) -> None:
+    def __init__(self, config: "Animation.Config") -> None:
         super().__init__(config)
         self.num_pixels = 0
         self.brightness = 0

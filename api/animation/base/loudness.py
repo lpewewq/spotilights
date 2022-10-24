@@ -6,7 +6,7 @@ from .sub import SingleSub
 
 
 class ScaleLoudness(SingleSub):
-    def __init__(self, config: "ScaleLoudness.Config" = None) -> None:
+    def __init__(self, config: "ScaleLoudness.Config") -> None:
         super().__init__(config)
         self.config: ScaleLoudness.Config
         self.scaling = 0

@@ -1,0 +1,12 @@
+{
+  "animation": "Fill",
+  "config": {
+    "color": {
+      "r": 255,
+      "g": 0,
+      "b": 0
+    },
+    "low": 0.5,
+    "high": 1.0
+  }
+}

@@ -4,7 +4,7 @@ from typing import Generator, Union
 
 import numpy as np
 
-from .absract import Animation
+from .abstract import Animation
 from .decorators import on_change, save_previous
 
 

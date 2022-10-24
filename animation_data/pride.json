@@ -1,0 +1,13 @@
+{
+  "animation": "Mirror",
+  "config": {
+    "sub": {
+      "animation": "Pride",
+      "config": {}
+    },
+    "inverse": [
+      false,
+      true
+    ]
+  }
+}

@@ -1,16 +1,19 @@
 import numpy as np
+from pydantic import confloat
 
 from ...spotify.shared_data import SharedData
-from .absract import Animation
 from .sub import SingleSub
 
 
 class ScaleLoudness(SingleSub):
-    def __init__(self, animation: Animation, sensitivity: float= 6) -> None:
-        super().__init__(animation)
-        self.sensitivity = sensitivity
+    def __init__(self, config: "ScaleLoudness.Config" = None) -> None:
+        super().__init__(config)
+        self.config: ScaleLoudness.Config
         self.scaling = 0
         self.loudness_interpolation = None
+
+    class Config(SingleSub.Config):
+        sensitivity: confloat(ge=0, le=10) = 6
 
     async def on_pause(self, shared_data: SharedData) -> None:
         await self.animation.on_pause(shared_data)
@@ -29,7 +32,7 @@ class ScaleLoudness(SingleSub):
             self.scaling = self.loudness_interpolation(progress)
         except (TypeError, ValueError):
             self.scaling *= 0.95  # fade out
-        return super().render(progress, xy) * (self.scaling ** self.sensitivity)
+        return super().render(progress, xy) * (self.scaling**self.config.sensitivity)
 
     def depends_on_spotify(self) -> bool:
         return True

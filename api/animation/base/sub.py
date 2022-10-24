@@ -2,21 +2,23 @@ from abc import ABC
 from collections import deque
 
 import numpy as np
+from pydantic import validator
 
 from ...color import Color
 from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
-from .absract import Animation
+from .abstract import Animation, AnimationModel
 from .decorators import on_change
 
 
 class SingleSub(Animation, ABC):
-    def __init__(self, animation: Animation) -> None:
-        super().__init__()
-        self.animation = animation
+    def __init__(self, config: "Animation.Config" = None) -> None:
+        super().__init__(config)
+        self.config: SingleSub.Config
+        self.animation = self.config.sub.construct()
 
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({self.animation})"
+    class Config(Animation.Config):
+        sub: AnimationModel
 
     async def on_pause(self, shared_data: SharedData) -> None:
         await self.animation.on_pause(shared_data)
@@ -51,29 +53,24 @@ class SingleSub(Animation, ABC):
 
 
 class MultiSub(Animation):
-    def __init__(
-        self,
-        animations: list[Animation],
-        weights: list[float] = None,
-    ) -> None:
-        super().__init__()
-        assert len(animations) > 0
-        self.animations = deque(animations)
+    def __init__(self, config: "Animation.Config" = None) -> None:
+        super().__init__(config)
+        self.config: MultiSub.Config
+        self.animations = deque([animation.construct() for animation in self.config.sub])
 
-        if weights is None:
-            normalizer = len(animations)
-            weights = [1.0 / normalizer for _ in animations]
-        else:
-            assert len(animations) == len(weights)
-            normalizer = sum(weights)
-            weights = [weight / normalizer for weight in weights]
+    class Config(Animation.Config):
+        sub: list[AnimationModel]
+        weights: list[float] = None
 
-        self.weight_sum = [0]
-        for weight in weights:
-            self.weight_sum.append(self.weight_sum[-1] + weight)
-
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({len(self.animations)})"
+        @validator("weights", pre=True, always=True)
+        def validate_weights(cls, v, values):
+            sub = values.get("sub")
+            if v is None:
+                return [1.0 / len(sub)] * len(sub)
+            if len(sub) != len(v):
+                raise ValueError(f"Weights dimension mismatch {len(sub)} != {len(v)}.")
+            normalizer = sum(v)
+            return [weight / normalizer for weight in v]
 
     async def on_pause(self, shared_data: SharedData) -> None:
         for animation in self.animations:
@@ -109,7 +106,10 @@ class MultiSub(Animation):
 
     def change_callback(self, xy: np.ndarray) -> None:
         n = len(xy)
-        offsets = [round(ws * n) for ws in self.weight_sum]
+        weight_sum = [0]
+        for weight in self.config.weights:
+            weight_sum.append(weight_sum[-1] + weight)
+        offsets = [round(ws * n) for ws in weight_sum]
         self.offsets = list(zip(offsets, offsets[1:]))
 
     @on_change
@@ -137,20 +137,22 @@ class MultiSub(Animation):
 
 
 class MultiSubInvertable(MultiSub):
-    def __init__(self, animations: list[Animation], weights: list[float] = None, inverse: list[bool] = None) -> None:
-        from .inverse import Inverse # circular import prevention
+    def __init__(self, config: "MultiSub.Config" = None) -> None:
+        from .inverse import Inverse
 
-        if inverse is None:
-            self.inverse = [i % 2 == 1 for i in range(len(animations))]
-        else:
-            assert len(animations) == len(inverse)
-            self.inverse = inverse
-        animations = [Inverse(a, inv) for a, inv in zip(animations, self.inverse)]
-        super().__init__(animations, weights)
+        # inject invert animation if needed
+        config.sub = [
+            sub
+            if sub.animation is Inverse
+            else AnimationModel(animation=Inverse, config=Inverse.Config(sub=sub, inverse=False))
+            for sub in config.sub
+        ]
+        super().__init__(config)
+        self.animations: list[Inverse]
 
     def reverse(self) -> None:
         super().reverse()
         # invert animations
         for i in range(len(self.animations) // 2):
-            self.animations[i].inverse ^= True
-            self.animations[-(i + 1)].inverse ^= True
+            self.animations[i].config.inverse ^= True
+            self.animations[-(i + 1)].config.inverse ^= True

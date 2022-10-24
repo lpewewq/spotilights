@@ -1,1 +1,0 @@
-from .philipp import PhilippsAnimation

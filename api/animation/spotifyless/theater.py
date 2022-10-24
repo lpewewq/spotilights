@@ -1,18 +1,22 @@
 from typing import Generator
 
 import numpy as np
+from pydantic import confloat
 
 from ...color import Color
 from ..base import BaseIterator
 
 
 class Theater(BaseIterator):
-    def __init__(self, delay: float) -> None:
-        super().__init__()
-        self.black = Color(r=0, g=0, b=0)
-        self.delay = delay
-        self.rainbow = np.array([Color.wheel(pos) for pos in range(256)])
+    rainbow = np.array([Color.wheel(pos) for pos in range(256)])
+    black = Color(r=0, g=0, b=0)
 
+    def __init__(self, config: "Theater.Config" = None) -> None:
+        super().__init__(config)
+        self.config: Theater.Config
+
+    class Config(BaseIterator.Config):
+        delay: confloat(ge=0) = 0.5
 
     def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         n = len(xy)
@@ -20,7 +24,7 @@ class Theater(BaseIterator):
             for q in range(3):
                 colors = np.full(n, self.black)
                 colors[q::3] = self.rainbow.take(range(offset, offset + len(colors[q::3])), mode="wrap")
-                yield colors, self.delay
+                yield colors, self.config.delay
 
     @property
     def depends_on_spotify(self) -> bool:

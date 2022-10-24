@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 
-from . import spotify_client, spotify_animator
+from . import spotify_client
 
 router = APIRouter(prefix="/spotify")
 
@@ -10,16 +10,6 @@ router = APIRouter(prefix="/spotify")
 @router.on_event("startup")
 async def startup_load_token():
     await spotify_client.load_token()
-
-
-@router.on_event("shutdown")
-def shutdown():
-    spotify_animator.stop()
-
-
-@router.post("/stop")
-async def stop_animator():
-    spotify_animator.stop()
 
 
 @router.get("/current-user")

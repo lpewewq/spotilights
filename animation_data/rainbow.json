@@ -1,0 +1,17 @@
+{
+  "animation": "Mirror",
+  "config": {
+    "sub": {
+      "animation": "Rainbow",
+      "config": {
+        "delay": 0.1
+      }
+    },
+    "inverse": [
+      false,
+      true,
+      false,
+      true
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "animation": "Mirror",
+  "config": {
+    "sub": {
+      "animation": "Theater",
+      "config": {
+        "delay": 0.1
+      }
+    },
+    "inverse": [
+      true,
+      false
+    ]
+  }
+}

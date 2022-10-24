@@ -6,17 +6,17 @@ from .bpm import BPM
 
 
 class Sinus(BPM):
-    def __init__(self, color: Color, low: float = 0, high: float = 1) -> None:
-        super().__init__(low, high)
-        self.color = color
+    def __init__(self, config: "Sinus.Config" = None) -> None:
+        super().__init__(config)
+        self.config: Sinus.Config
 
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({self.color})"
+    class Config(BPM.Config):
+        color: Color = Color(r=255)
 
     def change_callback(self, xy: np.ndarray) -> None:
         n = len(xy)
         bell = lambda i: (0.1 + 0.9 / np.sqrt(1 + (i - n) ** 2))
-        colors = np.full(2 * n + 1, self.color)
+        colors = np.full(2 * n + 1, self.config.color)
         self.pattern = colors * bell(np.arange(2 * n + 1))
 
     @on_change
@@ -24,4 +24,4 @@ class Sinus(BPM):
         n = len(xy)
         beat = self.beat(self.bpm / 2)
         offset = round(beat * n)
-        return self.pattern[offset: offset + n]
+        return self.pattern[offset : offset + n]

@@ -10,8 +10,8 @@ class Bar(Animation):
     black = Color(0, 0, 0)
     red = Color(255, 0, 0)
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, config: "Animation.Config" = None) -> None:
+        super().__init__(config)
         self.loudness = lambda progress: 0
 
     def on_segment(self, segment: Segment, progress: float) -> None:

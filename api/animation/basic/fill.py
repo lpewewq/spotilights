@@ -5,13 +5,13 @@ from .bpm import BPM
 
 
 class Fill(BPM):
-    def __init__(self, color: Color, low: float = 0, high: float = 1) -> None:
-        super().__init__(low, high)
-        self.color = color
+    def __init__(self, config: "Fill.Config" = None) -> None:
+        super().__init__(config)
+        self.config: Fill.Config
 
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({self.color})"
+    class Config(BPM.Config):
+        color: Color = Color(r=255)
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
-        color = self.color * self.beat(self.bpm)
+        color = self.config.color * self.beat(self.bpm)
         return np.full(len(xy), color)

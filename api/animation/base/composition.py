@@ -1,20 +1,21 @@
 import numpy as np
+from pydantic import confloat, conlist
 
 from ...color import Color
 from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
-from .absract import Animation
+from .abstract import Animation, AnimationModel
 
 
 class Composite(Animation):
-    def __init__(self, animations: list[Animation], percentage: float = 0.5) -> None:
-        super().__init__()
-        assert len(animations) == 2
-        self.animations = animations
-        self.percentage = percentage
+    def __init__(self, config: "Animation.Config" = None) -> None:
+        super().__init__(config)
+        self.config: Composite.Config
+        self.animations: list[Animation] = [animation.construct() for animation in self.config.animations]
 
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({len(self.animations)})"
+    class Config(Animation.Config):
+        animations: conlist(AnimationModel, min_items=2, max_items=2)
+        percentage: confloat(ge=0.0, le=1.0) = 0.5
 
     async def on_pause(self, shared_data: SharedData) -> None:
         for animation in self.animations:
@@ -49,7 +50,11 @@ class Composite(Animation):
             animation.on_segment(segment, progress)
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
-        return Color.lerp(self.animations[0].render(progress, xy), self.animations[1].render(progress, xy), self.percentage)
+        return Color.lerp(
+            self.animations[0].render(progress, xy),
+            self.animations[1].render(progress, xy),
+            self.config.percentage,
+        )
 
     @property
     def depends_on_spotify(self) -> bool:

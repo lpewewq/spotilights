@@ -6,24 +6,25 @@ import numpy as np
 from ...color import Color
 from ...spotify.models import Bar, Beat, Section, Segment, Tatum
 from ...spotify.shared_data import SharedData
-from .absract import Animation
+from .abstract import Animation, AnimationModel
 
 
 class Transition(Animation, ABC):
-    def __init__(self, animations: list[Animation], start: int = 0) -> None:
-        super().__init__()
-        self.animations = animations
-        self.current = start
+    def __init__(self, config: "Transition.Config" = None) -> None:
+        super().__init__(config)
+        self.config: Transition.Config
+        self.animations: list[Animation] = [animation.construct() for animation in self.config.sub]
+        self.current = self.config.start
         self.next = None
         self.start = 0
-        self.duration = 1
 
-    def __repr__(self) -> str:
-        return type(self).__name__ + f"({len(self.animations)} {self.animations[self.current]})"
+    class Config(Animation.Config):
+        sub: list[AnimationModel]
+        start: int = 0
+        duration: float = 0.25
 
-    def transition(self, next: int, duration: float = 1):
+    def transition(self, next: int):
         self.next = next
-        self.duration = duration
         self.start = time.time()
 
     async def on_pause(self, shared_data: SharedData) -> None:
@@ -60,7 +61,7 @@ class Transition(Animation, ABC):
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         if self.next is not None:
-            transition_progress = (time.time() - self.start) / self.duration
+            transition_progress = (time.time() - self.start) / self.config.duration
             if 0 <= transition_progress < 1:
                 return Color.lerp(
                     self.animations[self.current].render(progress, xy),

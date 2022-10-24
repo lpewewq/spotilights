@@ -9,8 +9,8 @@ from ..base import Animation
 
 
 class Animation1(Animation):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, config: "Animation.Config" = None) -> None:
+        super().__init__(config)
         self.last_update = time.time()
         # Wave
         self.col_a = Color(r=255, g=0, b=0)

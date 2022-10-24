@@ -4,7 +4,7 @@ from typing import Callable
 import numpy as np
 
 from ...color import Color
-from .absract import Animation
+from .abstract import Animation
 
 
 def on_change(function: Callable[..., np.ndarray]) -> Callable:

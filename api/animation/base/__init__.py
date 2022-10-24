@@ -1,6 +1,6 @@
-from .absract import Animation
+from .abstract import Animation, AnimationModel
 from .composition import Composite
-from .inverse import Inverse
+from .inverse import Inverse, InverseOnBeat
 from .iterator import BaseIterator
 from .loudness import ScaleLoudness
 from .mirror import Mirror

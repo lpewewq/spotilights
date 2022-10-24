@@ -8,17 +8,19 @@ from ..base import Animation
 
 
 class BPM(Animation, ABC):
-    def __init__(self, low: float = 0.0, high: float = 1.0) -> None:
-        super().__init__()
-        self.low = low
-        self.high = high
+    def __init__(self, config: "BPM.Config" = None) -> None:
+        super().__init__(config)
+        self.config: BPM.Config
         self.bpm: float = 0
+
+    class Config(Animation.Config):
+        low: float = 0.0
+        high: float = 1.0
 
     def beat(self, bpm: float, shift: float = 0.0) -> float:
         bps2pi = 2 * np.pi * bpm / 60
-        diff = self.high - self.low
         beat = (np.sin(-time.time() * bps2pi + shift) + 1) / 2
-        return self.low + diff * beat
+        return self.config.low + (self.config.high - self.config.low) * beat
 
     async def on_pause(self, shared_data: SharedData) -> None:
         self.bpm = 0

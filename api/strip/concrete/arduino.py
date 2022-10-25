@@ -40,7 +40,13 @@ class ArduinoStrip(AbstractStrip):
                 port = port_list[i].device
         self.clear()
 
-    def show(self,  colors: np.ndarray) -> None:
+    def clear(self):
+        # problem: show is canceled while sending data
+        # more robust if cleared multiple times
+        for _ in range(5):
+            super().clear()
+
+    def show(self, colors: np.ndarray) -> None:
         self.serial_connection.write(self.header)
         for color in colors:
             r, g, b = (color * self.brightness).as_bytes()

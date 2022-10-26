@@ -1,8 +1,7 @@
 import asyncio
 import time
-import traceback
 
-from ..animation.base import Animation
+from ..animation import Animation, AnimationModel
 from ..strip.abstract import AbstractStrip
 from .updater import SpotifyUpdater
 
@@ -11,82 +10,86 @@ class SpotifyAnimator:
     def __init__(self, spotify_updater: SpotifyUpdater, strip: AbstractStrip) -> None:
         self.spotify_updater = spotify_updater
         self.strip = strip
-        self.animation_task: asyncio.Task = None
+        self.animation: Animation = None
+        self.animation_loop: asyncio.Task = None
+        # loop state
+        self.item_id = None
+        self.current_indices = [None, None, None, None, None] # section, bar, beat, tatum, segment
+        self.is_playing = True
+        self.loop_start = time.time()
+        self.loop_count = 0
 
-    def start(self, animation: Animation) -> None:
-        if animation.depends_on_spotify:
+    def start(self, animation_model: AnimationModel) -> None:
+        if self.animation is None or not isinstance(self.animation, animation_model.animation):
+            self.animation = animation_model.construct()
+        else:
+            self.animation.update_config(animation_model.config)
+
+        if self.animation.depends_on_spotify:
             self.spotify_updater.start()
         else:
             self.spotify_updater.stop()
-        self.cancel_animation_task()
-        self.animation_task = asyncio.create_task(self._loop(animation))
+        if self.animation_loop is None:
+            self.animation_loop = asyncio.create_task(self.loop())
 
     def stop(self) -> None:
-        self.cancel_animation_task()
+        if self.animation_loop is not None and not self.animation_loop.done():
+            self.animation_loop.cancel()
+            self.animation_loop = None
         self.spotify_updater.stop()
         self.strip.clear()
 
-    def cancel_animation_task(self) -> None:
-        if self.animation_task is not None and not self.animation_task.done():
-            self.animation_task.cancel()
+    async def loop(self) -> None:
 
-    async def _loop(self, animation: Animation) -> None:
-        item_id = None
-        # section, bar, beat, tatum, segment
-        current_indices = [None, None, None, None, None]
-        attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
-        callbacks = [animation.on_section, animation.on_bar, animation.on_beat, animation.on_tatum, animation.on_segment]
+        while True:
+            progress = time.time() - self.loop_start
 
-        is_playing = True
-        loop_start = time.time()
-        loop_count = 0
+            currently_playing = await self.spotify_updater.shared_data.get_currently_playing()
+            audio_analysis = await self.spotify_updater.shared_data.get_audio_analysis()
+            if currently_playing and audio_analysis:
+                if self.item_id != currently_playing.item.id:
+                    await self.animation.on_track_change(self.spotify_updater.shared_data)
+                    self.item_id = currently_playing.item.id
+                    self.current_indices = [None, None, None, None, None]
 
-        try:
-            while True:
-                progress = time.time() - loop_start
+                if not currently_playing.is_playing or currently_playing.progress_ms is None:
+                    if self.is_playing:
+                        self.is_playing = False
+                        await self.animation.on_pause(self.spotify_updater.shared_data)
+                else:
+                    if not self.is_playing:
+                        self.is_playing = True
+                        await self.animation.on_resume(self.spotify_updater.shared_data)
 
-                currently_playing = await self.spotify_updater.shared_data.get_currently_playing()
-                audio_analysis = await self.spotify_updater.shared_data.get_audio_analysis()
-                if currently_playing and audio_analysis:
-                    if item_id != currently_playing.item.id:
-                        await animation.on_track_change(self.spotify_updater.shared_data)
-                        item_id = currently_playing.item.id
-                        current_indices = [None, None, None, None, None]
+                    progress = currently_playing.progress_ms / 1000
+                    progress += time.time() - currently_playing.timestamp / 1000
+                    
+                    attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
+                    callbacks = [
+                        self.animation.on_section,
+                        self.animation.on_bar,
+                        self.animation.on_beat,
+                        self.animation.on_tatum,
+                        self.animation.on_segment,
+                    ]
+                    for i in range(5):
+                        item_list = getattr(audio_analysis, attribute_names[i])
+                        callback = callbacks[i]
+                        current_index = self.current_indices[i]
+                        index = self.find(item_list, progress, current_index)
+                        if index and current_index != index:
+                            self.current_indices[i] = index
+                            item = item_list[index]
+                            callback(item, progress)
 
-                    if not currently_playing.is_playing or currently_playing.progress_ms is None:
-                        if is_playing:
-                            is_playing = False
-                            await animation.on_pause(self.spotify_updater.shared_data)
-                    else:
-                        if not is_playing:
-                            is_playing = True
-                            await animation.on_resume(self.spotify_updater.shared_data)
-
-                        progress = currently_playing.progress_ms / 1000
-                        progress += time.time() - currently_playing.timestamp / 1000
-
-                        for i in range(5):
-                            item_list = getattr(audio_analysis, attribute_names[i])
-                            callback = callbacks[i]
-                            current_index = current_indices[i]
-                            index = self.find(item_list, progress, current_index)
-                            if index and current_index != index:
-                                current_indices[i] = index
-                                item = item_list[index]
-                                callback(item, progress)
-
-                colors = animation.render(progress, self.strip.xy)
-                self.strip.show(colors)
-                await asyncio.sleep(0)
-                loop_count += 1
-                if loop_count % 10 == 0:
-                    now = time.time()
-                    print("FPS:", 10 / (now - loop_start), end="\r")
-                    loop_start = now
-
-        except Exception as e:
-            print(f"{animation} excepted:", e)
-            traceback.print_exc()
+            colors = self.animation.render(progress, self.strip.xy)
+            self.strip.show(colors)
+            await asyncio.sleep(0)
+            self.loop_count += 1
+            if self.loop_count % 10 == 0:
+                now = time.time()
+                print("FPS:", 10 / (now - self.loop_start), end="\r")
+                self.loop_start = now
 
     def find(self, list, timestamp: float, previous_index: int) -> int:
         if previous_index is None:

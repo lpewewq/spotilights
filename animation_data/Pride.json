@@ -1,0 +1,16 @@
+{
+  "name": "Pride",
+  "model": {
+    "animation": "Mirror",
+    "config": {
+      "sub": {
+        "animation": "Pride",
+        "config": {}
+      },
+      "inverse": [
+        false,
+        true
+      ]
+    }
+  }
+}

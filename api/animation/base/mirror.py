@@ -2,7 +2,6 @@ import numpy as np
 from pydantic import conlist
 
 from ...color import Color
-from .abstract import Animation
 from .decorators import on_change
 from .sub import SingleSub
 

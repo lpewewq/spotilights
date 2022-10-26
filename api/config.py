@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import tekore as tk
 from pydantic import BaseSettings
 
@@ -8,6 +10,7 @@ class Settings(BaseSettings):
     led_count: int  # Number of LED pixels.
     led_brightness: float = 0.25  # in range between 0.0 and 1.0
     led_2d_coords: list[tuple[float, float]] = None  # Defaults to straight line
+    animation_data_path: Path = Path("animation_data")
     # Raspberry Pi specific
     raspi_pin: int = 18  # GPIO pin connected to the pixels (18 uses PWM!, 10 uses SPI /dev/spidev0.0).
     raspi_freq_hz: int = 800000  # LED signal frequency in hertz (usually 800khz)

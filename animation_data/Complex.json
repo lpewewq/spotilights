@@ -1,0 +1,73 @@
+{
+  "name": "Complex",
+  "model": {
+    "animation": "StrobeOnLoudnessGradient",
+    "config": {
+      "sub": {
+        "animation": "ScaleLoudness",
+        "config": {
+          "sub": {
+            "animation": "TransitionOnSection",
+            "config": {
+              "subs": [
+                {
+                  "animation": "Mirror",
+                  "config": {
+                    "sub": {
+                      "animation": "Animation1",
+                      "config": {}
+                    },
+                    "inverse": [
+                      false,
+                      true
+                    ]
+                  }
+                },
+                {
+                  "animation": "Mirror",
+                  "config": {
+                    "sub": {
+                      "animation": "Animation2",
+                      "config": {}
+                    },
+                    "inverse": [
+                      false,
+                      true
+                    ]
+                  }
+                },
+                {
+                  "animation": "Animation3",
+                  "config": {}
+                },
+                {
+                  "animation": "Mirror",
+                  "config": {
+                    "sub": {
+                      "animation": "Animation4",
+                      "config": {}
+                    },
+                    "inverse": [
+                      false,
+                      true
+                    ]
+                  }
+                }
+              ],
+              "duration": 0.25
+            }
+          },
+          "sensitivity": 5.0
+        }
+      },
+      "duration_in_beats": 1,
+      "on_duration": 0.025,
+      "off_duration": 0.025,
+      "color": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+      }
+    }
+  }
+}

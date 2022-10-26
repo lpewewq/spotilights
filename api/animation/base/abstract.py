@@ -18,11 +18,18 @@ class Animation(ABC):
         self.config = config
 
     def __init_subclass__(cls) -> None:
-        animation_subclass_registry[cls.__name__] = cls
+        if ABC not in cls.__bases__:
+            animation_subclass_registry[cls.__name__] = cls
         return super().__init_subclass__()
 
     class Config(BaseModel):
-        pass
+        def schema(self, *args, **kwargs):
+            return super().schema(*args, **kwargs).get("properties", {})
+
+    def update_config(self, config: "Animation.Config"):
+        if self.config != config:
+            self._change_trigger = True
+            self.config = config
 
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.config})"
@@ -87,8 +94,6 @@ class AnimationModel(BaseModel):
                 animation_cls = animation_subclass_registry[v]
             else:
                 animation_cls = v
-            if ABC in animation_cls.__bases__:
-                raise ValueError(f'Abstract animation "{v}".')
             return animation_cls
         except KeyError:
             raise ValueError(f'Unknown animation "{v}".')
@@ -105,3 +110,6 @@ class AnimationModel(BaseModel):
 
     def construct(self):
         return self.animation(self.config)
+
+    def schema(self, *args, **kwargs):
+        return {"animation": self.animation.__name__, "config": self.config.schema(*args, **kwargs)}

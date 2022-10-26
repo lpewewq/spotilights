@@ -1,7 +1,7 @@
 from colorsys import hsv_to_rgb
 from dataclasses import dataclass
 
-from pydantic import BaseModel, conint
+from pydantic import conint
 
 
 def clamp(x):
@@ -10,9 +10,9 @@ def clamp(x):
 
 @dataclass
 class Color:
-    r: int = 0
-    g: int = 0
-    b: int = 0
+    r: conint(ge=0, le=255, multiple_of=1) = 0
+    g: conint(ge=0, le=255, multiple_of=1) = 0
+    b: conint(ge=0, le=255, multiple_of=1) = 0
 
     @classmethod
     def from_hsv(cls, h: float, s: float, v: float) -> "Color":

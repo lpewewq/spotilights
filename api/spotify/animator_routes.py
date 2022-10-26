@@ -1,20 +1,24 @@
+from abc import ABCMeta
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter
-from pydantic import BaseModel, FilePath, validator
+from pydantic import BaseModel, ValidationError
 
 from ..animation.base import AnimationModel
+from ..config import settings
 from . import spotify_animator
 
 
 class AnimationModelPayload(BaseModel):
-    file: FilePath
-    model: Optional[AnimationModel]
+    name: str
+    model: AnimationModel
 
-    @validator("file", pre=True)
-    def file_validator(cls, v):
-        return Path("animation_data").joinpath(Path(v))
+    class Config:
+        json_encoders = {ABCMeta: lambda c: c.__name__}
+
+    @property
+    def file(self):
+        return settings.animation_data_path.joinpath(Path(f"{self.name}.json"))
 
 
 router = APIRouter(prefix="/animator")
@@ -31,11 +35,18 @@ async def stop_animator():
 
 
 @router.post("/start")
-async def start_rainbow(payload: AnimationModelPayload):
-    if payload.model:
-        spotify_animator.start(payload.model.construct())
-        with open(payload.file, "w") as file:
-            file.write(payload.model.json(indent=2))
-    else:
-        model = AnimationModel.parse_file(payload.file)
-        spotify_animator.start(model.construct())
+async def start_animation(payload: AnimationModelPayload):
+    spotify_animator.start(payload.model)
+    with open(payload.file, "w") as file:
+        file.write(payload.json(indent=2))
+
+
+@router.get("/models")
+async def get_models():
+    models = []
+    for path in settings.animation_data_path.glob("*.json"):
+        try:
+            models.append(AnimationModelPayload.parse_file(path))
+        except ValidationError as e:
+            print(path, e)
+    return models

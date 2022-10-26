@@ -4,6 +4,7 @@ from .inverse import Inverse, InverseOnBeat
 from .iterator import BaseIterator
 from .loudness import ScaleLoudness
 from .mirror import Mirror
+from .split import Split, SplitInvertable
 from .strobe import Strobe, StrobeOnLoudnessGradient
-from .sub import MultiSub, MultiSubInvertable, SingleSub
+from .sub import MultiSub, SingleSub
 from .transition import Transition, TransitionOnSection

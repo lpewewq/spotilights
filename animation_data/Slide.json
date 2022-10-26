@@ -1,0 +1,19 @@
+{
+  "name": "Slide",
+  "model": {
+    "animation": "InverseOnBeat",
+    "config": {
+      "sub": {
+        "animation": "Slide",
+        "config": {
+          "color": {
+            "r": 255,
+            "g": 0,
+            "b": 0
+          }
+        }
+      },
+      "inverse": true
+    }
+  }
+}

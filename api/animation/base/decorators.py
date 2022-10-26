@@ -10,8 +10,9 @@ from .abstract import Animation
 def on_change(function: Callable[..., np.ndarray]) -> Callable:
     @wraps(function)
     def wrapper(self: Animation, progress: float, xy: np.ndarray, **kwargs):
-        if not np.array_equal(xy, getattr(self, "_xy", None)):
+        if not np.array_equal(xy, getattr(self, "_xy", None)) or getattr(self, "_change_trigger", False):
             setattr(self, "_xy", xy)
+            setattr(self, "_change_trigger", False)
             self.change_callback(xy)
         return function(self, progress, xy, **kwargs)
 

@@ -13,7 +13,7 @@ class Wave2D(BPM):
 
     class Config(BPM.Config):
         color: Color = Color(r=255)
-        fineness: confloat(le=0, ge=100) = 30.0
+        fineness: confloat(ge=0, le=100) = 30.0
 
     def change_callback(self, xy: np.ndarray) -> None:
         self.colors = np.full(len(xy), self.config.color)

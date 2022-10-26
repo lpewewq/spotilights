@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [svelte()],
   server: {
 		proxy: {
-			'/api': 'http://192.168.0.222:8000'
+			'/api': 'http://0.0.0.0:8000'
 		}
 	}
 })

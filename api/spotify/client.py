@@ -1,8 +1,8 @@
 import warnings
+from pathlib import Path
 
 import httpx
 import tekore as tk
-
 
 warnings.filterwarnings("ignore", message="`SPOTIFY_CLIENT_ID` missing! None returned instead.")
 warnings.filterwarnings("ignore", message="`SPOTIFY_CLIENT_SECRET` missing! None returned instead.")
@@ -25,7 +25,7 @@ def wrap_token_refresh(coro):
 
 
 class SpotifyClient:
-    def __init__(self, client_id, redirect_uri, scope, cache_file, timeout):
+    def __init__(self, client_id, redirect_uri, scope, cache_file: Path, timeout):
         _async_sender = tk.AsyncSender(client=httpx.AsyncClient(timeout=timeout))
         self.scope = scope
         self.cache_file = cache_file
@@ -50,6 +50,10 @@ class SpotifyClient:
         assert self._user_auth is not None
         self._spotify.token = await self._user_auth.request_token(code, state)
         tk.config_to_file(self.cache_file, (None, None, None, self._spotify.token.refresh_token))
+
+    def remove_auth_token(self):
+        self._spotify.token = None
+        self.cache_file.unlink(missing_ok=True)
 
     def create_auth_url(self):
         self._user_auth = tk.UserAuth(self._credentials, self.scope, pkce=True)

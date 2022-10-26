@@ -17,9 +17,14 @@ async def get_current_user():
     return await spotify_client.current_user()
 
 
-@router.get("/oauth")
-def oauth():
+@router.get("/connect")
+def connect():
     return {"authorize_url": spotify_client.create_auth_url()}
+
+
+@router.post("/disconnect")
+def disconnect():
+    spotify_client.remove_auth_token()
 
 
 @router.get("/oauth-callback")

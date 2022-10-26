@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     spotify_client_id: str
     spotify_redirect_uri: str
     spotify_scope: tk.scope = tk.scope.user_read_playback_state
-    spotify_cache: str = "tekore.cfg"
+    spotify_cache: Path = Path("tekore.cfg")
     spotify_timeout: int = 15  # timeout (s) when calling the API
     spotify_update_interval: int = 10  # playback update interval (s)
     spotify_playback_offset_ms: int = 0  # offset for spotify callbacks

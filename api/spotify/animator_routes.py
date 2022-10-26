@@ -1,4 +1,5 @@
 from abc import ABCMeta
+from json import JSONDecodeError
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -37,8 +38,11 @@ async def stop_animator():
 @router.post("/start")
 async def start_animation(payload: AnimationModelPayload):
     spotify_animator.start(payload.model)
-    with open(payload.file, "w") as file:
-        file.write(payload.json(indent=2))
+    try:
+        with open(payload.file, "w") as file:
+            file.write(payload.json(indent=2))
+    except TypeError as e:
+        print(payload.file, e)
 
 
 @router.get("/models")
@@ -47,6 +51,6 @@ async def get_models():
     for path in settings.animation_data_path.glob("*.json"):
         try:
             models.append(AnimationModelPayload.parse_file(path))
-        except ValidationError as e:
+        except (ValidationError, JSONDecodeError) as e:
             print(path, e)
     return models

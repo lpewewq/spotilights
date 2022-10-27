@@ -5,11 +5,6 @@ from . import strip
 router = APIRouter(prefix="/strip")
 
 
-@router.get("/num-pixels")
-def num_pixels():
-    return strip.num_pixels()
-
-
 @router.get("/brightness")
 def get_brightness():
     return strip.get_brightness()

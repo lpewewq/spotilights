@@ -14,6 +14,11 @@ class Bar(Animation):
         super().__init__(config)
         self.loudness = lambda progress: 0
 
+    class Config(Animation.Config):
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     def on_segment(self, segment: Segment, progress: float) -> None:
         super().on_segment(segment, progress)
         if segment.next:
@@ -33,6 +38,3 @@ class Bar(Animation):
         threshold = round(n * self.loudness(progress))
         colors[threshold:] = self.black
         return colors
-
-    def depends_on_spotify(self) -> bool:
-        return True

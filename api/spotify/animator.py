@@ -14,29 +14,30 @@ class SpotifyAnimator:
         self.animation_loop: asyncio.Task = None
         # loop state
         self.item_id = None
-        self.current_indices = [None, None, None, None, None] # section, bar, beat, tatum, segment
+        self.current_indices = [None, None, None, None, None]  # section, bar, beat, tatum, segment
         self.is_playing = True
         self.loop_start = time.time()
         self.loop_count = 0
 
-    def start(self, animation_model: AnimationModel) -> None:
+    async def start(self, animation_model: AnimationModel) -> None:
+        if animation_model.config.needs_spotify:
+            self.spotify_updater.start()
+        else:
+            await self.spotify_updater.stop()
+
         if self.animation is None or not isinstance(self.animation, animation_model.animation):
             self.animation = animation_model.construct()
         else:
             self.animation.update_config(animation_model.config)
-
-        if self.animation.depends_on_spotify:
-            self.spotify_updater.start()
-        else:
-            self.spotify_updater.stop()
+        self.item_id = None  # trigger on_track_change
         if self.animation_loop is None:
             self.animation_loop = asyncio.create_task(self.loop())
 
-    def stop(self) -> None:
+    async def stop(self) -> None:
         if self.animation_loop is not None and not self.animation_loop.done():
             self.animation_loop.cancel()
             self.animation_loop = None
-        self.spotify_updater.stop()
+        await self.spotify_updater.stop()
         self.strip.clear()
 
     async def loop(self) -> None:
@@ -63,7 +64,7 @@ class SpotifyAnimator:
 
                     progress = currently_playing.progress_ms / 1000
                     progress += time.time() - currently_playing.timestamp / 1000
-                    
+
                     attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
                     callbacks = [
                         self.animation.on_section,

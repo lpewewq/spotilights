@@ -25,6 +25,11 @@ class InverseOnBeat(Inverse):
     def __init__(self, config: "Inverse.Config") -> None:
         super().__init__(config)
 
+    class Config(Inverse.Config):
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     def on_beat(self, beat: Beat, progress: float) -> None:
         self.inverse ^= True
         return super().on_beat(beat, progress)

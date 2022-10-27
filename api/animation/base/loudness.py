@@ -15,6 +15,10 @@ class ScaleLoudness(SingleSub):
     class Config(SingleSub.Config):
         sensitivity: confloat(ge=0, le=10) = 6
 
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     async def on_pause(self, shared_data: SharedData) -> None:
         await self.animation.on_pause(shared_data)
         self.loudness_interpolation = None
@@ -33,6 +37,3 @@ class ScaleLoudness(SingleSub):
         except (TypeError, ValueError):
             self.scaling *= 0.95  # fade out
         return super().render(progress, xy) * (self.scaling**self.config.sensitivity)
-
-    def depends_on_spotify(self) -> bool:
-        return True

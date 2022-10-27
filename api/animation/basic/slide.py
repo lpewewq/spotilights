@@ -17,7 +17,10 @@ class Slide(Animation):
 
     class Config(Animation.Config):
         color: Color = Color(r=255)
-        ease_function: PyObject = ease_out_quint
+
+        @property
+        def needs_spotify(self) -> bool:
+            return True
 
     def on_beat(self, beat: Beat, progress: float) -> None:
         self.beat_start = beat.start
@@ -33,9 +36,6 @@ class Slide(Animation):
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         n = len(xy)
         beat_progress = min(1, (progress - self.beat_start) / self.beat_duration)
-        beat_progress = self.config.ease_function(beat_progress)
+        beat_progress = ease_out_quint(beat_progress)
         offset = (3 * n) // 4 - round(beat_progress * (n // 2))
         return self.pattern[offset : offset + n]
-
-    def depends_on_spotify(self) -> bool:
-        return True

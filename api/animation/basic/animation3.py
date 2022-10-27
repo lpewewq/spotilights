@@ -27,6 +27,11 @@ class Animation3(Animation):
         self.bar_start = 0
         self.bar_duration = 1
 
+    class Config(Animation.Config):
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     def get_bell(self, x):
         return 1 / (1 + x**2) ** 1.5
 
@@ -99,7 +104,3 @@ class Animation3(Animation):
         colors = (col1 + col2) * self.brightness * self.pattern
         self.brightness *= 0.975
         return colors
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return True

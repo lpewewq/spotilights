@@ -27,6 +27,11 @@ class Animation1(Animation):
         self.beat_pair_progress = 0
         self.beat_pair_duration = 1
 
+    class Config(Animation.Config):
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     def get_bell(self, x):
         return 1 / (1 + x**2) ** 1.5
 
@@ -112,7 +117,3 @@ class Animation1(Animation):
         col2 = np.abs(np.cos(ii)) * c_b
         colors = (col1 + col2) * scalings
         return colors
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return True

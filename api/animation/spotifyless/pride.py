@@ -15,6 +15,11 @@ class Pride(Animation):
         self.sLastMillis = time.time() * 1000
         self.sHue16 = ct.c_uint16(0)
 
+    class Config(Animation.Config):
+        @property
+        def needs_spotify(self) -> bool:
+            return False
+
     def beatsin88(self, bpm, lowest, highest) -> int:
         beat = time.time() * np.pi * bpm / 7680
         beatsin = (np.sin(beat) + 1) / 2
@@ -53,7 +58,3 @@ class Pride(Animation):
             colors[i] = Color.from_hsv(hue8.value / 255, sat8.value / 255, bri8.value / 255)
 
         return Color.lerp(colors, previous, 0.25)
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return False

@@ -8,7 +8,11 @@
         "config": {
           "delay": 0.1
         }
-      }
+      },
+      "inverse": [
+        false,
+        true
+      ]
     }
   }
 }

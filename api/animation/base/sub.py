@@ -17,6 +17,10 @@ class SingleSub(Animation, ABC):
     class Config(Animation.Config):
         sub: AnimationModel
 
+        @property
+        def needs_spotify(self) -> bool:
+            return self.sub.config.needs_spotify
+
         def schema(self, *args, **kwargs):
             schema = super().schema(*args, **kwargs)
             schema["sub"] = self.sub.schema(*args, **kwargs)
@@ -56,10 +60,6 @@ class SingleSub(Animation, ABC):
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         return self.animation.render(progress, xy)
 
-    @property
-    def depends_on_spotify(self) -> bool:
-        return self.animation.depends_on_spotify
-
 
 class MultiSub(Animation, ABC):
     def __init__(self, config: "MultiSub.Config") -> None:
@@ -69,6 +69,10 @@ class MultiSub(Animation, ABC):
 
     class Config(Animation.Config):
         subs: conlist(AnimationModel, min_items=1)
+
+        @property
+        def needs_spotify(self) -> bool:
+            return any(sub.config.needs_spotify for sub in self.subs)
 
         def schema(self, *args, **kwargs):
             schema = super().schema(*args, **kwargs)
@@ -117,7 +121,3 @@ class MultiSub(Animation, ABC):
     def on_segment(self, segment: Segment, progress: float) -> None:
         for animation in self.animations:
             animation.on_segment(segment, progress)
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return any(animation.depends_on_spotify for animation in self.animations)

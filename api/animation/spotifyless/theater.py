@@ -18,6 +18,10 @@ class Theater(BaseIterator):
     class Config(BaseIterator.Config):
         delay: confloat(ge=0) = 0.5
 
+        @property
+        def needs_spotify(self) -> bool:
+            return False
+
     def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         n = len(xy)
         for offset in range(256):
@@ -25,7 +29,3 @@ class Theater(BaseIterator):
                 colors = np.full(n, self.black)
                 colors[q::3] = self.rainbow.take(range(offset, offset + len(colors[q::3])), mode="wrap")
                 yield colors, self.config.delay
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return False

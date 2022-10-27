@@ -24,6 +24,10 @@ class Strobe(SingleSub, ABC):
         off_duration: float = 0.025
         color: Color = Color(r=255, g=255, b=255)
 
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     async def on_pause(self, shared_data: SharedData) -> None:
         await super().on_pause(shared_data)
         self.bpm = 0
@@ -64,7 +68,3 @@ class StrobeOnLoudnessGradient(Strobe):
         super().on_segment(segment, progress)
         if segment.loudness_start_gradient_suppressed > 0.3:
             self.activate = True
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return True

@@ -1,7 +1,7 @@
 <script>
-	let current_user_promise = get_current_user();
+	let current_user_promise = getCurrentUser();
 
-	async function get_current_user() {
+	async function getCurrentUser() {
 		return await fetch("/api/spotify/current-user").then((response) =>
 			response.json()
 		);
@@ -17,7 +17,7 @@
 	async function disconnect() {
 		current_user_promise = await fetch("/api/spotify/disconnect", {
 			method: "POST",
-		}).then(() => get_current_user());
+		}).then(() => getCurrentUser());
 	}
 </script>
 

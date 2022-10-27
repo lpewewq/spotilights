@@ -26,6 +26,11 @@ class Animation(ABC):
         def schema(self, *args, **kwargs):
             return super().schema(*args, **kwargs).get("properties", {})
 
+        @property
+        def needs_spotify(self) -> bool:
+            """Identify spotify dependant animations"""
+            return False
+
     def update_config(self, config: "Animation.Config"):
         if self.config != config:
             self._change_trigger = True
@@ -73,11 +78,6 @@ class Animation(ABC):
     @abstractmethod
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         """Return rendered animation. For each xy coordinate return a Color"""
-
-    @property
-    @abstractmethod
-    def depends_on_spotify(self) -> bool:
-        """Property to identify spotify dependant animations"""
 
 
 class AnimationModel(BaseModel):

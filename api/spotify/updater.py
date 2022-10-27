@@ -21,9 +21,11 @@ class SpotifyUpdater:
         if self.update_task is None or self.update_task.done():
             self.update_task = asyncio.create_task(self._loop())
 
-    def stop(self) -> None:
+    async def stop(self) -> None:
         if self.update_task is not None and not self.update_task.done():
             self.update_task.cancel()
+        await self.shared_data.set_currently_playing(None)
+        await self.shared_data.set_audio_analysis(None)
 
     async def _loop(self) -> None:
         item_id = None

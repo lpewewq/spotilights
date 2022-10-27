@@ -17,6 +17,10 @@ class BPM(Animation, ABC):
         low: float = 0.0
         high: float = 1.0
 
+        @property
+        def needs_spotify(self) -> bool:
+            return True
+
     def beat(self, bpm: float, shift: float = 0.0) -> float:
         bps2pi = 2 * np.pi * bpm / 60
         beat = (np.sin(-time.time() * bps2pi + shift) + 1) / 2
@@ -30,7 +34,3 @@ class BPM(Animation, ABC):
 
     async def on_track_change(self, shared_data: SharedData) -> None:
         self.bpm = (await shared_data.get_audio_analysis()).tempo
-
-    @property
-    def depends_on_spotify(self) -> bool:
-        return True

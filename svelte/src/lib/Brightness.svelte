@@ -16,13 +16,17 @@
 		brightness = parseFloat(body);
 		slider.disabled = false;
 	}
+	async function stop() {
+		await fetch("/api/animator/stop", {
+			method: "POST",
+		});
+	}
 	onMount(async () => {
 		await getBrightness();
 	});
 </script>
 
 <main>
-	<h1>Brightness</h1>
 	<input
 		type="range"
 		min="0"
@@ -32,13 +36,18 @@
 		on:change={setBrightness}
 		disabled
 	/>
+	<button on:click={stop}> Stop </button>
 </main>
 
 <style>
-	h1 {
+	button {
 		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 1em;
-		font-weight: 100;
+	}
+	main {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		padding: 16px;
+		box-shadow: 2px 2px 2px #111;
+		border: 2px solid #111;
 	}
 </style>

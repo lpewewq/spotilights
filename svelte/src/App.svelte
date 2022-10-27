@@ -1,11 +1,13 @@
 <script>
-	import Spotify from './lib/Spotify.svelte';
-	import Brightness from './lib/Brightness.svelte';
+	import Spotify from "./lib/Spotify.svelte";
+	import Brightness from "./lib/Brightness.svelte";
+	import Animations from "./lib/Animations.svelte";
 </script>
 
 <main>
-	<Spotify/>
-	<!-- <Brightness/> -->
+	<Spotify />
+	<Brightness />
+	<Animations />
 </main>
 
 <style>

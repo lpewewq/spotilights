@@ -26,7 +26,10 @@
 		<p>Loading...</p>
 	{:then current_user}
 		{#if current_user == null}
-			<img src="src/assets/spotify_logo.png" alt="Spotify" />
+			<img
+				src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"
+				alt="Spotify"
+			/>
 			<section>
 				<h1>Not connected!</h1>
 				<button on:click={connect}> Connect </button>

@@ -5,8 +5,7 @@ from typing import Generator
 import numpy as np
 
 from ...color import Color
-from ...spotify.models import Segment
-from ...spotify.shared_data import SharedData
+from ...spotify.models import AudioAnalysis, Segment
 from .sub import SingleSub
 
 
@@ -28,9 +27,9 @@ class Strobe(SingleSub, ABC):
         def needs_spotify(self) -> bool:
             return True
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
-        await super().on_track_change(shared_data)
-        self.bpm = (await shared_data.get_audio_analysis()).tempo
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
+        super().on_track_change(analysis)
+        self.bpm = analysis.tempo
 
     def strobe(self, duration: float) -> Generator[bool, None, None]:
         start = time.time()

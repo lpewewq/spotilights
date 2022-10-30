@@ -1,7 +1,7 @@
 import numpy as np
 from pydantic import confloat
 
-from ...spotify.shared_data import SharedData
+from ...spotify.models import AudioAnalysis
 from .sub import SingleSub
 
 
@@ -19,9 +19,9 @@ class ScaleLoudness(SingleSub):
         def needs_spotify(self) -> bool:
             return True
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
-        await self.animation.on_track_change(shared_data)
-        self.loudness_interpolation = (await shared_data.get_audio_analysis()).loudness_interpolation
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
+        self.animation.on_track_change(analysis)
+        self.loudness_interpolation = analysis.loudness_interpolation
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         try:

@@ -3,7 +3,7 @@ from abc import ABC
 
 import numpy as np
 
-from ...spotify.shared_data import SharedData
+from ...spotify.models import AudioAnalysis
 from ..base import Animation
 
 
@@ -26,5 +26,5 @@ class BPM(Animation, ABC):
         beat = (np.sin(-time.time() * bps2pi + shift) + 1) / 2
         return self.config.low + (self.config.high - self.config.low) * beat
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
-        self.bpm = (await shared_data.get_audio_analysis()).tempo
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
+        self.bpm = analysis.tempo

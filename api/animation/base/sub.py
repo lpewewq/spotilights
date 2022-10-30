@@ -3,8 +3,7 @@ from abc import ABC
 import numpy as np
 from pydantic import conlist
 
-from ...spotify.models import Bar, Beat, Section, Segment, Tatum
-from ...spotify.shared_data import SharedData
+from ...spotify.models import AudioAnalysis, Bar, Beat, Section, Segment, Tatum
 from .abstract import Animation, AnimationModel
 
 
@@ -33,8 +32,8 @@ class SingleSub(Animation, ABC):
             self.animation = config.sub.construct()
         super().update_config(config)
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
-        await self.animation.on_track_change(shared_data)
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
+        self.animation.on_track_change(analysis)
 
     def on_section(self, section: Section, progress: float) -> None:
         self.animation.on_section(section, progress)
@@ -84,9 +83,9 @@ class MultiSub(Animation, ABC):
         self.animations = animations
         super().update_config(config)
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
         for animation in self.animations:
-            await animation.on_track_change(shared_data)
+            animation.on_track_change(analysis)
 
     def on_section(self, section: Section, progress: float) -> None:
         for animation in self.animations:

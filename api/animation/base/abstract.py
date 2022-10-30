@@ -4,8 +4,7 @@ from typing import Optional, Type
 import numpy as np
 from pydantic import BaseModel, validator
 
-from ...spotify.models import Bar, Beat, Section, Segment, Tatum
-from ...spotify.shared_data import SharedData
+from ...spotify.models import AudioAnalysis, Bar, Beat, Section, Segment, Tatum
 
 animation_subclass_registry = dict()
 
@@ -39,7 +38,7 @@ class Animation(ABC):
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.config})"
 
-    async def on_track_change(self, shared_data: SharedData) -> None:
+    def on_track_change(self, analysis: AudioAnalysis) -> None:
         """Track change callback"""
         pass
 

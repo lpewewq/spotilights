@@ -6,14 +6,9 @@ from ..color import Color
 
 
 class AbstractStrip(ABC):
-    def __init__(self, num_pixels: int, xy: list[tuple[float, float]] = None) -> None:
+    def __init__(self, num_pixels: int) -> None:
         super().__init__()
         self.num_pixels = num_pixels
-        if xy:
-            assert len(xy) == num_pixels
-            self.xy = np.array(xy)
-        else:
-            self.xy = np.linspace([-1, 0], [1, 0], num_pixels)
 
     def clear(self):
         self.show(np.full(self.num_pixels, Color()))

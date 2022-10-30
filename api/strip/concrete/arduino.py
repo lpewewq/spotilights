@@ -14,9 +14,8 @@ class ArduinoStrip(AbstractStrip):
         baudrate: int,
         header: list[int],
         num_pixels: int,
-        xy: list[tuple[float, float]] = None,
     ) -> None:
-        super().__init__(num_pixels, xy)
+        super().__init__(num_pixels)
         self.header = bytes(header)
         self.brightness = brightness
         while True:

@@ -21,4 +21,5 @@ spotify_animator = SpotifyAnimator(
     spotify_updater=spotify_updater,
     strip=strip,
     update_interval=settings.spotify_update_interval,
+    xy=settings.led_2d_coords,
 )

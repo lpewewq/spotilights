@@ -14,9 +14,8 @@ class RPIStrip(AbstractStrip):
         brightness: float,
         channel: int,
         num_pixels: int,
-        xy: list[tuple[float, float]] = None,
     ) -> None:
-        super().__init__(num_pixels, xy)
+        super().__init__(num_pixels)
         self._rpi_strip = PixelStrip(
             num=num_pixels,
             pin=pin,

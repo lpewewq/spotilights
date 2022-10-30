@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import numpy as np
 import tekore as tk
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
 
 
 class Settings(BaseSettings):
@@ -32,6 +33,15 @@ class Settings(BaseSettings):
     # Finetuning
     segment_loudness_resample_rate: int = 60
     segment_loudness_smoothing_kernel_size: float = 1  # gaussian kernel window size in seconds
+
+    @validator("led_2d_coords")
+    def led_2d_coords_validator(cls, v, values):
+        n = values.get("led_count")
+        if v:
+            if len(v) != n:
+                raise ValueError("number of 2D coordinates mismatch led count")
+            return np.array(v)
+        return np.linspace([-1, 0], [1, 0], n)
 
     class Config:
         env_file = ".env"

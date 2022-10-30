@@ -1,8 +1,6 @@
-import warnings
+from ..config import settings, StripBackend
 
-from ..config import settings
-
-if settings.use_backend == "raspberrypi":
+if settings.use_backend == StripBackend.raspberrypi:
     from .concrete.raspberrypi import RPIStrip
 
     strip = RPIStrip(
@@ -14,7 +12,7 @@ if settings.use_backend == "raspberrypi":
         brightness=settings.led_brightness,
         channel=settings.raspi_channel,
     )
-elif settings.use_backend == "arduino":
+elif settings.use_backend == StripBackend.arduino:
     from .concrete.arduino import ArduinoStrip
 
     strip = ArduinoStrip(
@@ -24,5 +22,3 @@ elif settings.use_backend == "arduino":
         baudrate=settings.arduino_serial_baudrate,
         header=settings.arduino_serial_header,
     )
-else:
-    warnings.warn("Unknown LED strip backend!")

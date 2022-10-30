@@ -3,11 +3,17 @@ from pathlib import Path
 import numpy as np
 import tekore as tk
 from pydantic import BaseSettings, validator
+from enum import Enum
+
+
+class StripBackend(str, Enum):
+    raspberrypi = "raspberrypi"
+    arduino = "arduino"
 
 
 class Settings(BaseSettings):
     # LED strip
-    use_backend: str = "raspberrypi"  # "arduino" or "raspberrypi"
+    use_backend: StripBackend
     led_count: int  # Number of LED pixels.
     led_brightness: float = 0.25  # in range between 0.0 and 1.0
     led_2d_coords: list[tuple[float, float]] = None  # Defaults to straight line

@@ -29,18 +29,18 @@ router = APIRouter(prefix="/animator")
 
 
 @router.on_event("shutdown")
-async def shutdown():
-    await spotify_animator.stop()
+def shutdown():
+    spotify_animator.stop()
 
 
 @router.post("/stop")
-async def stop_animator():
-    await spotify_animator.stop()
+def stop_animator():
+    spotify_animator.stop()
 
 
 @router.post("/start")
 async def start_animation(payload: AnimationModelPayload):
-    await spotify_animator.start(payload.model)
+    spotify_animator.start(payload.model)
     try:
         with open(payload.file, "w") as file:
             file.write(payload.json(indent=2, exclude={"needs_spotify", "model_schema"}))
@@ -49,7 +49,7 @@ async def start_animation(payload: AnimationModelPayload):
 
 
 @router.get("/models")
-async def get_models():
+def get_models():
     models = []
     for path in settings.animation_data_path.glob("*.json"):
         try:

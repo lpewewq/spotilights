@@ -15,7 +15,7 @@ class Strobe(SingleSub, ABC):
         self.config: Strobe.Config
         self.strobe_generator = None
         self.activate = False  # set to True to strobe
-        self.bpm = 0.0
+        self.bpm = 1
 
     class Config(SingleSub.Config):
         duration_in_beats: int = 1

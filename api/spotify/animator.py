@@ -53,17 +53,16 @@ class SpotifyAnimator:
                     self.item_id = currently_playing.item.id
                     self.current_indices = [None, None, None, None, None]
 
-                if not currently_playing.is_playing or currently_playing.progress_ms is None:
+                if not currently_playing.is_playing:
+                    progress = currently_playing.progress_ms / 1000
                     if self.is_playing:
                         self.is_playing = False
                         await self.animation.on_pause(self.spotify_updater.shared_data)
                 else:
+                    progress = time.time() - currently_playing.timestamp / 1000
                     if not self.is_playing:
                         self.is_playing = True
                         await self.animation.on_resume(self.spotify_updater.shared_data)
-
-                    progress = currently_playing.progress_ms / 1000
-                    progress += time.time() - currently_playing.timestamp / 1000
 
                     attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
                     callbacks = [
@@ -89,7 +88,7 @@ class SpotifyAnimator:
             self.loop_count += 1
             if self.loop_count % 10 == 0:
                 now = time.time()
-                print("FPS:", 10 / (now - self.loop_start), end="\r")
+                print(f"FPS: {10 / (now - self.loop_start):.02f}, Progress: {progress:.02f}s".ljust(50), end="\r")
                 self.loop_start = now
 
     def find(self, list, timestamp: float, previous_index: int) -> int:

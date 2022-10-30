@@ -33,13 +33,18 @@ class SpotifyUpdater:
             while True:
                 sleep = self.update_interval
                 currently_playing: tk.model.CurrentlyPlaying = await self.spotify_client.playback_currently_playing()
-                fetch_time = time.time()
-
                 if currently_playing is None or currently_playing.item is None or currently_playing.item.is_local:
                     await self.shared_data.set_currently_playing(None)
                     await self.shared_data.set_audio_analysis(None)
                 else:
-                    currently_playing.timestamp = int(fetch_time * 1000) + self.offset_ms
+                    # Calculating the exact timing of the current playback
+                    # Related Issue: https://github.com/spotify/web-api/issues/1073
+                    # Workaround: Use provided timestamp as long as it is created at song start
+                    # If song is paused/resumed/seeked this timestamp needs to be corrected
+                    fetch_time_ms = int(time.time() * 1000)
+                    if currently_playing.timestamp > fetch_time_ms - currently_playing.progress_ms:
+                        currently_playing.timestamp = fetch_time_ms - currently_playing.progress_ms + self.offset_ms
+
                     if currently_playing.item.id != item_id:
                         item_id = currently_playing.item.id
                         audio_analysis = await self.spotify_client.track_audio_analysis(currently_playing.item.id)

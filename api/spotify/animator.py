@@ -15,7 +15,6 @@ class SpotifyAnimator:
         # loop state
         self.item_id = None
         self.current_indices = [None, None, None, None, None]  # section, bar, beat, tatum, segment
-        self.is_playing = True
         self.loop_start = time.time()
         self.loop_count = 0
 
@@ -55,14 +54,8 @@ class SpotifyAnimator:
 
                 if not currently_playing.is_playing:
                     progress = currently_playing.progress_ms / 1000
-                    if self.is_playing:
-                        self.is_playing = False
-                        await self.animation.on_pause(self.spotify_updater.shared_data)
                 else:
                     progress = time.time() - currently_playing.timestamp / 1000
-                    if not self.is_playing:
-                        self.is_playing = True
-                        await self.animation.on_resume(self.spotify_updater.shared_data)
 
                     attribute_names = ["sections", "bars", "beats", "tatums", "segments"]
                     callbacks = [

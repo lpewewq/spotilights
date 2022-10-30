@@ -26,11 +26,5 @@ class BPM(Animation, ABC):
         beat = (np.sin(-time.time() * bps2pi + shift) + 1) / 2
         return self.config.low + (self.config.high - self.config.low) * beat
 
-    async def on_pause(self, shared_data: SharedData) -> None:
-        self.bpm = 0
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        self.bpm = (await shared_data.get_audio_analysis()).tempo
-
     async def on_track_change(self, shared_data: SharedData) -> None:
         self.bpm = (await shared_data.get_audio_analysis()).tempo

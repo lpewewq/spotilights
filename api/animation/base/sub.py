@@ -33,12 +33,6 @@ class SingleSub(Animation, ABC):
             self.animation = config.sub.construct()
         super().update_config(config)
 
-    async def on_pause(self, shared_data: SharedData) -> None:
-        await self.animation.on_pause(shared_data)
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        await self.animation.on_resume(shared_data)
-
     async def on_track_change(self, shared_data: SharedData) -> None:
         await self.animation.on_track_change(shared_data)
 
@@ -89,14 +83,6 @@ class MultiSub(Animation, ABC):
                 animations.append(sub.construct())
         self.animations = animations
         super().update_config(config)
-
-    async def on_pause(self, shared_data: SharedData) -> None:
-        for animation in self.animations:
-            await animation.on_pause(shared_data)
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        for animation in self.animations:
-            await animation.on_resume(shared_data)
 
     async def on_track_change(self, shared_data: SharedData) -> None:
         for animation in self.animations:

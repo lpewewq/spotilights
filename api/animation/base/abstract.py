@@ -39,14 +39,6 @@ class Animation(ABC):
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.config})"
 
-    async def on_pause(self, shared_data: SharedData) -> None:
-        """Playback paused callback"""
-        pass
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        """Playback resumed callback"""
-        pass
-
     async def on_track_change(self, shared_data: SharedData) -> None:
         """Track change callback"""
         pass

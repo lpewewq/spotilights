@@ -28,14 +28,6 @@ class Strobe(SingleSub, ABC):
         def needs_spotify(self) -> bool:
             return True
 
-    async def on_pause(self, shared_data: SharedData) -> None:
-        await super().on_pause(shared_data)
-        self.bpm = 0
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        await super().on_resume(shared_data)
-        self.bpm = (await shared_data.get_audio_analysis()).tempo
-
     async def on_track_change(self, shared_data: SharedData) -> None:
         await super().on_track_change(shared_data)
         self.bpm = (await shared_data.get_audio_analysis()).tempo

@@ -19,14 +19,6 @@ class ScaleLoudness(SingleSub):
         def needs_spotify(self) -> bool:
             return True
 
-    async def on_pause(self, shared_data: SharedData) -> None:
-        await self.animation.on_pause(shared_data)
-        self.loudness_interpolation = None
-
-    async def on_resume(self, shared_data: SharedData) -> None:
-        await self.animation.on_resume(shared_data)
-        self.loudness_interpolation = (await shared_data.get_audio_analysis()).loudness_interpolation
-
     async def on_track_change(self, shared_data: SharedData) -> None:
         await self.animation.on_track_change(shared_data)
         self.loudness_interpolation = (await shared_data.get_audio_analysis()).loudness_interpolation

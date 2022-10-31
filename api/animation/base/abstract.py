@@ -22,8 +22,8 @@ class Animation(ABC):
         return super().__init_subclass__()
 
     class Config(BaseModel):
-        def schema(self, *args, **kwargs):
-            return super().schema(*args, **kwargs).get("properties", {})
+        def concrete_schema(self, *args, **kwargs):
+            return self.schema(*args, **kwargs).get("properties", {})
 
         @property
         def needs_spotify(self) -> bool:
@@ -104,5 +104,5 @@ class AnimationModel(BaseModel):
     def construct(self):
         return self.animation(self.config)
 
-    def schema(self, *args, **kwargs):
-        return {"animation": self.animation.__name__, "config": self.config.schema(*args, **kwargs)}
+    def concrete_schema(self, *args, **kwargs):
+        return {"animation": self.animation.__name__, "config": self.config.concrete_schema(*args, **kwargs)}

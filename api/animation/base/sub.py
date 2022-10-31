@@ -20,9 +20,9 @@ class SingleSub(Animation, ABC):
         def needs_spotify(self) -> bool:
             return self.sub.config.needs_spotify
 
-        def schema(self, *args, **kwargs):
-            schema = super().schema(*args, **kwargs)
-            schema["sub"] = self.sub.schema(*args, **kwargs)
+        def concrete_schema(self, *args, **kwargs):
+            schema = super().concrete_schema(*args, **kwargs).copy()
+            schema["sub"] = self.sub.concrete_schema(*args, **kwargs)
             return schema
 
     def update_config(self, config: "SingleSub.Config") -> bool:
@@ -67,9 +67,9 @@ class MultiSub(Animation, ABC):
         def needs_spotify(self) -> bool:
             return any(sub.config.needs_spotify for sub in self.subs)
 
-        def schema(self, *args, **kwargs):
-            schema = super().schema(*args, **kwargs)
-            schema["subs"] = [sub.schema(*args, **kwargs) for sub in self.subs]
+        def concrete_schema(self, *args, **kwargs):
+            schema = super().concrete_schema(*args, **kwargs).copy()
+            schema["subs"] = [sub.concrete_schema(*args, **kwargs) for sub in self.subs]
             return schema
 
     def update_config(self, config: "MultiSub.Config") -> bool:

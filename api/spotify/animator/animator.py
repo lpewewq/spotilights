@@ -37,10 +37,18 @@ class SpotifyAnimator:
     async def animate(self) -> None:
         loop_count = 0
         loop_start = time.time()
+        benchmark_start = loop_start
         next_spotify_update = loop_start
+        progress = 0
+
         while True:
             loop_count += 1
             now = time.time()
+
+            # stats
+            if loop_count % 30 == 0:
+                print(f"Progress: {progress:.02f}s, {30 / (now - benchmark_start):.02f} FPS".ljust(50), end="\r")
+                benchmark_start = now
 
             if self.animation.config.needs_spotify:
                 progress = self.spotify_state.progress()
@@ -83,9 +91,3 @@ class SpotifyAnimator:
                 # handle track changed event
                 if track_changed and self.animation.config.needs_spotify:
                     self.animation.on_track_change(self.spotify_state.audio_analysis)
-
-            # stats
-            if loop_count % 30 == 0:
-                now = time.time()
-                print(f"Progress: {progress:.02f}s, {30 / (now - loop_start):.02f} FPS".ljust(50), end="\r")
-                loop_start = now

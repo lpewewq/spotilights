@@ -2,8 +2,8 @@ import time
 
 import tekore as tk
 
-from .client import SpotifyClient
-from .models import AudioAnalysis
+from ..client import SpotifyClient
+from ..models import AudioAnalysis
 
 
 def find(list, timestamp: float, previous_index: int) -> int:
@@ -22,7 +22,7 @@ def find(list, timestamp: float, previous_index: int) -> int:
     return None
 
 
-class SpotifyUpdater:
+class SpotifyPlaybackState:
     def __init__(self, spotify_client: SpotifyClient, offset_ms: int = 0) -> None:
         self.spotify_client = spotify_client
         self.offset_ms = offset_ms

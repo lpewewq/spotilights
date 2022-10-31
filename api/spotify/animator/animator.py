@@ -1,14 +1,14 @@
 import asyncio
 import time
 
-from ..animation import Animation, AnimationModel
-from ..strip.abstract import AbstractStrip
-from .updater import SpotifyUpdater
+from ...animation import Animation, AnimationModel
+from ...strip.abstract import AbstractStrip
+from .playback_state import SpotifyPlaybackState
 
 
 class SpotifyAnimator:
-    def __init__(self, spotify_updater: SpotifyUpdater, strip: AbstractStrip, update_interval: int) -> None:
-        self.spotify_updater = spotify_updater
+    def __init__(self, spotify_state: SpotifyPlaybackState, strip: AbstractStrip, update_interval: int) -> None:
+        self.spotify_state = spotify_state
         self.strip = strip
         self.update_interval = update_interval
         self.animation_task: asyncio.Task = None
@@ -22,8 +22,8 @@ class SpotifyAnimator:
         else:
             animation_changed = self.animation.update_config(animation_model.config)
 
-        if animation_changed and self.spotify_updater.audio_analysis is not None:
-            self.animation.on_track_change(self.spotify_updater.audio_analysis)
+        if animation_changed and self.spotify_state.audio_analysis is not None:
+            self.animation.on_track_change(self.spotify_state.audio_analysis)
 
         if self.animation_task is None:
             self.animation_task = asyncio.create_task(self.animate())
@@ -43,15 +43,15 @@ class SpotifyAnimator:
             now = time.time()
 
             if self.animation.config.needs_spotify:
-                progress = self.spotify_updater.progress()
+                progress = self.spotify_state.progress()
 
                 # check for playback update
                 if self.update_task is None:
-                    if now > next_spotify_update or self.spotify_updater.duration_overflow(progress):
-                        self.update_task = asyncio.create_task(self.spotify_updater.update())
+                    if now > next_spotify_update or self.spotify_state.duration_overflow(progress):
+                        self.update_task = asyncio.create_task(self.spotify_state.update())
 
                 # handle event callbacks
-                self.spotify_updater.trigger_callbacks(
+                self.spotify_state.trigger_callbacks(
                     progress,
                     [
                         self.animation.on_section,
@@ -82,7 +82,7 @@ class SpotifyAnimator:
                 self.update_task = None
                 # handle track changed event
                 if track_changed and self.animation.config.needs_spotify:
-                    self.animation.on_track_change(self.spotify_updater.audio_analysis)
+                    self.animation.on_track_change(self.spotify_state.audio_analysis)
 
             # stats
             if loop_count % 30 == 0:

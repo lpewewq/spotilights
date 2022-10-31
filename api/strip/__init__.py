@@ -1,4 +1,4 @@
-from ..config import settings, StripBackend
+from ..config import StripBackend, settings
 
 if settings.use_backend == StripBackend.raspberrypi:
     from .concrete.raspberrypi import RPIStrip

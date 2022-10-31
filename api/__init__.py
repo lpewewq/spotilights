@@ -1,8 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .spotify.animator_routes import router as animator_router
-from .spotify.client_routes import router as client_router
+from .spotify import animator_router, client_router
 from .strip.routes import router as strip_router
 
 app = FastAPI()

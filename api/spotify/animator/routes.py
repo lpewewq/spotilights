@@ -6,8 +6,8 @@ from typing import Any, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, ValidationError
 
-from ..animation.base import AnimationModel
-from ..config import settings
+from ...animation.base import AnimationModel
+from ...config import settings
 from . import spotify_animator
 
 

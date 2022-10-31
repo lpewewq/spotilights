@@ -5,6 +5,7 @@ if settings.use_backend == StripBackend.raspberrypi:
 
     strip = RPIStrip(
         num_pixels=settings.led_count,
+        xy=settings.led_2d_coords,
         pin=settings.raspi_pin,
         freq_hz=settings.raspi_freq_hz,
         dma=settings.raspi_dma,
@@ -17,6 +18,7 @@ elif settings.use_backend == StripBackend.arduino:
 
     strip = ArduinoStrip(
         num_pixels=settings.led_count,
+        xy=settings.led_2d_coords,
         brightness=settings.led_brightness,
         port=settings.arduino_serial_port,
         baudrate=settings.arduino_serial_baudrate,

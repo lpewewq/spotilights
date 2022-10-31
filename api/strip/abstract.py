@@ -6,9 +6,10 @@ from ..color import Color
 
 
 class AbstractStrip(ABC):
-    def __init__(self, num_pixels: int) -> None:
+    def __init__(self, num_pixels: int, xy: np.ndarray) -> None:
         super().__init__()
         self.num_pixels = num_pixels
+        self.xy = xy
 
     def clear(self):
         self.show(np.full(self.num_pixels, Color()))

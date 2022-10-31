@@ -1,19 +1,16 @@
 import asyncio
 import time
 
-import numpy as np
-
 from ..animation import AnimationModel
 from ..strip.abstract import AbstractStrip
 from .updater import SpotifyUpdater
 
 
 class SpotifyAnimator:
-    def __init__(self, spotify_updater: SpotifyUpdater, strip: AbstractStrip, update_interval: int, xy: np.ndarray) -> None:
+    def __init__(self, spotify_updater: SpotifyUpdater, strip: AbstractStrip, update_interval: int) -> None:
         self.spotify_updater = spotify_updater
         self.strip = strip
         self.update_interval = update_interval
-        self.xy = xy
         self.animation_loop: asyncio.Task = None
 
     def start(self, animation_model: AnimationModel) -> None:
@@ -49,10 +46,10 @@ class SpotifyAnimator:
                     if track_changed:
                         animation.on_track_change(self.spotify_updater.audio_analysis)
                 self.spotify_updater.trigger_callbacks(progress, callbacks)
-                colors = animation.render(progress, self.xy)
+                colors = animation.render(progress, self.strip.xy)
             else:
                 progress = now - loop_start
-                colors = animation.render(progress, self.xy)
+                colors = animation.render(progress, self.strip.xy)
 
             self.strip.show(colors)
             await asyncio.sleep(0)

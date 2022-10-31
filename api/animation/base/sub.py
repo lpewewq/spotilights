@@ -25,12 +25,12 @@ class SingleSub(Animation, ABC):
             schema["sub"] = self.sub.schema(*args, **kwargs)
             return schema
 
-    def update_config(self, config: "SingleSub.Config"):
+    def update_config(self, config: "SingleSub.Config") -> bool:
         if isinstance(self.animation, config.sub.animation):
             self.animation.update_config(config.sub.config)
         else:
             self.animation = config.sub.construct()
-        super().update_config(config)
+        return super().update_config(config)
 
     def on_track_change(self, analysis: AudioAnalysis) -> None:
         self.animation.on_track_change(analysis)
@@ -72,7 +72,7 @@ class MultiSub(Animation, ABC):
             schema["subs"] = [sub.schema(*args, **kwargs) for sub in self.subs]
             return schema
 
-    def update_config(self, config: "MultiSub.Config"):
+    def update_config(self, config: "MultiSub.Config") -> bool:
         animations = []
         for i, sub in enumerate(config.subs):
             if i < len(self.animations) and isinstance(self.animations[i], sub.animation):
@@ -81,7 +81,7 @@ class MultiSub(Animation, ABC):
             else:
                 animations.append(sub.construct())
         self.animations = animations
-        super().update_config(config)
+        return super().update_config(config)
 
     def on_track_change(self, analysis: AudioAnalysis) -> None:
         for animation in self.animations:

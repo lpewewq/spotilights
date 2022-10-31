@@ -30,10 +30,12 @@ class Animation(ABC):
             """Identify spotify dependant animations"""
             return False
 
-    def update_config(self, config: "Animation.Config"):
-        if self.config != config:
-            self._change_trigger = True
-            self.config = config
+    def update_config(self, config: "Animation.Config") -> bool:
+        if self.config == config:
+            return False
+        self._change_trigger = True
+        self.config = config
+        return True
 
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.config})"

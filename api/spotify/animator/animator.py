@@ -85,9 +85,13 @@ class SpotifyAnimator:
 
             # handle pending update task
             if self.update_task is not None and self.update_task.done():
+                try:
+                    track_changed = self.update_task.result()
+                    # handle track changed event
+                    if track_changed and self.animation.config.needs_spotify:
+                        self.animation.on_track_change(self.spotify_state.audio_analysis)
+                except Exception as e:
+                    print("Update excepted:", e)
+
                 next_spotify_update = now + self.update_interval
-                track_changed = self.update_task.result()
                 self.update_task = None
-                # handle track changed event
-                if track_changed and self.animation.config.needs_spotify:
-                    self.animation.on_track_change(self.spotify_state.audio_analysis)

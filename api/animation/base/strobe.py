@@ -3,6 +3,7 @@ from abc import ABC
 from typing import Generator
 
 import numpy as np
+from pydantic import confloat
 
 from ...color import Color
 from ...spotify.models import AudioAnalysis, Segment
@@ -18,9 +19,9 @@ class Strobe(SingleSub, ABC):
         self.bpm = 1
 
     class Config(SingleSub.Config):
-        duration_in_beats: int = 1
-        on_duration: float = 0.025
-        off_duration: float = 0.025
+        duration_in_beats: confloat(ge=0, le=4, multiple_of=0.5) = 1.0
+        on_duration: confloat(ge=0.015, le=0.15, multiple_of=0.015) = 0.03
+        off_duration: confloat(ge=0.015, le=0.15, multiple_of=0.015) = 0.03
         color: Color = Color(r=255, g=255, b=255)
 
         @property

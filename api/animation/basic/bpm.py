@@ -2,6 +2,7 @@ import time
 from abc import ABC
 
 import numpy as np
+from pydantic import confloat
 
 from ...spotify.models import AudioAnalysis
 from ..base import Animation
@@ -14,8 +15,8 @@ class BPM(Animation, ABC):
         self.bpm: float = 0
 
     class Config(Animation.Config):
-        low: float = 0.0
-        high: float = 1.0
+        low: confloat(ge=0, le=1, multiple_of=0.05) = 0.0
+        high: confloat(ge=0, le=1, multiple_of=0.05) = 1.0
 
         @property
         def needs_spotify(self) -> bool:

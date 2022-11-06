@@ -63,6 +63,6 @@ def get_models():
         try:
             payload = AnimationModelPayload.parse_file(path)
             models.append(payload)
-        except (ValidationError, JSONDecodeError) as e:
+        except (ValidationError, JSONDecodeError, AttributeError) as e:
             print("get_models", path, e)
     return models

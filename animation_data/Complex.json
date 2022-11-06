@@ -60,9 +60,9 @@
           "sensitivity": 5.0
         }
       },
-      "duration_in_beats": 1,
-      "on_duration": 0.025,
-      "off_duration": 0.025,
+      "duration_in_beats": 1.0,
+      "on_duration": 0.03,
+      "off_duration": 0.03,
       "color": {
         "r": 255,
         "g": 255,

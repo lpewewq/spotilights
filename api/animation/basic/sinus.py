@@ -1,4 +1,5 @@
 import numpy as np
+from pydantic import Field
 
 from ...color import Color
 from ..base.decorators import on_change
@@ -11,7 +12,7 @@ class Sinus(BPM):
         self.config: Sinus.Config
 
     class Config(BPM.Config):
-        color: Color = Color(r=255)
+        color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
 
     def change_callback(self, xy: np.ndarray) -> None:
         n = len(xy)

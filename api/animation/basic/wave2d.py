@@ -12,7 +12,7 @@ class Wave2D(BPM):
         self.config: Wave2D.Config
 
     class Config(BPM.Config):
-        color: Color = Color(r=255)
+        color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
         fineness: confloat(ge=0, le=100, multiple_of=1) = Field(
             30.0, config_type="Numerical", title="Fineness", description=" "
         )

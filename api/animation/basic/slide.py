@@ -1,5 +1,5 @@
 import numpy as np
-from pydantic import PyObject
+from pydantic import Field
 
 from ...color import Color
 from ...spotify.models.audio_analysis import Beat
@@ -16,7 +16,7 @@ class Slide(Animation):
         self.beat_duration = 1
 
     class Config(Animation.Config):
-        color: Color = Color(r=255)
+        color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
 
         @property
         def needs_spotify(self) -> bool:

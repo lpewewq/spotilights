@@ -8,6 +8,7 @@
     } from "@smui/drawer";
     import List, { Item, Text, Separator, Graphic } from "@smui/list";
 
+    import ColorConfig from "./AnimationConfigItems/Color.svelte";
     import NumericalConfig from "./AnimationConfigItems/Numerical.svelte";
 
     export let model;
@@ -133,6 +134,12 @@
                                         config_key
                                     ]}
                                     concrete_schema={current_schema.config[
+                                        config_key
+                                    ]}
+                                />
+                            {:else if current_schema.config[config_key].config_type == "Color"}
+                                <ColorConfig
+                                    bind:model={current_model.config[
                                         config_key
                                     ]}
                                 />

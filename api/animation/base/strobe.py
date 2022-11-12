@@ -28,7 +28,7 @@ class Strobe(SingleSub, ABC):
         off_duration: confloat(ge=0.015, le=0.15, multiple_of=0.015) = Field(
             0.03, config_type="Numerical", title="Off Duration", description="s"
         )
-        color: Color = Color(r=255, g=255, b=255)
+        color: Color = Field(Color(r=255, g=255, b=255), config_type="Color", title="Strobe Color")
 
         @property
         def needs_spotify(self) -> bool:

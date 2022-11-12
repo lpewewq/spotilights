@@ -1,5 +1,10 @@
 <script>
-	let current_user_promise = getCurrentUser();
+	import { onMount } from "svelte";
+	import Card, { Actions } from "@smui/card";
+	import Button, { Label, Icon } from "@smui/button";
+	import LayoutGrid, { Cell } from "@smui/layout-grid";
+
+	let current_user = null;
 
 	async function getCurrentUser() {
 		return await fetch("/api/spotify/current-user").then((response) =>
@@ -15,56 +20,60 @@
 	}
 
 	async function disconnect() {
-		current_user_promise = await fetch("/api/spotify/disconnect", {
+		current_user = await fetch("/api/spotify/disconnect", {
 			method: "POST",
 		}).then(() => getCurrentUser());
 	}
+
+	onMount(async () => {
+		current_user = await getCurrentUser();
+	});
 </script>
 
-<main>
-	{#await current_user_promise}
-		<p>Loading...</p>
-	{:then current_user}
-		{#if current_user == null}
-			<img
-				src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"
-				alt="Spotify"
-			/>
-			<section>
+<Card>
+	<LayoutGrid align="left">
+		<Cell align="middle" span={4}>
+			{#if current_user == null}
+				<img
+					src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"
+					alt="Spotify"
+				/>
+			{:else}
+				<img src={current_user.images[0].url} alt="Spotify" />
+			{/if}
+		</Cell>
+		<Cell align="middle" span={8}>
+			{#if current_user == null}
 				<h1>Not connected!</h1>
-				<button on:click={connect}> Connect </button>
-			</section>
-		{:else}
-			<img src={current_user.images[0].url} alt="Spotify" />
-			<section>
+			{:else}
 				<h1>{current_user.display_name}</h1>
-				<button on:click={disconnect}> Disconnect </button>
-			</section>
+			{/if}
+		</Cell>
+	</LayoutGrid>
+	<Actions fullBleed>
+		{#if current_user == null}
+			<Button on:click={connect}>
+				<Label>Connect</Label>
+				<Icon class="material-icons">link</Icon>
+			</Button>
+		{:else}
+			<Button on:click={disconnect}>
+				<Label>Disconnect</Label>
+				<Icon class="material-icons">link_off</Icon>
+			</Button>
 		{/if}
-	{:catch error}
-		<p style="color: red">{error.message}</p>
-	{/await}
-</main>
+	</Actions>
+</Card>
 
 <style>
 	h1 {
 		color: #ff3e00;
-		font-size: 2em;
+		font-size: 4em;
 		font-weight: 100;
 	}
 	img {
 		border-radius: 50%;
 		border: 2px solid #111;
 		height: 150px;
-	}
-	button {
-		color: #ff3e00;
-	}
-	main {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		padding: 16px;
-		box-shadow: 2px 2px 2px #111;
-		border: 2px solid #111;
 	}
 </style>

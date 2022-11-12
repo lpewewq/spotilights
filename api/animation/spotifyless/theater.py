@@ -16,7 +16,7 @@ class Theater(BaseIterator):
         self.config: Theater.Config
 
     class Config(BaseIterator.Config):
-        delay: confloat(ge=0) = 0.5
+        delay: confloat(ge=0, le=1, multiple_of=0.1) = 0.5
 
         @property
         def needs_spotify(self) -> bool:

@@ -13,7 +13,7 @@ class ScaleLoudness(SingleSub):
         self.loudness_interpolation = None
 
     class Config(SingleSub.Config):
-        sensitivity: confloat(ge=0, le=10) = 6
+        sensitivity: confloat(ge=0, le=10, multiple_of=0.1) = 6
 
         @property
         def needs_spotify(self) -> bool:

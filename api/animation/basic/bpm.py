@@ -2,7 +2,7 @@ import time
 from abc import ABC
 
 import numpy as np
-from pydantic import confloat
+from pydantic import Field, confloat
 
 from ...spotify.models import AudioAnalysis
 from ..base import Animation
@@ -15,8 +15,12 @@ class BPM(Animation, ABC):
         self.bpm: float = 0
 
     class Config(Animation.Config):
-        low: confloat(ge=0, le=1, multiple_of=0.05) = 0.0
-        high: confloat(ge=0, le=1, multiple_of=0.05) = 1.0
+        low: confloat(ge=0, le=1, multiple_of=0.05) = Field(
+            0.0, config_type="Numerical", title="Lower Bound", description="%"
+        )
+        high: confloat(ge=0, le=1, multiple_of=0.05) = Field(
+            1.0, config_type="Numerical", title="Upper Bound", description="%"
+        )
 
         @property
         def needs_spotify(self) -> bool:

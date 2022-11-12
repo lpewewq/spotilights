@@ -13,6 +13,7 @@
     export let model;
     export let concrete_schema;
 
+    let unique = {};
     let config_key = null;
     let access_chain = [];
     let current_model = model;
@@ -49,6 +50,7 @@
                         activated={config_key === key}
                         on:click={() => {
                             config_key = key;
+                            unique = {};
                         }}
                     >
                         {#if key == "sub" || key == "subs"}
@@ -69,6 +71,11 @@
                     on:click={() => {
                         access_chain.pop();
                         update_chain();
+                        if ("sub" in current_model.config) {
+                            config_key = "sub";
+                        } else if ("subs" in current_model.config) {
+                            config_key = "subs";
+                        }
                     }}
                 >
                     <Graphic class="material-icons" aria-hidden="true"
@@ -116,17 +123,26 @@
                             </Item>
                         {/each}
                     </List>
-                {:else if "type" in current_schema.config[config_key]}
-                    {#if current_schema.config[config_key].type == "number"}
-                        <NumericalConfig
-                            bind:model={current_model.config[config_key]}
-                            concrete_schema={current_schema.config[config_key]}
-                        />
-                    {:else}
-                        <p>Config type not implemented.</p>
-                    {/if}
                 {:else}
-                    <p>Not implemented.</p>
+                    {#key unique}
+                        <p>{current_schema.config[config_key]["title"]}</p>
+                        {#if "config_type" in current_schema.config[config_key]}
+                            {#if current_schema.config[config_key].config_type == "Numerical"}
+                                <NumericalConfig
+                                    bind:model={current_model.config[
+                                        config_key
+                                    ]}
+                                    concrete_schema={current_schema.config[
+                                        config_key
+                                    ]}
+                                />
+                            {:else}
+                                <p>Config type not implemented.</p>
+                            {/if}
+                        {:else}
+                            <p>Not implemented.</p>
+                        {/if}
+                    {/key}
                 {/if}
             {:else}
                 <p>Nothing selected.</p>

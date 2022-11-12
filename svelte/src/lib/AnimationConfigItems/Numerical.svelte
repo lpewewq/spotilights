@@ -18,6 +18,6 @@
         slot="label"
         style="padding-right: 12px; width: max-content; display: block;"
     >
-        <p>{model}</p>
+        <p>{model} {concrete_schema.description}</p>
     </span>
 </FormField>

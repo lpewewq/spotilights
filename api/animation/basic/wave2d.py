@@ -1,5 +1,5 @@
 import numpy as np
-from pydantic import confloat
+from pydantic import Field, confloat
 
 from ...color import Color
 from ..base.decorators import on_change
@@ -13,7 +13,9 @@ class Wave2D(BPM):
 
     class Config(BPM.Config):
         color: Color = Color(r=255)
-        fineness: confloat(ge=0, le=100, multiple_of=1) = 30.0
+        fineness: confloat(ge=0, le=100, multiple_of=1) = Field(
+            30.0, config_type="Numerical", title="Fineness", description=" "
+        )
 
     def change_callback(self, xy: np.ndarray) -> None:
         self.colors = np.full(len(xy), self.config.color)

@@ -2,7 +2,7 @@ import time
 from abc import ABC
 
 import numpy as np
-from pydantic import confloat
+from pydantic import Field, confloat
 
 from ...color import Color
 from ...spotify.models import Section
@@ -18,7 +18,9 @@ class Transition(MultiSub, ABC):
         self.start = 0
 
     class Config(MultiSub.Config):
-        duration: confloat(ge=0, le=1, multiple_of=0.01) = 0.25
+        duration: confloat(ge=0, le=1, multiple_of=0.01) = Field(
+            0.25, config_type="Numerical", title="Transition Duration", description="s"
+        )
 
     def transition(self, next: int):
         self.next = next

@@ -17,6 +17,7 @@ class ArduinoStrip(AbstractStrip):
         xy: np.ndarray,
     ) -> None:
         super().__init__(num_pixels, xy)
+        self.fog = False
         self.header = bytes(header)
         self.brightness = brightness
         while True:
@@ -52,6 +53,10 @@ class ArduinoStrip(AbstractStrip):
             r, g, b = (color * self.brightness).as_bytes()
             # WS2812B uses GRB
             self.serial_connection.write(bytes([g, r, b]))
+        if self.fog:
+            self.serial_connection.write(b"\xff")
+        else:
+            self.serial_connection.write(b"\x00")
 
     def get_brightness(self) -> int:
         return int(self.brightness * 255)
@@ -60,3 +65,9 @@ class ArduinoStrip(AbstractStrip):
         brightness = min(brightness, 255)
         brightness = max(brightness, 0)
         self.brightness = brightness / 255
+
+    def fog_on(self) -> None:
+        self.fog = True
+
+    def fog_off(self) -> None:
+        self.fog = False

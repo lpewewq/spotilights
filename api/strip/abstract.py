@@ -25,3 +25,11 @@ class AbstractStrip(ABC):
     @abstractmethod
     def set_brightness(self, brightness: int) -> None:
         """Set LED Strip brightness [0, 255]"""
+
+    @abstractmethod
+    def fog_on(self) -> None:
+        """Start fog machine"""
+
+    @abstractmethod
+    def fog_off(self) -> None:
+        """Stop fog machine"""

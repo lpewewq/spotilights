@@ -41,3 +41,9 @@ class RPIStrip(AbstractStrip):
         brightness = min(brightness, 255)
         brightness = max(brightness, 0)
         self._rpi_strip.setBrightness(int(brightness))
+
+    def fog_on(self) -> None:
+        pass
+
+    def fog_off(self) -> None:
+        pass

@@ -1,16 +1,23 @@
 #define F_CPU 16000000L
+#include <avr/io.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <util/delay.h>
-#include <avr/io.h>
 
-#define numLEDs      287
+#define numLEDs 287
 #define BUFFER_SIZE (numLEDs * 3)
-#define HEADER_SIZE  5
+#define HEADER_SIZE 5
 #define HEADER_START 42
-#define LED_DDR      DDRD
-#define LED_PORT     PORTD
-#define LED_PIN      4
+#define LED_DDR DDRD
+#define LED_PORT PORTD
+#define LED_PIN 4
+#define FOG_DDR DDRD
+#define FOG_PORT PORTD
+#define FOG_PIN 7
+#define CODE 6116656UL
+#define CODE_LENGTH 24
+#define CODE_REPEAT 1
+#define PULSE_LENGTH 450
 
 extern void output_grb(uint8_t *buffer, uint16_t bytes);
 
@@ -25,8 +32,14 @@ void LEDs_show()
 
 void LEDs_init()
 {
-    LED_DDR  |= (1 << LED_PIN);
+    LED_DDR |= (1 << LED_PIN);
     LED_PORT &= ~(1 << LED_PIN);
+}
+
+void fog_init()
+{
+    FOG_DDR |= (1 << FOG_PIN);
+    FOG_PORT &= ~(1 << FOG_PIN);
 }
 
 void uart_init()
@@ -42,18 +55,46 @@ void uart_init()
 uint8_t uart_recv()
 {
     // Busy wait until data is present
-    while (!(UCSR0A & (1 << RXC0)));
+    while (!(UCSR0A & (1 << RXC0)))
+        ;
     return UDR0;
+}
+
+// adapted from https://github.com/sui77/rc-switch
+void send_fog_code()
+{
+    for (int i = CODE_LENGTH - 1; i >= 0; i--)
+    {
+        if (CODE & (1L << i))
+        {
+            FOG_PORT |= (1 << FOG_PIN);
+            _delay_us(PULSE_LENGTH * 3);
+            FOG_PORT &= ~(1 << FOG_PIN);
+            _delay_us(PULSE_LENGTH * 1);
+        }
+        else
+        {
+            FOG_PORT |= (1 << FOG_PIN);
+            _delay_us(PULSE_LENGTH * 1);
+            FOG_PORT &= ~(1 << FOG_PIN);
+            _delay_us(PULSE_LENGTH * 3);
+        }
+    }
+    FOG_PORT |= (1 << FOG_PIN);
+    _delay_us(PULSE_LENGTH * 1);
+    FOG_PORT &= ~(1 << FOG_PIN);
+    // _delay_us(PULSE_LENGTH * 31);
 }
 
 int main()
 {
+    fog_init();
     LEDs_init();
     LEDs_show();
     uart_init();
 
     uint8_t header_count = 0;
-    uint16_t curr_index   = 0;
+    uint16_t curr_index = 0;
     while (true)
     {
         uint8_t data = uart_recv();
@@ -77,6 +118,11 @@ int main()
                 header_count = 0;
                 curr_index = 0;
                 LEDs_show();
+                data = uart_recv();
+                if (data == 0xff)
+                {
+                    send_fog_code();
+                }
             }
         }
     }

@@ -1,6 +1,12 @@
 {
   "name": "Fill",
   "animation": {
-    "name": "Fill"
+    "low": 0.0,
+    "name": "Fill",
+    "color": {
+      "r": 255,
+      "g": 0,
+      "b": 0
+    }
   }
 }

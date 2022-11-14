@@ -1,9 +1,16 @@
 {
   "name": "Slide",
   "animation": {
-    "name": "InverseOnBeat",
     "animation": {
-      "name": "Slide"
-    }
+      "low": 0.0,
+      "name": "Slide",
+      "color": {
+        "r": 255,
+        "g": 0,
+        "b": 0
+      }
+    },
+    "name": "InverseOnBeat",
+    "inverse": true
   }
 }

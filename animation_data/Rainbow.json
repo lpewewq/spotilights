@@ -1,14 +1,14 @@
 {
   "name": "Rainbow",
   "animation": {
+    "animation": {
+      "name": "Rainbow",
+      "delay": 0.1
+    },
     "name": "Mirror",
     "inverse": [
       false,
       true
-    ],
-    "animation": {
-      "name": "Rainbow",
-      "delay": 0.1
-    }
+    ]
   }
 }

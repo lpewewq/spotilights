@@ -1,13 +1,13 @@
 {
   "name": "Pride",
   "animation": {
+    "animation": {
+      "name": "Pride"
+    },
     "name": "Mirror",
     "inverse": [
       false,
       true
-    ],
-    "animation": {
-      "name": "Pride"
-    }
+    ]
   }
 }

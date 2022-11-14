@@ -1,14 +1,14 @@
 {
   "name": "Theater",
   "animation": {
+    "animation": {
+      "name": "Theater",
+      "delay": 0.1
+    },
     "name": "Mirror",
     "inverse": [
       true,
       false
-    ],
-    "animation": {
-      "name": "Theater",
-      "delay": 0.1
-    }
+    ]
   }
 }

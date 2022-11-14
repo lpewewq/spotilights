@@ -1,35 +1,138 @@
 {
   "name": "Complex",
   "animation": {
-    "name": "StrobeOnLoudnessGradient",
     "animation": {
-      "name": "ScaleLoudness",
       "animation": {
-        "name": "TransitionOnSection",
         "animations": [
           {
-            "name": "Mirror",
             "animation": {
-              "name": "Animation1"
+              "name": "Animation1",
+              "col_a": {
+                "r": 255,
+                "g": 0,
+                "b": 0
+              },
+              "col_b": {
+                "r": 0,
+                "g": 255,
+                "b": 0
+              },
+              "col_c": {
+                "r": 0,
+                "g": 0,
+                "b": 255
+              },
+              "col_d": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              }
+            },
+            "name": "Mirror",
+            "inverse": [
+              false,
+              true
+            ]
+          },
+          {
+            "animation": {
+              "name": "Animation2",
+              "col_a": {
+                "r": 255,
+                "g": 0,
+                "b": 0
+              },
+              "col_b": {
+                "r": 0,
+                "g": 255,
+                "b": 0
+              },
+              "col_c": {
+                "r": 0,
+                "g": 0,
+                "b": 255
+              },
+              "col_d": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              }
+            },
+            "name": "Mirror",
+            "inverse": [
+              false,
+              true
+            ]
+          },
+          {
+            "name": "Animation3",
+            "col_a": {
+              "r": 255,
+              "g": 0,
+              "b": 0
+            },
+            "col_b": {
+              "r": 0,
+              "g": 255,
+              "b": 0
+            },
+            "col_c": {
+              "r": 0,
+              "g": 0,
+              "b": 255
+            },
+            "col_d": {
+              "r": 0,
+              "g": 0,
+              "b": 0
             }
           },
           {
-            "name": "Mirror",
             "animation": {
-              "name": "Animation2"
-            }
-          },
-          {
-            "name": "Animation3"
-          },
-          {
+              "name": "Animation4",
+              "col_a": {
+                "r": 255,
+                "g": 0,
+                "b": 0
+              },
+              "col_b": {
+                "r": 0,
+                "g": 255,
+                "b": 0
+              },
+              "col_c": {
+                "r": 0,
+                "g": 0,
+                "b": 255
+              },
+              "col_d": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              }
+            },
             "name": "Mirror",
-            "animation": {
-              "name": "Animation4"
-            }
+            "inverse": [
+              false,
+              true
+            ]
           }
-        ]
-      }
-    }
+        ],
+        "duration": 0.25,
+        "name": "TransitionOnSection"
+      },
+      "name": "ScaleLoudness",
+      "sensitivity": 6.0
+    },
+    "duration_in_beats": 1.0,
+    "on_duration": 0.03,
+    "off_duration": 0.03,
+    "color": {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    "name": "StrobeOnLoudnessGradient",
+    "threshold": 0.3
   }
 }

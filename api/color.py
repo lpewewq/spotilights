@@ -1,6 +1,7 @@
 from colorsys import hsv_to_rgb
 from dataclasses import dataclass
 
+import numpy as np
 from pydantic import conint
 
 
@@ -74,3 +75,6 @@ class Color:
 
     def __rmul__(self, other):
         return self * other
+
+
+rainbow = np.array([Color.wheel(pos) for pos in range(256)])

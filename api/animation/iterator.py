@@ -4,11 +4,13 @@ from typing import Generator, Union
 
 import numpy as np
 
-from .abstract import Animation
+from .abstract import AbstractAnimation
 from .decorators import on_change, save_previous
 
 
-class BaseIterator(Animation, ABC):
+class BaseIterator(AbstractAnimation, ABC):
+    """Base class for iterative animations."""
+
     @abstractclassmethod
     def generator(self, xy: np.ndarray) -> Generator[tuple[np.ndarray, float], None, None]:
         """Animation generator"""

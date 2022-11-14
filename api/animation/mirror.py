@@ -1,29 +1,25 @@
+from typing import Literal
+
 import numpy as np
 from pydantic import conlist
 
-from ...color import Color
+from ..color import Color
+from .abstract import SingleSub
 from .decorators import on_change
-from .sub import SingleSub
 
 
 class Mirror(SingleSub):
-    def __init__(self, config: "Mirror.Config") -> None:
-        super().__init__(config)
-        self.config: Mirror.Config
+    """Container mirroring a single animation."""
 
-    class Config(SingleSub.Config):
-        inverse: conlist(bool, min_items=2) = [False, True]
-
-        @property
-        def divisions(self):
-            return len(self.inverse)
+    name: Literal["Mirror"]
+    inverse: conlist(bool, min_items=2) = [False, True]
 
     def change_callback(self, xy: np.ndarray) -> None:
-        self.chunk_size, self.n_large_chunks = divmod(len(xy), self.config.divisions)
+        self.chunk_size, self.n_large_chunks = divmod(len(xy), len(self.inverse))
         if self.n_large_chunks > 0:
             self.chunk_size += 1
         else:
-            self.n_large_chunks = self.config.divisions
+            self.n_large_chunks = len(self.inverse)
 
     @on_change
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
@@ -32,7 +28,7 @@ class Mirror(SingleSub):
 
         # fill colors with chunks of sub_colors
         offset = 0
-        for i, inverse in enumerate(self.config.inverse):
+        for i, inverse in enumerate(self.inverse):
             if i < self.n_large_chunks:
                 chunk = sub_colors
             else:

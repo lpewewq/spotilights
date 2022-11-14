@@ -1,18 +1,14 @@
 {
   "name": "Rainbow",
-  "model": {
-    "animation": "Mirror",
-    "config": {
-      "sub": {
-        "animation": "Rainbow",
-        "config": {
-          "delay": 0.1
-        }
-      },
-      "inverse": [
-        false,
-        true
-      ]
+  "animation": {
+    "name": "Mirror",
+    "inverse": [
+      false,
+      true
+    ],
+    "animation": {
+      "name": "Rainbow",
+      "delay": 0.1
     }
   }
 }

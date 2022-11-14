@@ -1,24 +1,25 @@
 import ctypes as ct
 import time
+from typing import Literal
 
 import numpy as np
 
-from ...color import Color
-from ..base import Animation
-from ..base.decorators import save_previous
+from ..color import Color
+from .abstract import AbstractAnimation
+from .decorators import save_previous
 
 
-class Pride(Animation):
-    def __init__(self, config: "Animation.Config") -> None:
-        super().__init__(config)
-        self.sPseudotime = ct.c_uint16(0)
-        self.sLastMillis = time.time() * 1000
-        self.sHue16 = ct.c_uint16(0)
+class Pride(AbstractAnimation):
+    """Complex rainbow animation."""
 
-    class Config(Animation.Config):
-        @property
-        def needs_spotify(self) -> bool:
-            return False
+    name: Literal["Pride"]
+    _sPseudotime = ct.c_uint16(0)
+    _sHue16 = ct.c_uint16(0)
+    _sLastMillis = time.time() * 1000
+
+    @property
+    def needs_spotify(self) -> bool:
+        return False
 
     def beatsin88(self, bpm, lowest, highest) -> int:
         beat = time.time() * np.pi * bpm / 7680
@@ -33,15 +34,15 @@ class Pride(Animation):
         brightnessthetainc16 = ct.c_uint16(self.beatsin88(203, 6400, 10240))
         msmultiplier = ct.c_uint8(self.beatsin88(147, 23, 60))
 
-        hue16 = ct.c_uint16(self.sHue16.value)
+        hue16 = ct.c_uint16(self._sHue16.value)
         hueinc16 = ct.c_uint16(self.beatsin88(113, 1, 3000))
 
         ms = time.time() * 1000
-        deltams = ct.c_uint16(int(ms - self.sLastMillis))
-        self.sLastMillis = ms
-        self.sPseudotime = ct.c_uint16(self.sPseudotime.value + deltams.value * msmultiplier.value)
-        self.sHue16 = ct.c_uint16(self.sHue16.value + deltams.value * self.beatsin88(400, 5, 9))
-        brightnesstheta16 = ct.c_uint16(self.sPseudotime.value)
+        deltams = ct.c_uint16(int(ms - self._sLastMillis))
+        self._sLastMillis = ms
+        self._sPseudotime = ct.c_uint16(self._sPseudotime.value + deltams.value * msmultiplier.value)
+        self._sHue16 = ct.c_uint16(self._sHue16.value + deltams.value * self.beatsin88(400, 5, 9))
+        brightnesstheta16 = ct.c_uint16(self._sPseudotime.value)
 
         n = len(xy)
         colors = np.empty(n, dtype=Color)

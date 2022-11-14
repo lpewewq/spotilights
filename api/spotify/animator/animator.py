@@ -1,7 +1,7 @@
 import asyncio
 import time
 
-from ...animation import Animation, AnimationModel
+from ...animation import AnimationModel
 from ...strip.abstract import AbstractStrip
 from .playback_state import SpotifyPlaybackState
 
@@ -13,17 +13,13 @@ class SpotifyAnimator:
         self.update_interval = update_interval
         self.animation_task: asyncio.Task = None
         self.update_task: asyncio.Task = None
-        self.animation: Animation = None
+        self.animation_model: AnimationModel = None
 
     def start(self, animation_model: AnimationModel) -> None:
-        if self.animation is None or not isinstance(self.animation, animation_model.animation):
-            self.animation = animation_model.construct()
-            animation_changed = True
-        else:
-            animation_changed = self.animation.update_config(animation_model.config)
+        self.animation_model = animation_model
 
-        if animation_changed and self.spotify_state.audio_analysis is not None:
-            self.animation.on_track_change(self.spotify_state.audio_analysis)
+        if self.spotify_state.audio_analysis is not None:
+            self.animation_model.animation.on_track_change(self.spotify_state.audio_analysis)
 
         if self.animation_task is None:
             self.animation_task = asyncio.create_task(self.animate())
@@ -50,7 +46,7 @@ class SpotifyAnimator:
                 print(f"Progress: {progress:.02f}s, {30 / (now - benchmark_start):.02f} FPS".ljust(50), end="\r")
                 benchmark_start = now
 
-            if self.animation.config.needs_spotify:
+            if self.animation_model.animation.needs_spotify:
                 progress = self.spotify_state.progress()
 
                 # check for playback update
@@ -62,20 +58,20 @@ class SpotifyAnimator:
                 self.spotify_state.trigger_callbacks(
                     progress,
                     [
-                        self.animation.on_section,
-                        self.animation.on_bar,
-                        self.animation.on_beat,
-                        self.animation.on_tatum,
-                        self.animation.on_segment,
+                        self.animation_model.animation.on_section,
+                        self.animation_model.animation.on_bar,
+                        self.animation_model.animation.on_beat,
+                        self.animation_model.animation.on_tatum,
+                        self.animation_model.animation.on_segment,
                     ],
                 )
 
                 # render animation
-                colors = self.animation.render(progress, self.strip.xy)
+                colors = self.animation_model.animation.render(progress, self.strip.xy)
             else:
                 # spotifyless animation
                 progress = now - loop_start
-                colors = self.animation.render(progress, self.strip.xy)
+                colors = self.animation_model.animation.render(progress, self.strip.xy)
 
             # draw animation to strip
             self.strip.show(colors)
@@ -88,8 +84,8 @@ class SpotifyAnimator:
                 try:
                     track_changed = self.update_task.result()
                     # handle track changed event
-                    if track_changed and self.animation.config.needs_spotify:
-                        self.animation.on_track_change(self.spotify_state.audio_analysis)
+                    if track_changed and self.animation_model.animation.needs_spotify:
+                        self.animation_model.animation.on_track_change(self.spotify_state.audio_analysis)
                 except Exception as e:
                     print("Update excepted:", e)
 

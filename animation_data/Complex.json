@@ -1,72 +1,34 @@
 {
   "name": "Complex",
-  "model": {
-    "animation": "StrobeOnLoudnessGradient",
-    "config": {
-      "sub": {
-        "animation": "ScaleLoudness",
-        "config": {
-          "sub": {
-            "animation": "TransitionOnSection",
-            "config": {
-              "subs": [
-                {
-                  "animation": "Mirror",
-                  "config": {
-                    "sub": {
-                      "animation": "Animation1",
-                      "config": {}
-                    },
-                    "inverse": [
-                      false,
-                      true
-                    ]
-                  }
-                },
-                {
-                  "animation": "Mirror",
-                  "config": {
-                    "sub": {
-                      "animation": "Animation2",
-                      "config": {}
-                    },
-                    "inverse": [
-                      false,
-                      true
-                    ]
-                  }
-                },
-                {
-                  "animation": "Animation3",
-                  "config": {}
-                },
-                {
-                  "animation": "Mirror",
-                  "config": {
-                    "sub": {
-                      "animation": "Animation4",
-                      "config": {}
-                    },
-                    "inverse": [
-                      false,
-                      true
-                    ]
-                  }
-                }
-              ],
-              "duration": 0.25
+  "animation": {
+    "name": "StrobeOnLoudnessGradient",
+    "animation": {
+      "name": "ScaleLoudness",
+      "animation": {
+        "name": "TransitionOnSection",
+        "animations": [
+          {
+            "name": "Mirror",
+            "animation": {
+              "name": "Animation1"
             }
           },
-          "sensitivity": 5.0
-        }
-      },
-      "duration_in_beats": 1.0,
-      "on_duration": 0.03,
-      "off_duration": 0.03,
-      "color": {
-        "r": 255,
-        "g": 255,
-        "b": 255
+          {
+            "name": "Mirror",
+            "animation": {
+              "name": "Animation2"
+            }
+          },
+          {
+            "name": "Animation3"
+          },
+          {
+            "name": "Mirror",
+            "animation": {
+              "name": "Animation4"
+            }
+          }
+        ]
       }
     }
   }

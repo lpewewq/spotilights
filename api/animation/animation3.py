@@ -1,33 +1,36 @@
 import random
+from typing import Literal
 
 import numpy as np
 
-from ...color import Color
-from ...spotify.models import Bar, Beat, Section
-from ..base import Animation
-from ..base.decorators import on_change
+from ..color import Color
+from ..spotify.models import Bar, Beat, Section
+from .abstract import AbstractAnimation
+from .utils.decorators import on_change
 
 
-class Animation4(Animation):
-    def __init__(self, config: "Animation.Config") -> None:
-        super().__init__(config)
-        self.num_pixels = 0
-        self.brightness = 0
-        # Wave
-        self.col_a = Color(r=255, g=0, b=0)
-        self.col_b = Color(r=0, g=255, b=0)
-        self.col_c = Color(r=0, g=0, b=255)
-        self.col_d = Color(r=0, g=0, b=0)
+class Animation3(AbstractAnimation):
+    """TODO"""
 
-        self.beat_num = 0
-        self.bar_num = 0
-        self.bar_start = 0
-        self.bar_duration = 1
+    name: Literal["Animation3"]
+    col_a = Color(r=255, g=0, b=0)
+    col_b = Color(r=0, g=255, b=0)
+    col_c = Color(r=0, g=0, b=255)
+    col_d = Color(r=0, g=0, b=0)
 
-    class Config(Animation.Config):
-        @property
-        def needs_spotify(self) -> bool:
-            return True
+    _num_pixels = 0
+    _brightness = 0
+    _pattern = 0
+    _wave_pos = 0
+    _wave_vel = 0.01
+    _beat_num = 0
+    _bar_num = 0
+    _bar_start = 0
+    _bar_duration = 1
+
+    @property
+    def needs_spotify(self) -> bool:
+        return True
 
     def get_bell(self, x):
         return 1 / (1 + x**2) ** 1.5
@@ -41,7 +44,9 @@ class Animation4(Animation):
         self.col_d = col_tmp
 
     def on_section(self, section: Section, progress: float) -> None:
-        self.bar_num = 0
+        self._wave_vel = section.tempo / 6000
+        self._wave_pos = 0
+        self._bar_num = 0
 
         # Change colors
         choice = random.randint(0, 3)
@@ -59,40 +64,43 @@ class Animation4(Animation):
             self.col_d = Color(r=255, g=255, b=0)
 
     def on_bar(self, bar: Bar, progress: float) -> None:
-        self.bar_num += 1
-        self.bar_start = bar.start
-        self.bar_duration = bar.duration
+        self._bar_num += 1
+        self._bar_start = bar.start
+        self._bar_duration = bar.duration
 
     def on_beat(self, beat: Beat, progress: float) -> None:
-        self.beat_num += 1
+        self._beat_num += 1
         self.swap_cols()
 
-        offset = ((self.beat_num % 4) / 3) * self.num_pixels
-        self.brightness += self.get_bell((np.arange(self.num_pixels) - offset) / 10)
+        if self._beat_num % 2 == 1:
+            self._brightness = np.full(self._num_pixels, 1.0)
 
     def change_callback(self, xy: np.ndarray) -> None:
-        self.num_pixels = len(xy)
-        self.brightness = np.full(len(xy), 0.0)
+        self._num_pixels = len(xy)
+        self._brightness = np.full(len(xy), 0.0)
+        self._pattern = np.sin(np.linspace(0.0, np.pi, num=len(xy))) ** 2
 
     @on_change
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         n = len(xy)
-        if self.bar_num == 0:
+        if self._bar_num == 0:
             c_a = self.col_a
             c_b = self.col_b
-        if self.bar_num == 1:
-            bar_progress = (progress - self.bar_start) / self.bar_duration
+        if self._bar_num == 1:
+            bar_progress = (progress - self._bar_start) / self._bar_duration
             c_a = Color.lerp(self.col_a, self.col_c, bar_progress)
             c_b = Color.lerp(self.col_b, self.col_d, bar_progress)
-        if self.bar_num > 1:
+        if self._bar_num > 1:
             self.col_a = self.col_c
             self.col_b = self.col_d
             c_a = self.col_a
             c_b = self.col_b
 
-        ii = np.linspace(-np.pi, np.pi, num=n)
+        self._wave_pos += self._wave_vel
+
+        ii = np.linspace(-np.pi, np.pi, num=n) + self._wave_pos
         col1 = np.abs(np.sin(ii)) * c_a
         col2 = np.abs(np.cos(ii)) * c_b
-        colors = (col1 + col2) * self.brightness
-        self.brightness *= 0.96
+        colors = (col1 + col2) * self._brightness * self._pattern
+        self._brightness *= 0.975
         return colors

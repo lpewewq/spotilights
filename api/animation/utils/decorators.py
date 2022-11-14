@@ -3,8 +3,8 @@ from typing import Callable
 
 import numpy as np
 
-from ..color import Color
-from .abstract import AbstractAnimation
+from ...color import Color
+from ..abstract import AbstractAnimation
 
 
 def on_change(function: Callable[..., np.ndarray]) -> Callable:

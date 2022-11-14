@@ -3,30 +3,46 @@ from typing import Optional, Union
 from pydantic import BaseModel, Field, validator
 from typing_extensions import Annotated
 
+from .animation1 import Animation1
+from .animation2 import Animation2
+from .animation3 import Animation3
+from .animation4 import Animation4
 from .composition import Composite
+from .fill import Fill
 from .inverse import Inverse, InverseOnBeat
 from .loudness import ScaleLoudness
 from .mirror import Mirror
 from .pride import Pride
 from .rainbow import Rainbow
+from .sinus import Sinus
+from .slide import Slide
 from .split import Split
 from .strobe import StrobeOnLoudnessGradient
 from .theater import Theater
 from .transition import TransitionOnSection
+from .wave2d import Wave2D
 
 Animation = Annotated[
     Union[
+        Animation1,
+        Animation2,
+        Animation3,
+        Animation4,
         Composite,
+        Fill,
         Inverse,
         InverseOnBeat,
         Mirror,
         Pride,
         Rainbow,
+        Sinus,
+        Slide,
         Split,
         StrobeOnLoudnessGradient,
         ScaleLoudness,
         Theater,
         TransitionOnSection,
+        Wave2D,
     ],
     Field(discriminator="name"),
 ]

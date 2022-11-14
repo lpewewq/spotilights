@@ -5,7 +5,7 @@ from typing import Generator, Union
 import numpy as np
 
 from .abstract import AbstractAnimation
-from .decorators import on_change, save_previous
+from .utils.decorators import on_change, save_previous
 
 
 class BaseIterator(AbstractAnimation, ABC):

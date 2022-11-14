@@ -6,7 +6,7 @@ import numpy as np
 
 from ..color import Color
 from .abstract import AbstractAnimation
-from .decorators import save_previous
+from .utils.decorators import save_previous
 
 
 class Pride(AbstractAnimation):

@@ -5,7 +5,7 @@ from pydantic import PositiveFloat, validator
 
 from ..color import Color
 from .abstract import MultiSub
-from .decorators import on_change
+from .utils.decorators import on_change
 
 
 class Split(MultiSub):

@@ -1,28 +1,28 @@
+from typing import Literal
+
 import numpy as np
 from pydantic import Field
 
-from ...color import Color
-from ..base.decorators import on_change
+from ..color import Color
 from .bpm import BPM
+from .utils.decorators import on_change
 
 
 class Sinus(BPM):
-    def __init__(self, config: "Sinus.Config") -> None:
-        super().__init__(config)
-        self.config: Sinus.Config
+    """Gaussian bell sinus slide on beat."""
 
-    class Config(BPM.Config):
-        color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
+    name: Literal["Sinus"]
+    color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
 
     def change_callback(self, xy: np.ndarray) -> None:
         n = len(xy)
         bell = lambda i: (0.1 + 0.9 / np.sqrt(1 + (i - n) ** 2))
-        colors = np.full(2 * n + 1, self.config.color)
+        colors = np.full(2 * n + 1, self.color)
         self.pattern = colors * bell(np.arange(2 * n + 1))
 
     @on_change
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         n = len(xy)
-        beat = self.beat(self.bpm / 2)
+        beat = self.beat(self._bpm / 2)
         offset = round(beat * n)
         return self.pattern[offset : offset + n]

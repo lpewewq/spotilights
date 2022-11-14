@@ -5,7 +5,7 @@ from pydantic import conlist
 
 from ..color import Color
 from .abstract import SingleSub
-from .decorators import on_change
+from .utils.decorators import on_change
 
 
 class Mirror(SingleSub):

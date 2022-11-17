@@ -60,6 +60,9 @@ class Strobe(SingleSub, ABC):
 class StrobeOnLoudnessGradient(Strobe):
     """Container animation which strobes on high loudness gradients."""
 
+    class Config:
+        title = "Strobe"
+
     name: Literal["StrobeOnLoudnessGradient"]
     threshold: confloat(ge=0.0, le=1.0, multiple_of=0.05) = Field(
         0.3, config_type="Numerical", title="Strobe Threshold", description=" "

@@ -40,6 +40,9 @@ class Transition(MultiSub, ABC):
 class TransitionOnSection(Transition):
     """Container animation which randomly transition between animations on section change."""
 
+    class Config:
+        title = "Transition"
+
     name: Literal["TransitionOnSection"]
 
     @property

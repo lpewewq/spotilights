@@ -21,7 +21,10 @@ class Inverse(SingleSub):
 
 
 class InverseOnBeat(Inverse):
-    """Container inverting an animation on every beat."""
+    """Container inverting the animation on every beat."""
+
+    class Config:
+        title = "Inverse"
 
     name: Literal["InverseOnBeat"]
 

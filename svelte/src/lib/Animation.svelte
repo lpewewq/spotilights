@@ -9,10 +9,8 @@
     import Button, { Label } from "@smui/button";
     import AnimationConfig from "./AnimationConfig.svelte";
 
-    export let name;
+    export let schema;
     export let model;
-    export let concrete_schema;
-    export let needs_spotify;
 
     async function start() {
         await fetch("/api/animator/start", {
@@ -21,7 +19,7 @@
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name: name, model: model }),
+            body: JSON.stringify(model),
         });
     }
 </script>
@@ -31,11 +29,11 @@
         <Panel>
             <Header>
                 <h1>
-                    {name}
+                    {model.name}
                 </h1>
             </Header>
             <AccordionContent>
-                <AnimationConfig {model} {concrete_schema} />
+                <AnimationConfig {schema} model={model.animation} />
             </AccordionContent>
         </Panel>
     </Accordion>
@@ -44,7 +42,7 @@
         <Button on:click={start}>
             <Label>Start</Label>
             <i class="material-icons" aria-hidden="true">play_circle</i>
-            {#if needs_spotify}
+            {#if model.needs_spotify}
                 <Badge color="black" aria-label="Animation needs Spotify">
                     <img
                         src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"

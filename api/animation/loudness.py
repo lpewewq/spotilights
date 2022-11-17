@@ -10,6 +10,9 @@ from .abstract import SingleSub
 class ScaleLoudness(SingleSub):
     """Container scaling an animation by song loudness."""
 
+    class Config:
+        title = "Scale Loudness"
+
     name: Literal["ScaleLoudness"]
     sensitivity: confloat(ge=0, le=10, multiple_of=0.1) = Field(
         6, config_type="Numerical", title="Sensitivity", description=" "

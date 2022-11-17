@@ -2,6 +2,7 @@ import random
 from typing import Literal
 
 import numpy as np
+from pydantic import Field
 
 from ..color import Color
 from ..spotify.models import Bar, Beat, Section
@@ -13,10 +14,10 @@ class Animation4(AbstractAnimation):
     """TODO"""
 
     name: Literal["Animation4"]
-    col_a = Color(r=255, g=0, b=0)
-    col_b = Color(r=0, g=255, b=0)
-    col_c = Color(r=0, g=0, b=255)
-    col_d = Color(r=0, g=0, b=0)
+    col_a: Color = Field(Color(r=255), config_type="Color", title="Color A")
+    col_b: Color = Field(Color(g=255), config_type="Color", title="Color B")
+    col_c: Color = Field(Color(b=255), config_type="Color", title="Color C")
+    col_d: Color = Field(Color(), config_type="Color", title="Color D")
 
     _num_pixels = 0
     _brightness = 0

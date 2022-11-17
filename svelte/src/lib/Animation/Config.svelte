@@ -8,8 +8,8 @@
     } from "@smui/drawer";
     import List, { Item, Text, Separator, Graphic } from "@smui/list";
 
-    import ColorConfig from "./AnimationConfigItems/Color.svelte";
-    import NumericalConfig from "./AnimationConfigItems/Numerical.svelte";
+    import ColorConfig from "./ConfigItems/Color.svelte";
+    import NumericalConfig from "./ConfigItems/Numerical.svelte";
 
     export let schema;
     export let model;

@@ -7,7 +7,7 @@
     } from "@smui-extra/accordion";
     import Badge from "@smui-extra/badge";
     import Button, { Label } from "@smui/button";
-    import AnimationConfig from "./AnimationConfig.svelte";
+    import Config from "./Config.svelte";
 
     export let schema;
     export let model;
@@ -33,7 +33,7 @@
                 </h1>
             </Header>
             <AccordionContent>
-                <AnimationConfig {schema} model={model.animation} />
+                <Config {schema} model={model.animation} />
             </AccordionContent>
         </Panel>
     </Accordion>

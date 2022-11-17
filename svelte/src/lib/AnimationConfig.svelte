@@ -19,18 +19,14 @@
     let access_chain = [];
     let current_model = model;
     let current_schema = schema.definitions[model.name];
-    let current_path = model.name;
 
     function update_chain() {
         let m = model;
-        let path = m.name;
         for (let i in access_chain) {
             m = access_chain[i](m);
-            path += " / " + m.name;
         }
         current_model = m;
         current_schema = schema.definitions[current_model.name];
-        current_path = path;
         config_key = null;
     }
 </script>
@@ -92,26 +88,22 @@
     </Drawer>
     <AppContent class="app-content">
         <main class="main-content">
-            <!-- <p>{current_path}</p> -->
             {#if config_key != null}
                 {#if config_key == "animation"}
-                    <List>
-                        <Item
-                            on:click={() => {
-                                access_chain.push((m) => m.animation);
-                                update_chain();
-                            }}
+                    <Item
+                        on:click={() => {
+                            access_chain.push((m) => m.animation);
+                            update_chain();
+                        }}
+                    >
+                        <Graphic class="material-icons" aria-hidden="true"
+                            >navigate_next</Graphic
                         >
-                            <Graphic class="material-icons" aria-hidden="true"
-                                >navigate_next</Graphic
-                            >
-                            <Text
-                                >{schema.definitions[
-                                    current_model.animation.name
-                                ].title}</Text
-                            >
-                        </Item>
-                    </List>
+                        <Text
+                            >{schema.definitions[current_model.animation.name]
+                                .title}</Text
+                        >
+                    </Item>
                 {:else if config_key == "animations"}
                     <List>
                         {#each current_model["animations"] as animation, i}

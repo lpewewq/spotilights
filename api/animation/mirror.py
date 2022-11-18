@@ -1,7 +1,7 @@
 from typing import Literal
 
 import numpy as np
-from pydantic import conlist
+from pydantic import Field, conlist
 
 from ..color import Color
 from .abstract import SingleSub
@@ -12,7 +12,7 @@ class Mirror(SingleSub):
     """Container mirroring a single animation."""
 
     name: Literal["Mirror"]
-    inverse: conlist(bool, min_items=2) = [False, True]
+    inverse: conlist(bool, min_items=2) = Field([False, True], title="Divisions", description="Invert section")
 
     def change_callback(self, xy: np.ndarray) -> None:
         self.chunk_size, self.n_large_chunks = divmod(len(xy), len(self.inverse))

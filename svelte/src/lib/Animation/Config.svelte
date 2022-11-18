@@ -3,11 +3,12 @@
         AppContent,
         Content,
         Header,
-        Title,
         Subtitle,
+        Title,
     } from "@smui/drawer";
     import { Separator } from "@smui/list";
 
+    import ArrayConfig from "./ConfigItems/Array.svelte";
     import ColorConfig from "./ConfigItems/Color.svelte";
     import NumericalConfig from "./ConfigItems/Numerical.svelte";
     import ConfigList from "./ConfigList.svelte";
@@ -59,6 +60,11 @@
                         {:else if select.schema.type == "color"}
                             <ColorConfig
                                 bind:model={select.model[select.key]}
+                            />
+                        {:else if select.schema.type == "array"}
+                            <ArrayConfig
+                                bind:model={select.model[select.key]}
+                                schema={select.schema}
                             />
                         {:else}
                             <p>Type not implemented.</p>

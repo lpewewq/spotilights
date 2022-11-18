@@ -13,7 +13,7 @@ class Slide(BPM):
     """Slide pattern."""
 
     name: Literal["Slide"]
-    color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
+    color: Color = Field(Color(r=255), type="color", title="Fill Color")
 
     @property
     def needs_spotify(self) -> bool:

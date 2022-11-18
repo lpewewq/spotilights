@@ -15,7 +15,7 @@ class ScaleLoudness(SingleSub):
 
     name: Literal["ScaleLoudness"]
     sensitivity: confloat(ge=0, le=10, multiple_of=0.1) = Field(
-        6, config_type="Numerical", title="Sensitivity", description=" "
+        6, title="Sensitivity", description=" "
     )
     _scaling = 0
     _loudness_interpolation = None

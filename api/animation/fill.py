@@ -11,7 +11,7 @@ class Fill(BPM):
     """Flash on beat."""
 
     name: Literal["Fill"]
-    color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
+    color: Color = Field(Color(r=255), type="color", title="Fill Color")
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         color = self.color * self.beat(self._bpm)

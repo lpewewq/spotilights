@@ -12,7 +12,7 @@ from .abstract import MultiSub
 
 class Transition(MultiSub, ABC):
     duration: confloat(ge=0, le=1, multiple_of=0.01) = Field(
-        0.25, config_type="Numerical", title="Transition Duration", description="s"
+        0.25, title="Transition Duration", description="s"
     )
     _current = 0
     _next = None

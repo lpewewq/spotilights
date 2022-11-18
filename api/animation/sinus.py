@@ -12,7 +12,7 @@ class Sinus(BPM):
     """Gaussian bell sinus slide on beat."""
 
     name: Literal["Sinus"]
-    color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
+    color: Color = Field(Color(r=255), type="color", title="Fill Color")
 
     def change_callback(self, xy: np.ndarray) -> None:
         n = len(xy)

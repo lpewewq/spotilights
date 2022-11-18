@@ -51,21 +51,17 @@
                 {#key unique}
                     {#if select.key != null}
                         <p>{select.schema.title}</p>
-                        {#if "config_type" in select.schema}
-                            {#if select.schema.config_type == "Numerical"}
-                                <NumericalConfig
-                                    bind:model={select.model[select.key]}
-                                    schema={select.schema}
-                                />
-                            {:else if select.schema.config_type == "Color"}
-                                <ColorConfig
-                                    bind:model={select.model[select.key]}
-                                />
-                            {:else}
-                                <p>Config type not implemented.</p>
-                            {/if}
+                        {#if select.schema.type == "number"}
+                            <NumericalConfig
+                                bind:model={select.model[select.key]}
+                                schema={select.schema}
+                            />
+                        {:else if select.schema.type == "color"}
+                            <ColorConfig
+                                bind:model={select.model[select.key]}
+                            />
                         {:else}
-                            <p>Not implemented.</p>
+                            <p>Type not implemented.</p>
                         {/if}
                     {:else}
                         <p>Nothing selected.</p>

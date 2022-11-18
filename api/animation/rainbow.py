@@ -11,7 +11,7 @@ class Rainbow(BaseIterator):
     """Simple cycling rainbow animation."""
 
     name: Literal["Rainbow"]
-    delay: confloat(ge=0, le=1, multiple_of=0.1) = Field(0.5, config_type="Numerical", title="Delay", description="s")
+    delay: confloat(ge=0, le=1, multiple_of=0.1) = Field(0.5, title="Delay", description="s")
 
     @property
     def needs_spotify(self) -> bool:

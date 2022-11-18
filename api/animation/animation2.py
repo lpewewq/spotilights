@@ -15,10 +15,10 @@ class Animation2(AbstractAnimation):
     """TODO"""
 
     name: Literal["Animation2"]
-    col_a: Color = Field(Color(r=255), config_type="Color", title="Color A")
-    col_b: Color = Field(Color(g=255), config_type="Color", title="Color B")
-    col_c: Color = Field(Color(b=255), config_type="Color", title="Color C")
-    col_d: Color = Field(Color(), config_type="Color", title="Color D")
+    col_a: Color = Field(Color(r=255), type="color", title="Color A")
+    col_b: Color = Field(Color(g=255), type="color", title="Color B")
+    col_c: Color = Field(Color(b=255), type="color", title="Color C")
+    col_d: Color = Field(Color(), type="color", title="Color D")
 
     _last_update = time.time()
     _num_pixels = 0

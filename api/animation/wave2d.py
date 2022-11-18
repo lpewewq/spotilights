@@ -12,8 +12,8 @@ class Wave2D(BPM):
     """2D Wave animation."""
 
     name: Literal["Wave2D"]
-    color: Color = Field(Color(r=255), config_type="Color", title="Fill Color")
-    fineness: confloat(ge=0, le=100, multiple_of=1) = Field(30.0, config_type="Numerical", title="Fineness", description=" ")
+    color: Color = Field(Color(r=255), type="color", title="Fill Color")
+    fineness: confloat(ge=0, le=100, multiple_of=1) = Field(30.0, title="Fineness", description=" ")
 
     def change_callback(self, xy: np.ndarray) -> None:
         self.colors = np.full(len(xy), self.color)

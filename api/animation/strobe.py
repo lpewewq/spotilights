@@ -12,15 +12,15 @@ from .abstract import SingleSub
 
 class Strobe(SingleSub, ABC):
     duration_in_beats: confloat(ge=0, le=4, multiple_of=0.5) = Field(
-        1.0, config_type="Numerical", title="Duration in Beats", description=" "
+        1.0, title="Duration in Beats", description=" "
     )
     on_duration: confloat(ge=0.015, le=0.15, multiple_of=0.015) = Field(
-        0.03, config_type="Numerical", title="On Duration", description="s"
+        0.03, title="On Duration", description="s"
     )
     off_duration: confloat(ge=0.015, le=0.15, multiple_of=0.015) = Field(
-        0.03, config_type="Numerical", title="Off Duration", description="s"
+        0.03, title="Off Duration", description="s"
     )
-    color: Color = Field(Color(r=255, g=255, b=255), config_type="Color", title="Strobe Color")
+    color: Color = Field(Color(r=255, g=255, b=255), type="color", title="Strobe Color")
 
     _strobe_generator = None
     _activate = False  # set to True to strobe
@@ -65,7 +65,7 @@ class StrobeOnLoudnessGradient(Strobe):
 
     name: Literal["StrobeOnLoudnessGradient"]
     threshold: confloat(ge=0.0, le=1.0, multiple_of=0.05) = Field(
-        0.3, config_type="Numerical", title="Strobe Threshold", description=" "
+        0.3, title="Strobe Threshold", description=" "
     )
 
     def on_segment(self, segment: Segment, progress: float) -> None:

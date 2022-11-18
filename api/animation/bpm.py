@@ -9,7 +9,7 @@ from .abstract import AbstractAnimation
 
 
 class BPM(AbstractAnimation, ABC):
-    low: confloat(ge=0, le=1, multiple_of=0.05) = Field(0.0, config_type="Numerical", title="Lower Bound", description="%")
+    low: confloat(ge=0, le=1, multiple_of=0.05) = Field(0.0, title="Lower Bound", description="%")
     _bpm: float = 0
     _beat_start = 0
     _beat_duration = 1

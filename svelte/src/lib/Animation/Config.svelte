@@ -6,138 +6,60 @@
         Title,
         Subtitle,
     } from "@smui/drawer";
-    import List, { Item, Text, Separator, Graphic } from "@smui/list";
+    import { Separator } from "@smui/list";
 
     import ColorConfig from "./ConfigItems/Color.svelte";
     import NumericalConfig from "./ConfigItems/Numerical.svelte";
+    import ConfigList from "./ConfigList.svelte";
 
     export let schema;
     export let model;
 
     let unique = {};
-    let config_key = null;
-    let access_chain = [];
-    let current_model = model;
-    let current_schema = schema.definitions[model.name];
-
-    function update_chain() {
-        let m = model;
-        for (let i in access_chain) {
-            m = access_chain[i](m);
-        }
-        current_model = m;
-        current_schema = schema.definitions[current_model.name];
-        config_key = null;
-    }
+    let select = {
+        model: model,
+        model_schema: schema.definitions[model.name],
+        key: null,
+        schema: null,
+        selected_key: "/",
+    };
 </script>
 
 <div class="drawer-container">
     <Drawer>
-        <Header>
-            <Title>{current_schema.title}</Title>
-            <Subtitle>{current_schema.description}</Subtitle>
-        </Header>
         <Content>
-            <List>
-                <Separator />
-                {#each Object.entries(current_model) as [key, value]}
-                    {#if key != "name"}
-                        <Item
-                            activated={config_key === key}
-                            on:click={() => {
-                                config_key = key;
-                                unique = {};
-                            }}
-                        >
-                            {#if key == "animation" || key == "animations"}
-                                <Graphic
-                                    class="material-icons"
-                                    aria-hidden="true"
-                                    >subdirectory_arrow_right</Graphic
-                                >
-                            {:else}
-                                <Graphic
-                                    class="material-icons"
-                                    aria-hidden="true">tune</Graphic
-                                >
-                            {/if}
-                            <Text>{current_schema.properties[key].title}</Text>
-                        </Item>
-                    {/if}
-                {/each}
-                <Separator />
-                <Item
-                    disabled={current_model == model}
-                    on:click={() => {
-                        access_chain.pop();
-                        update_chain();
-                        if ("animation" in current_model) {
-                            config_key = "animation";
-                        } else if ("animations" in current_model) {
-                            config_key = "animations";
-                        }
-                    }}
-                >
-                    <Graphic class="material-icons" aria-hidden="true"
-                        >navigate_before</Graphic
-                    >
-                    <Text>Back</Text>
-                </Item>
-            </List>
+            <ConfigList
+                {schema}
+                {model}
+                selected_key={select.selected_key}
+                expanded={true}
+                on:select={(event) => {
+                    select = event.detail;
+                    unique = {};
+                }}
+            />
         </Content>
     </Drawer>
     <AppContent class="app-content">
         <main class="main-content">
-            {#if config_key != null}
-                {#if config_key == "animation"}
-                    <Item
-                        on:click={() => {
-                            access_chain.push((m) => m.animation);
-                            update_chain();
-                        }}
-                    >
-                        <Graphic class="material-icons" aria-hidden="true"
-                            >navigate_next</Graphic
-                        >
-                        <Text
-                            >{schema.definitions[current_model.animation.name]
-                                .title}</Text
-                        >
-                    </Item>
-                {:else if config_key == "animations"}
-                    <List>
-                        {#each current_model["animations"] as animation, i}
-                            <Item
-                                on:click={() => {
-                                    access_chain.push((m) => m.animations[i]);
-                                    update_chain();
-                                }}
-                            >
-                                <Graphic
-                                    class="material-icons"
-                                    aria-hidden="true">navigate_next</Graphic
-                                >
-                                <Text
-                                    >{schema.definitions[animation.name]
-                                        .title}</Text
-                                >
-                            </Item>
-                        {/each}
-                    </List>
-                {:else}
-                    {#key unique}
-                        <p>{current_schema.properties[config_key].title}</p>
-                        {#if "config_type" in current_schema.properties[config_key]}
-                            {#if current_schema.properties[config_key].config_type == "Numerical"}
+            {#if select != null}
+                <Header>
+                    <Title>{select.model_schema.title}</Title>
+                    <Subtitle>{select.model_schema.description}</Subtitle>
+                </Header>
+                <Separator />
+                {#key unique}
+                    {#if select.key != null}
+                        <p>{select.schema.title}</p>
+                        {#if "config_type" in select.schema}
+                            {#if select.schema.config_type == "Numerical"}
                                 <NumericalConfig
-                                    bind:model={current_model[config_key]}
-                                    schema={current_schema.properties[
-                                        config_key
-                                    ]}
+                                    bind:model={select.model[select.key]}
+                                    schema={select.schema}
                                 />
-                            {:else if current_schema.properties[config_key].config_type == "Color"}
+                            {:else if select.schema.config_type == "Color"}
                                 <ColorConfig
-                                    bind:model={current_model[config_key]}
+                                    bind:model={select.model[select.key]}
                                 />
                             {:else}
                                 <p>Config type not implemented.</p>
@@ -145,8 +67,10 @@
                         {:else}
                             <p>Not implemented.</p>
                         {/if}
-                    {/key}
-                {/if}
+                    {:else}
+                        <p>Nothing selected.</p>
+                    {/if}
+                {/key}
             {:else}
                 <p>Nothing selected.</p>
             {/if}

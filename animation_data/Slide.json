@@ -10,7 +10,11 @@
         "b": 0
       }
     },
-    "name": "InverseOnBeat",
-    "inverse": true
+    "name": "InverseOnEvent",
+    "invert_on_section": false,
+    "invert_on_bar": false,
+    "invert_on_beat": true,
+    "invert_on_tatum": false,
+    "invert_on_segment": false
   }
 }

@@ -9,7 +9,7 @@ from .animation3 import Animation3
 from .animation4 import Animation4
 from .composition import Composite
 from .fill import Fill
-from .inverse import Inverse, InverseOnBeat
+from .inverse import Inverse, InverseOnEvent
 from .loudness import ScaleLoudness
 from .mirror import Mirror
 from .pride import Pride
@@ -31,7 +31,7 @@ Animation = Annotated[
         Composite,
         Fill,
         Inverse,
-        InverseOnBeat,
+        InverseOnEvent,
         Mirror,
         Pride,
         Rainbow,
@@ -50,7 +50,7 @@ Animation = Annotated[
 StrobeOnLoudnessGradient.update_forward_refs(Animation=Animation)
 TransitionOnSection.update_forward_refs(Animation=Animation)
 ScaleLoudness.update_forward_refs(Animation=Animation)
-InverseOnBeat.update_forward_refs(Animation=Animation)
+InverseOnEvent.update_forward_refs(Animation=Animation)
 Composite.update_forward_refs(Animation=Animation)
 Inverse.update_forward_refs(Animation=Animation)
 Mirror.update_forward_refs(Animation=Animation)

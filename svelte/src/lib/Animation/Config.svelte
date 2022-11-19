@@ -9,6 +9,7 @@
     import { Separator } from "@smui/list";
 
     import ArrayConfig from "./ConfigItems/Array.svelte";
+    import BooleanConfig from "./ConfigItems/Boolean.svelte";
     import ColorConfig from "./ConfigItems/Color.svelte";
     import NumericalConfig from "./ConfigItems/Numerical.svelte";
     import ConfigList from "./ConfigList.svelte";
@@ -16,7 +17,6 @@
     export let schema;
     export let model;
 
-    let unique = {};
     let select = {
         model: model,
         model_schema: schema.definitions[model.name],
@@ -24,6 +24,10 @@
         schema: null,
         selected_key: "/",
     };
+
+    function onChange(event) {
+        select.model[select.key] = event.detail.value;
+    }
 </script>
 
 <div class="drawer-container">
@@ -36,7 +40,6 @@
                 expanded={true}
                 on:select={(event) => {
                     select = event.detail;
-                    unique = {};
                 }}
             />
         </Content>
@@ -49,22 +52,31 @@
                     <Subtitle>{select.model_schema.description}</Subtitle>
                 </Header>
                 <Separator />
-                {#key unique}
+                {#key select.key}
                     {#if select.key != null}
                         <p>{select.schema.title}</p>
                         {#if select.schema.type == "number"}
                             <NumericalConfig
-                                bind:model={select.model[select.key]}
+                                model={select.model[select.key]}
                                 schema={select.schema}
+                                on:changed={onChange}
                             />
                         {:else if select.schema.type == "color"}
                             <ColorConfig
-                                bind:model={select.model[select.key]}
+                                model={select.model[select.key]}
+                                on:changed={onChange}
                             />
                         {:else if select.schema.type == "array"}
                             <ArrayConfig
-                                bind:model={select.model[select.key]}
+                                model={select.model[select.key]}
                                 schema={select.schema}
+                                on:changed={onChange}
+                            />
+                        {:else if select.schema.type == "boolean"}
+                            <BooleanConfig
+                                model={select.model[select.key]}
+                                schema={select.schema}
+                                on:changed={onChange}
                             />
                         {:else}
                             <p>Type not implemented.</p>

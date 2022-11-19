@@ -1,15 +1,24 @@
 <script>
     import Slider from "@smui/slider";
     import FormField from "@smui/form-field";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
 
     export let model;
     export let schema;
+
+    let value = model;
+    $: {
+        dispatch("changed", {
+            value: value,
+        });
+    }
 </script>
 
 <FormField align="end" style="display: flex;">
     <Slider
         style="flex-grow: 1;"
-        bind:value={model}
+        bind:value
         min={schema.minimum}
         max={schema.maximum}
         step={schema.multipleOf}
@@ -18,6 +27,6 @@
         slot="label"
         style="padding-right: 12px; width: max-content; display: block;"
     >
-        <p>{model} {schema.description}</p>
+        <p>{value} {schema.description}</p>
     </span>
 </FormField>

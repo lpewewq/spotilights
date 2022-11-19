@@ -1,10 +1,15 @@
 <script>
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
+
     export let model;
 
     let hex = rgbToHex(model.r, model.g, model.b);
 
     $: {
-        model = hexToRgb(hex);
+        dispatch("changed", {
+            value: hexToRgb(hex),
+        });
     }
 
     function rgbToHex(r, g, b) {

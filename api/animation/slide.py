@@ -6,7 +6,7 @@ from pydantic import Field
 from ..color import Color
 from .bpm import BPM
 from .utils.decorators import on_change
-from .utils.ease import ease_out_quint
+from .utils.ease import EaseFunction, get_ease_function
 
 
 class Slide(BPM):
@@ -14,6 +14,7 @@ class Slide(BPM):
 
     name: Literal["Slide"]
     color: Color = Field(Color(r=255), type="color", title="Fill Color")
+    ease_function: EaseFunction = "Quint Out"
 
     @property
     def needs_spotify(self) -> bool:
@@ -29,6 +30,6 @@ class Slide(BPM):
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
         n = len(xy)
         beat_progress = min(1, (progress - self._beat_start) / self._beat_duration)
-        beat_progress = ease_out_quint(beat_progress)
+        beat_progress = get_ease_function(self.ease_function)(beat_progress)
         offset = (3 * n) // 4 - round(beat_progress * (n // 2))
         return self.pattern[offset : offset + n]

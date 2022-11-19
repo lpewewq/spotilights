@@ -10,6 +10,7 @@
 
     import ArrayConfig from "./ConfigItems/Array.svelte";
     import BooleanConfig from "./ConfigItems/Boolean.svelte";
+    import StringConfig from "./ConfigItems/String.svelte";
     import ColorConfig from "./ConfigItems/Color.svelte";
     import NumericalConfig from "./ConfigItems/Numerical.svelte";
     import ConfigList from "./ConfigList.svelte";
@@ -74,6 +75,12 @@
                             />
                         {:else if select.schema.type == "boolean"}
                             <BooleanConfig
+                                model={select.model[select.key]}
+                                schema={select.schema}
+                                on:changed={onChange}
+                            />
+                        {:else if select.schema.type == "string"}
+                            <StringConfig
                                 model={select.model[select.key]}
                                 schema={select.schema}
                                 on:changed={onChange}

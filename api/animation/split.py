@@ -1,4 +1,4 @@
-from typing import Deque, Literal
+from typing import Literal
 
 import numpy as np
 from pydantic import PositiveFloat, validator
@@ -12,7 +12,6 @@ class Split(MultiSub):
     """Container splitting multiple animations."""
 
     name: Literal["Split"]
-    animations: Deque["Animation"]
     weights: list[PositiveFloat] = None
 
     @validator("weights", pre=True, always=True)
@@ -44,11 +43,11 @@ class Split(MultiSub):
 
     def shift_forward(self, steps: int = 1) -> None:
         """Shift each animation substrip forward"""
-        self.animations.rotate(steps)
+        self.animations = list(np.roll(self.animations, shift=steps))
 
     def shift_backward(self, steps: int = 1) -> None:
         """Shift each animation substrip backward"""
-        self.animations.rotate(-steps)
+        self.animations = list(np.roll(self.animations, shift=-steps))
 
     def reverse(self) -> None:
         """Reverse animations"""

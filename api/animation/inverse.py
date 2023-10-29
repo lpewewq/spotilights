@@ -14,15 +14,16 @@ class Inverse(SingleSub):
     _inverse: bool = True
 
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
-        colors = super().render(progress, xy)
         if self._inverse:
-            return colors[::-1]
+            return super().render(progress, xy[::-1])[::-1]
         else:
-            return colors
+            return super().render(progress, xy)
 
 
 class InverseOnEvent(Inverse):
     """Container inverting the animation on specific events."""
+
+    _inverse: bool = False
 
     class Config:
         title = "Inverse"

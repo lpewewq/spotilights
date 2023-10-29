@@ -23,6 +23,7 @@ def stop_animator():
 @router.post("/start")
 async def start_animation(animation_model: AnimationModel):
     spotify_animator.start(animation_model)
+    return animation_model
 
 
 @router.get("/schema")

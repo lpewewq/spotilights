@@ -10,9 +10,14 @@ from ..abstract import AbstractAnimation
 def on_change(function: Callable[..., np.ndarray]) -> Callable:
     @wraps(function)
     def wrapper(self: AbstractAnimation, progress: float, xy: np.ndarray, **kwargs):
-        if not np.array_equal(xy, getattr(self, "_xy", None)):
-            setattr(self, "_xy", xy)
+        _xy = getattr(self, "_xy", None)
+        if _xy is None:
             self.change_callback(xy)
+        elif len(xy) != len(_xy):
+            self.change_callback(xy)
+        elif not np.array_equal(xy, _xy):
+            self.change_elements_callback(xy)
+        setattr(self, "_xy", xy)
         return function(self, progress, xy, **kwargs)
 
     return wrapper

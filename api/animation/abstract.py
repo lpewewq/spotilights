@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, Field
 
 from ..spotify.models import AudioAnalysis, Bar, Beat, Section, Segment, Tatum
 
@@ -39,7 +39,11 @@ class AbstractAnimation(BaseModel, ABC, extra=Extra.allow):
         pass
 
     def change_callback(self, xy: np.ndarray) -> None:
-        """Callback function used by @change_callback decorator when the xy coordinates change"""
+        """Callback function used by @on_change decorator when length of the xy coordinates change"""
+        self.change_elements_callback(xy)
+
+    def change_elements_callback(self, xy: np.ndarray) -> None:
+        """Callback function used by @on_change decorator only when the xy coordinates change"""
         pass
 
     @abstractmethod
@@ -50,7 +54,7 @@ class AbstractAnimation(BaseModel, ABC, extra=Extra.allow):
 class SingleSub(AbstractAnimation, ABC):
     """Container for single animation."""
 
-    animation: "Animation"
+    animation: "Animation" = Field(...)
 
     @property
     def needs_spotify(self) -> bool:
@@ -81,7 +85,7 @@ class SingleSub(AbstractAnimation, ABC):
 class MultiSub(AbstractAnimation, ABC):
     """Container for multiple animations."""
 
-    animations: list["Animation"]
+    animations: list["Animation"] = Field(...)
 
     @property
     def needs_spotify(self) -> bool:

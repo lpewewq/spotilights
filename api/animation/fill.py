@@ -4,15 +4,23 @@ import numpy as np
 from pydantic import Field
 
 from ..color import Color
-from .bpm import BPM
+from .abstract import AbstractAnimation
+from .utils.decorators import on_change
 
 
-class Fill(BPM):
-    """Flash on beat."""
+class Fill(AbstractAnimation):
+    """Fill with single color."""
 
     name: Literal["Fill"]
-    color: Color = Field(Color(r=255), type="color", title="Fill Color")
+    color: Color = Field(Color(r=0, g=0, b=0), type="color", title="Fill Color")
 
+    def change_callback(self, xy: np.ndarray) -> None:
+        self._pattern = np.full(len(xy), self.color)
+
+    @on_change
     def render(self, progress: float, xy: np.ndarray) -> np.ndarray:
-        color = self.color * self.beat(self._bpm)
-        return np.full(len(xy), color)
+        return self._pattern
+
+    @property
+    def needs_spotify(self) -> bool:
+        return False

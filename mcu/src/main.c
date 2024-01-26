@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <util/delay.h>
 
-#define numLEDs 287
+#define numLEDs 286
 #define BUFFER_SIZE (numLEDs * 3)
 #define HEADER_SIZE 5
 #define HEADER_START 42

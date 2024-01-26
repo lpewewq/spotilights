@@ -46,8 +46,13 @@ class Settings(BaseSettings):
         if v:
             if len(v) != n:
                 raise ValueError("number of 2D coordinates mismatch led count")
-            return np.array(v)
-        return np.linspace([-1, 0], [1, 0], n)
+            v = np.array(v)
+        else:
+            v = np.linspace([-1, 0], [1, 0], n)
+        # normalize to unit circle
+        centered = v - (v.max(axis=0) + v.min(axis=0)) / 2
+        normalized = centered / np.max(np.linalg.norm(centered, axis=1))
+        return normalized
 
     class Config:
         env_file = ".env"

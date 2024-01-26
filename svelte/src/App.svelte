@@ -2,7 +2,7 @@
 	import LayoutGrid, { Cell } from "@smui/layout-grid";
 	import Spotify from "./lib/Spotify.svelte";
 	import Brightness from "./lib/Brightness.svelte";
-	import Animations from "./lib/Animations.svelte";
+	import Animations from "./lib/Animation/Main.svelte";
 </script>
 
 <LayoutGrid>

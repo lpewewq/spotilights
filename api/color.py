@@ -1,6 +1,7 @@
 from colorsys import hsv_to_rgb
 from dataclasses import dataclass
 
+import numpy as np
 from pydantic import conint
 
 
@@ -61,6 +62,20 @@ class Color:
             b = self.b + other
         return Color(r, g, b)
 
+    def __sub__(self, other):
+        if isinstance(other, self.__class__):
+            r = self.r - other.r
+            g = self.g - other.g
+            b = self.b - other.b
+        else:
+            r = self.r - other
+            g = self.g - other
+            b = self.b - other
+        r = clamp(r)
+        g = clamp(g)
+        b = clamp(b)
+        return Color(r, g, b)
+
     def __mul__(self, other):
         if isinstance(other, self.__class__):
             r = self.r * other.r / 255
@@ -74,3 +89,6 @@ class Color:
 
     def __rmul__(self, other):
         return self * other
+
+
+rainbow = np.array([Color.wheel(pos) for pos in range(256)])

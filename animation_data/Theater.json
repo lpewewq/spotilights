@@ -1,18 +1,14 @@
 {
   "name": "Theater",
-  "model": {
-    "animation": "Mirror",
-    "config": {
-      "sub": {
-        "animation": "Theater",
-        "config": {
-          "delay": 0.1
-        }
-      },
-      "inverse": [
-        true,
-        false
-      ]
-    }
+  "animation": {
+    "animation": {
+      "name": "Theater",
+      "delay": 0.1
+    },
+    "name": "Mirror",
+    "inverse": [
+      true,
+      false
+    ]
   }
 }

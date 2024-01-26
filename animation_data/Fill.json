@@ -1,15 +1,11 @@
 {
   "name": "Fill",
-  "model": {
-    "animation": "Fill",
-    "config": {
-      "low": 0.0,
-      "high": 1.0,
-      "color": {
-        "r": 255,
-        "g": 0,
-        "b": 0
-      }
+  "animation": {
+    "name": "Fill",
+    "color": {
+      "r": 255,
+      "g": 0,
+      "b": 0
     }
   }
 }

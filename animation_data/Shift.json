@@ -1,0 +1,36 @@
+{
+    "name": "Shift",
+    "animation": {
+        "animation": {
+            "animations": [
+                {
+                    "name": "Fill",
+                    "color": {
+                        "r": 255,
+                        "g": 0,
+                        "b": 0
+                    }
+                },
+                {
+                    "name": "Fill",
+                    "color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                    }
+                }
+            ],
+            "name": "Split",
+            "weights": [
+                0.5,
+                0.5
+            ]
+        },
+        "name": "InverseOnEvent",
+        "invert_on_section": false,
+        "invert_on_bar": false,
+        "invert_on_beat": true,
+        "invert_on_tatum": false,
+        "invert_on_segment": false
+    }
+}
